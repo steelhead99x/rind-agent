@@ -39,6 +39,17 @@ just check   # lint, compile and test what the branch changed (CI's gate)
 cargo test   # full suite when the change is broad
 ```
 
+Things that trip `just check` on new code:
+
+- A `pub(crate)` function with no caller yet fails clippy's dead-code lint on
+  the non-test build. `#[cfg_attr(not(test), allow(dead_code))]` on the entry
+  points is enough until the first consumer lands.
+- `admin/testing` treats a unit test named `aws_lc*` as a vector test that
+  must be listed in `TESTING.md`. Name an internal differential test
+  something else.
+- A trait with methods named `add`, `mul` or `sqr` shadows the curve types'
+  methods once it's in scope. Prefix them (`field_mul`).
+
 Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR.
 
@@ -49,6 +60,9 @@ compare against aws-lc-rs. Put the numbers in the PR.
 - PRs squash onto `main`, so the PR title becomes the commit subject.
 - AI attribution goes in a `Co-Authored-By:` trailer only, never in the
   subject, body or PR text.
+- Check the trailer count with `git log -1 --format=%B`; some environments
+  append their own trailer on `git commit`. Rewrite the message before
+  pushing if one slipped in.
 - No binaries or build artifacts.
 - PR body, short and structured: **Problem**, **Approach**, **Impact** (one
   bullet per public API change, with migration for breaking ones),
