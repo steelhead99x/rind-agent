@@ -80,5 +80,21 @@ Change direction mid-run with a short steer, not a restart.
 4. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
+
+   - Cloud VMs usually lack the reviewer CLIs (`claude`, `codex`), so
+     `quest review` exits 2 there. A workstation with Claude Code or Codex
+     logged in can run it. Build `quest` from the commit the repo's flake
+     pins; Bun is enough to build it without Nix.
+   - Review against the same base the PR targets. For an upstream PR, that
+     is upstream `main`, not the fork's.
+   - If the clone's remote is a local mirror, quest can't write the record
+     into the PR. Paste it in yourself, along with the head SHA it reviewed.
+   - A low-effort round finds obvious bugs, but it skips the constant-time,
+     vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
+     that depth explicitly, or follow the round with a `rind-crypto-review`
+     pass.
+   - Low-severity findings are fixed or refuted in new commits, with no
+     further round. Anything medium or higher gets another round on the new
+     head.
 5. Open the upstream PR as a draft while its body lists a decision the
    maintainer still owns; otherwise mark it ready.
