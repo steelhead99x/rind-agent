@@ -47,7 +47,8 @@ compare against aws-lc-rs. Put the numbers in the PR.
 - Conventional-commit subjects: `feat(rustls): ...`, `fix: ...`, `perf: ...`,
   `docs: ...`, `chore: ...`. Breaking change: `feat!: ...`.
 - PRs squash onto `main`, so the PR title becomes the commit subject.
-- AI attribution goes in a `Co-Authored-By:` trailer only.
+- AI attribution goes in a `Co-Authored-By:` trailer only, never in the
+  subject, body or PR text.
 - No binaries or build artifacts.
 - PR body, short and structured: **Problem**, **Approach**, **Impact** (one
   bullet per public API change, with migration for breaking ones),
@@ -56,4 +57,7 @@ compare against aws-lc-rs. Put the numbers in the PR.
 ## Working from a fork
 
 Open PRs against the fork's `main` first. Send anything upstream only after
-the fork owner has reviewed it and said so.
+the fork owner has reviewed it and said so. Keep the fork's `main` a
+fast-forward of upstream's (`gh repo sync <fork> --branch main`) so branches
+start from what upstream will merge into. Before going upstream, follow
+"Before going upstream" in `rind-quest-run`.

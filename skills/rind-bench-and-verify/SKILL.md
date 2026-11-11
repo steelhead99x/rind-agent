@@ -5,7 +5,10 @@ description: Use when a rind change needs benchmarks, constant-time checks, cros
 
 # Benchmarks, timing and proofs in rind
 
-All commands run from the repo root. Most need the Nix dev shells.
+All commands run from the repo root. Most need the Nix dev shells. On a bare
+Linux VM a single-user Nix install is enough to get them. Check out the vector
+submodules (`thirdparty/cavp`, `thirdparty/cctv`, `thirdparty/wycheproof`)
+before `just check` or `just ci`, or the gate stops early.
 
 ## Benchmarks
 
@@ -31,11 +34,16 @@ just miri s390x-unknown-linux-gnu   # big-endian under Miri
 
 ```shell
 nix develop .#ctgrind --command admin/ctgrind
+nix develop .#ctgrind --command admin/ctgrind unit --release -- <test path>   # one test
 nix develop .#sde --command admin/ct-sde          # AVX-512, VAES, SHA ext code
 nix develop .#ct-qemu --command admin/ct-qemu     # armv7 crypto ext code
 nix develop .#binsec --command admin/ct-binsec    # symbolic proof of ct_binsec_* tests
 nix develop .#dudect --command admin/timing dudect
 ```
+
+A new secret path gets a test that marks its secrets with ctgrind and
+declassifies only the final public output; the run should end with valgrind's
+`ERROR SUMMARY: 0`.
 
 `admin/ct-vartime` runs inside `just check` and fails on unlisted divisions or
 floating point. dudect and Marvin need quiet hardware; don't trust numbers from
