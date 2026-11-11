@@ -19,6 +19,13 @@ explained in the PR.
       table both list the project.
 - [ ] Behavior questions (accept, refuse, wipe) follow aws-lc-rs unless the PR
       says why not.
+- [ ] Every key encoding the RFC requires is accepted. RFC 9474, for example,
+      needs id-RSASSA-PSS SPKIs as well as rsaEncryption.
+- [ ] When a modulus' bit length is 1 mod 8, the byte dropped from an encoding
+      is checked to be zero rather than ignored.
+- [ ] Point addition handles equal and opposite inputs, either through a
+      complete formula or a constant-time select. Many Jacobian `add`
+      routines are undefined for P = Q, and a peer can force that case.
 
 ## Hostile input
 
@@ -26,6 +33,9 @@ explained in the PR.
       never panic.
 - [ ] The cost of rejecting bad input is bounded (no attacker-controlled loop
       counts or allocations).
+- [ ] Rejection sampling masks the candidate to the bound's bit length before
+      comparing. Otherwise a fixed retry cap fails most of the time for sizes
+      just past a byte boundary, such as 1025-bit moduli.
 
 ## Constant time
 
@@ -33,6 +43,11 @@ explained in the PR.
       floating point) depends on a secret.
 - [ ] New secret paths have a ctgrind test. If valgrind can't see the code
       (AVX-512, VAES, SHA extensions), the SDE or qemu runner covers it.
+- [ ] Values marked secret and later handed out as public output (a random
+      prefix or salt, say) are declassified at that point. Otherwise ctgrind
+      reports false positives in the caller.
+- [ ] Every new entry point is wrapped in `Entry::new_secret()` or
+      `Entry::new_public()`.
 - [ ] `admin/ct-vartime` still passes; any new division is listed in
       `admin/ct-vartime.toml` only if its operands are public.
 
@@ -51,7 +66,10 @@ explained in the PR.
 
 ## API
 
-- [ ] Misuse fails to compile where a type can enforce it.
+- [ ] Misuse fails to compile where a type can enforce it, and the docs
+      don't claim a compile error that the types don't actually give.
+- [ ] Matches on rind's own enums are exhaustive, with no `_` arm, so a new
+      variant breaks the build instead of mapping silently.
 - [ ] One way to do each job. Borrowed ring/aws-lc-rs names are only used when
       they're as clear, and `MIGRATING.md` maps them.
 - [ ] Adapter crates expose exactly their upstream provider's API, nothing
