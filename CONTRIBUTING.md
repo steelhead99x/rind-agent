@@ -11,7 +11,7 @@ when a real contribution run shows a step is wrong or missing.
   frontmatter has `name` (matching the directory) and `description` (one line
   saying when to use it).
 - Nothing personal, private, or credential-like, in skills or notes.
-- Run `python3 scripts/check.py` before opening a pull request; CI runs the
+- Run `cargo run` (and `cargo test`) before opening a pull request; CI runs the
   same check.
 - Conventional-commit subjects (`docs: ...`, `fix: ...`, `chore: ...`), as rind
   uses.
