@@ -11,11 +11,36 @@ stubs call the `quest` CLI, which carries the real instructions.
 ## Run it yourself
 
 1. Install and pin `quest` per <https://github.com/moq-dev/quest/blob/main/SETUP.md>.
-   Confirm `quest --version`.
+   Confirm `quest --version` and `quest check`. Without Nix, build the commit
+   the flake pins; don't use a GitHub release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
 4. Each quest: its own branch, the `rind-contribute` steps, the
    `rind-crypto-review` checklist, then a PR.
+
+## Working from a fork
+
+`quest start` opens its claim PR against the repo that holds `quest/README.md`,
+which for a fork is moq-dev/rind. Don't run it until the work is meant to go
+upstream. Until then, branch by hand and treat the quest file as the spec.
+
+## Picking a quest
+
+Run `quest unblocked`, then skip anything it marks held, anything with an
+open upstream PR or branch (`gh pr list --repo moq-dev/rind`), and anything
+waiting on an upstream release that hasn't shipped. Also skip work needing
+hardware or accounts you don't have, and proofs you can't check with
+`admin/prove`. Prefer missing functionality and correctness over
+micro-optimizations.
+
+## Done means the Plan is met
+
+Read the quest's Plan section line by line and mark each item met or not met.
+Every vector set and differential test it names is required. When one is
+impossible, record the exact reason in the PR's Follow-ups as a question for
+the maintainer, for example a reference implementation that is `pub(crate)`
+in its latest release while `deny.toml` denies git dependencies. Never push a
+partial quest.
 
 ## Hand it to a coding agent
 
@@ -37,5 +62,12 @@ Change direction mid-run with a short steer, not a restart.
 
 ## Before going upstream
 
-Review each fork PR against `rind-crypto-review`. Only then open the matching
-PR on moq-dev/rind, with the fork PR's numbers in the body.
+1. Review each fork PR against `rind-crypto-review`.
+2. Merge `main` into the branch; never rebase or force-push one that is
+   already pushed upstream.
+3. Run `just ci` and the ctgrind tests for new secret paths on the final head.
+4. Run `/quest-review` with the other vendor's model and put its `## Review`
+   record, naming the head SHA, in the PR body. If it can't run, say so in
+   that section rather than leaving it out.
+5. Open the upstream PR as a draft while its body lists a decision the
+   maintainer still owns; otherwise mark it ready.
