@@ -26,7 +26,7 @@ This is an independent project, not maintained by or affiliated with moq-dev.
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn`. |
 
-[`NOTES.md`](NOTES.md) holds the project context carried between sessions.
+[`NOTES.md`](NOTES.md) has background on rind and where changes land.
 
 ## Install
 
