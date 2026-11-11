@@ -46,7 +46,8 @@ declassifies only the final public output; the run should end with valgrind's
 `ERROR SUMMARY: 0`.
 
 `admin/ct-vartime` runs inside `just check` and fails on unlisted divisions or
-floating point. dudect and Marvin need quiet hardware; don't trust numbers from
+floating point. Counting blocks of a hash whose output isn't a power of two
+(SHA-384's 48 bytes) with a loop keeps a division out of it. dudect and Marvin need quiet hardware; don't trust numbers from
 a shared box.
 
 ## Proofs
