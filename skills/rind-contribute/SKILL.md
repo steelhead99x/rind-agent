@@ -49,6 +49,13 @@ Things that trip `just check` on new code:
   something else.
 - A trait with methods named `add`, `mul` or `sqr` shadows the curve types'
   methods once it's in scope. Prefix them (`field_mul`).
+- `nix develop --command bash -lc '...'` starts a login shell that drops the
+  dev shell's `PATH`, so you get the host's older Cargo. Use
+  `nix develop --command cargo ...` or `bash -c` without `-l`.
+- In an integration test or fuzz target, `use rind::foo::{self}` hides an
+  external crate also called `foo`. Write `::foo` for the external crate.
+- `just ci` clippy-checks every crate that depends on `rind`, including a new
+  fuzz target, so lint those too.
 
 Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR.
@@ -61,8 +68,9 @@ compare against aws-lc-rs. Put the numbers in the PR.
 - AI attribution goes in a `Co-Authored-By:` trailer only, never in the
   subject, body or PR text.
 - Check the trailer count with `git log -1 --format=%B`; some environments
-  append their own trailer on `git commit`. Rewrite the message before
-  pushing if one slipped in.
+  append their own trailer on `git commit` (a commit-msg hook, for one).
+  Rewrite the message with `git -c core.hooksPath=/dev/null commit --amend`
+  or build it with `git commit-tree` before the first push.
 - No binaries or build artifacts.
 - PR body, short and structured: **Problem**, **Approach**, **Impact** (one
   bullet per public API change, with migration for breaking ones),

@@ -47,7 +47,17 @@ declassifies only the final public output; the run should end with valgrind's
 
 `admin/ct-vartime` runs inside `just check` and fails on unlisted divisions or
 floating point. Counting blocks of a hash whose output isn't a power of two
-(SHA-384's 48 bytes) with a loop keeps a division out of it. dudect and Marvin need quiet hardware; don't trust numbers from
+(SHA-384's 48 bytes) with a loop keeps a division out of it. A public
+division that has to stay is allowlisted by its exact function name; note
+that a 128-bit division (`2^64 / n`) becomes `__udivti3` only on 64-bit
+targets, so it shows up per target.
+
+`overflowing_sub`'s borrow compiles to a conditional jump, which ctgrind
+flags on secret data. Take the borrow from a shift of the wrapped
+difference, with `black_box` on the mask, the way `low::generic::bignum`
+does.
+
+dudect and Marvin need quiet hardware; don't trust numbers from
 a shared box.
 
 ## Proofs
