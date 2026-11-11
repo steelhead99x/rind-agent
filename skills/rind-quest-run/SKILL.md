@@ -96,5 +96,10 @@ Change direction mid-run with a short steer, not a restart.
    - Low-severity findings are fixed or refuted in new commits, with no
      further round. Anything medium or higher gets another round on the new
      head.
+   - After a round, answer every finding by its number: fixed (with the
+     commit) or refuted (with evidence). Then run the next round with
+     `--responses`. A medium-effort round found real bugs that a
+     low-effort round missed, so don't treat a clean low-effort round as
+     a pass.
 5. Open the upstream PR as a draft while its body lists a decision the
    maintainer still owns; otherwise mark it ready.
