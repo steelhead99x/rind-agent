@@ -47,6 +47,9 @@ explained in the PR.
 - [ ] Malformed keys, signatures, ciphertexts and encodings return an error,
       never panic. Hostile input gets a protocol error, not `Fault`, which
       is reserved for internal bugs.
+- [ ] A function documented to take one encoding accepts only that one.
+      An SPKI parser that falls back to a parser that also takes bare PKCS#1
+      returns keys missing the parameters the SPKI would have carried.
 - [ ] Parameters parsed from a key (PSS hash and salt length, say) are bound
       to the key object and checked at use, not only validated at parse.
 - [ ] Nested encodings use the narrowest parser: the BIT STRING inside an
@@ -84,10 +87,13 @@ explained in the PR.
 - [ ] The ctgrind test calls every public function on the secret path, not
       just the main one. SIMD paths valgrind can't run (AVX-512) get a
       randomized comparison against the scalar version and an SDE run.
+- [ ] A comment that names a test names one that exists.
 - [ ] Comments and `AGENTS.md` don't claim ctgrind coverage that the test
       doesn't actually give.
 - [ ] Types holding secret-derived values don't derive `Debug` or
       `PartialEq`: write a redacting `Debug` and a constant-time equality.
+- [ ] Constants are stored in the form the code uses, not decoded lazily.
+      A `OnceLock` init pulls std's panic path into the variable-time scan.
 - [ ] `admin/ct-vartime` still passes; any new division is listed in
       `admin/ct-vartime.toml` only if its operands are public.
 
