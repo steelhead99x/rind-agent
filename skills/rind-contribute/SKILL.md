@@ -23,9 +23,8 @@ cpuid, timing and fuzz crates. Read `AGENTS.md`, `ARCHITECTURE.md`,
 ## Make the change
 
 1. One quest or one problem per branch, off `main`.
-2. Keep the layering: `low` (backends, assembly), `mid` (primitives), `high`
-   (the public API). New public API goes in `high` and should make misuse fail
-   to compile.
+2. Keep to the `low`/`mid`/`high` layering `ARCHITECTURE.md` describes, and
+   shape new public API so misuse fails to compile.
 3. Exactly one backend compiles per target. Never add a runtime fallback; a
    missing CPU feature is an error that names the feature.
 4. New primitive or new path: Wycheproof vectors where they exist, plus a

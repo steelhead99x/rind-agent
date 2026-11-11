@@ -1,14 +1,15 @@
 # Working notes
 
-Context the agent keeps across sessions. Nothing private goes here.
+Project context kept between sessions. Public by design: nothing personal,
+private, or credential-like belongs here.
 
-- Project: rind, pure-Rust cryptography for MoQ by kixelated, forked from
-  graviola. Background post: <https://moq.dev/blog/rind/>.
-- Fork used for development: <https://github.com/steelhead99x/rind>.
-- Policy: all work lands as PRs on the fork first. Nothing goes to
-  moq-dev/rind (PRs, issues or comments) until the fork owner reviews it and
-  says to send it.
-- Backlog: rind's `quest/` directory, worked through `quest skill spawn`.
-- Long-running agent work uses the largest context window available; the
-  first backlog run used Grok 4.7 at its highest reasoning setting with a 500k
-  context window.
+- rind is pure-Rust cryptography for [MoQ](https://moq.dev), maintained by
+  the moq-dev project and derived from
+  [graviola](https://github.com/ctz/graviola). Background:
+  [Vibe Slopped Cryptography](https://moq.dev/blog/rind/).
+- Development fork: <https://github.com/steelhead99x/rind>.
+- Changes land as pull requests on the fork first. They go to
+  [moq-dev/rind](https://github.com/moq-dev/rind) only after review on the
+  fork.
+- The planned backlog is rind's `quest/` directory, worked with
+  `quest skill spawn`.

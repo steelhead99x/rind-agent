@@ -53,7 +53,7 @@ explained in the PR.
 
 - [ ] Misuse fails to compile where a type can enforce it.
 - [ ] One way to do each job. Borrowed ring/aws-lc-rs names are only used when
-      they're as clear, and `MIGRATE.md` maps them.
+      they're as clear, and `MIGRATING.md` maps them.
 - [ ] Adapter crates expose exactly their upstream provider's API, nothing
       added.
 
