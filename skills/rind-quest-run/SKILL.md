@@ -101,14 +101,8 @@ Change direction mid-run with a short steer, not a restart.
      `--responses`. A medium-effort round found real bugs that a
      low-effort round missed, so don't treat a clean low-effort round as
      a pass.
+   - Don't rerun a round while its findings are still open. Fix or refute
+     them first, and give the reviewer the responses file along with the
+     head SHA it answers.
 5. Open the upstream PR as a draft while its body lists a decision the
    maintainer still owns; otherwise mark it ready.
-
-## Handing a review round to someone else
-
-When another machine runs `/quest-review`, put the findings and the
-numbered responses file somewhere it can read, such as a file on that
-machine or a gist, not a chat attachment. Name the head SHA each file
-answers. Don't rerun a round on a branch whose findings are still open:
-fix or refute them first, then run with `--responses`.
-

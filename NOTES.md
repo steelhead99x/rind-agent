@@ -1,7 +1,6 @@
-# Working notes
+# Notes
 
-Project context kept between sessions. Public by design: nothing personal,
-private, or credential-like belongs here.
+Background for anyone using these skills.
 
 - rind is pure-Rust cryptography for [MoQ](https://moq.dev), maintained by
   the moq-dev project and derived from
