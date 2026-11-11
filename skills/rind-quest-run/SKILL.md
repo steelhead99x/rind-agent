@@ -42,6 +42,12 @@ the maintainer, for example a reference implementation that is `pub(crate)`
 in its latest release while `deny.toml` denies git dependencies. Never push a
 partial quest.
 
+A finished quest's PR also deletes its quest file and updates the docs that
+list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
+When aws-lc-rs lacks the algorithm, use the reference crate the Plan names
+for the differential test, and say in Alternatives that there is no aws-lc-rs
+benchmark.
+
 ## Hand it to a coding agent
 
 Give the agent the outcome, not a script:
@@ -57,6 +63,11 @@ Give the agent the outcome, not a script:
 - report: quest setup result, quests picked and why, one PR link and line per
   quest, test and bench results, blocked quests (for example ones needing
   hardware the agent doesn't have), and an honest quality and risk read.
+
+To run several agents at once, give each one quest whose `## Required`
+section is empty or already merged, and check open upstream PRs first so two
+efforts never share a quest. Quests that build on each other (hash-to-curve,
+then FROST and the OPRF) wait for their base to merge.
 
 Change direction mid-run with a short steer, not a restart.
 
