@@ -3,43 +3,49 @@
 Agent skills for contributing to [rind](https://github.com/moq-dev/rind), the
 pure-Rust cryptography library behind [MoQ](https://moq.dev).
 
-These are plain Markdown instructions (`SKILL.md` with YAML frontmatter). Any
-agent that reads skills in that format can use them, and they read fine as a
-human checklist too. They summarize rind's own `AGENTS.md` and
-`CONTRIBUTING.md`; when the two disagree, rind's repo wins.
+Each skill is a `SKILL.md` file: YAML frontmatter (`name`, `description`)
+followed by Markdown instructions. Claude Code, Cursor, and other agents that
+load skills in this format can use them directly, and they work as plain
+checklists for people too.
+
+The skills condense rind's own
+[`AGENTS.md`](https://github.com/moq-dev/rind/blob/main/AGENTS.md) and
+[`CONTRIBUTING.md`](https://github.com/moq-dev/rind/blob/main/CONTRIBUTING.md).
+Where they disagree, rind's repository is authoritative. They were last
+checked against rind at
+[`3c0ea6e`](https://github.com/moq-dev/rind/commit/3c0ea6e3e56907b6cddd502fe90326855c570052).
+
+This is an independent project, not maintained by or affiliated with moq-dev.
 
 ## Skills
 
 | Skill | Use it when |
 | --- | --- |
-| [`rind-contribute`](skills/rind-contribute/SKILL.md) | Making any change: setup, branch, `just check`, commit and PR format. |
-| [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API. |
-| [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-arch tests, constant-time tooling, proofs. |
-| [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working the `quest/` backlog with `quest skill spawn`. |
+| [`rind-contribute`](skills/rind-contribute/SKILL.md) | Making any change: setup, branching, `just check`, commit and PR format. |
+| [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
+| [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
+| [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn`. |
 
-[`NOTES.md`](NOTES.md) holds the public working notes the agent keeps between
-sessions.
+[`NOTES.md`](NOTES.md) holds the project context carried between sessions.
 
 ## Install
 
-Claude Code, per project:
+Per project, into a rind checkout:
 
 ```shell
 git clone https://github.com/steelhead99x/rind-agent
 cp -r rind-agent/skills/* /path/to/rind/.claude/skills/
 ```
 
-Or user-wide with `~/.claude/skills/`. For agents that read `.agents/skills/`,
-copy them there instead. The skill names don't collide with rind's `quest-*`
-stubs.
+Use `~/.claude/skills/` to install for every project, or `.agents/skills/` for
+agents that read that directory. The names don't collide with rind's own
+`quest-*` skills.
 
 ## Contributing
 
-Fix a skill when it drifts from rind's docs or when a real run shows a step is
-wrong or missing. Keep them short and imperative, and link to rind's files
-instead of copying long sections. Don't add anything personal or private.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
-Apache-2.0 OR ISC OR MIT-0, at your option, the same as rind. See
-[`LICENSE`](LICENSE).
+Licensed under any of Apache-2.0, ISC, or MIT-0, at your option, the same
+terms as rind. See [`LICENSE`](LICENSE).
