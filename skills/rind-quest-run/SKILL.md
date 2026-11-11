@@ -103,3 +103,12 @@ Change direction mid-run with a short steer, not a restart.
      a pass.
 5. Open the upstream PR as a draft while its body lists a decision the
    maintainer still owns; otherwise mark it ready.
+
+## Handing a review round to someone else
+
+When another machine runs `/quest-review`, put the findings and the
+numbered responses file somewhere it can read, such as a file on that
+machine or a gist, not a chat attachment. Name the head SHA each file
+answers. Don't rerun a round on a branch whose findings are still open:
+fix or refute them first, then run with `--responses`.
+

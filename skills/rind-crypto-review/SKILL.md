@@ -26,6 +26,13 @@ explained in the PR.
 - [ ] Point addition handles equal and opposite inputs, either through a
       complete formula or a constant-time select. Many Jacobian `add`
       routines are undefined for P = Q, and a peer can force that case.
+- [ ] Complete addition is its own function (`complete_add`), called only
+      where a peer can force the exceptional cases. Don't slow a shared
+      `add` that ECDSA's precomputation already proves safe.
+- [ ] Protocol code handles the identity explicitly. When a peer can make
+      a difference such as X - w0*M land on the identity, reject it (as the
+      RFC allows) before scalar multiplication, and never hand affine (0,0)
+      to an assembly routine that isn't specified for it.
 - [ ] Every function that returns a value has a test that checks the value,
       through vectors or a differential, not only its length or that it
       differs from another output. Wrong per-curve constants pass shape-only
@@ -38,7 +45,14 @@ explained in the PR.
 ## Hostile input
 
 - [ ] Malformed keys, signatures, ciphertexts and encodings return an error,
-      never panic.
+      never panic. Hostile input gets a protocol error, not `Fault`, which
+      is reserved for internal bugs.
+- [ ] Parameters parsed from a key (PSS hash and salt length, say) are bound
+      to the key object and checked at use, not only validated at parse.
+- [ ] Nested encodings use the narrowest parser: the BIT STRING inside an
+      id-RSASSA-PSS SPKI is a PKCS#1 RSAPublicKey, not another SPKI.
+- [ ] Don't keep a copy of the caller's message in state when a digest will
+      do. A copy forces an arbitrary length cap the RFC doesn't have.
 - [ ] The cost of rejecting bad input is bounded (no attacker-controlled loop
       counts or allocations).
 - [ ] Rejection sampling masks the candidate to the bound's bit length before
@@ -58,6 +72,9 @@ explained in the PR.
       floating point) depends on a secret.
 - [ ] New secret paths have a ctgrind test. If valgrind can't see the code
       (AVX-512, VAES, SHA extensions), the SDE or qemu runner covers it.
+- [ ] An identity or validity check on a secret-derived point doesn't
+      declassify and branch. If Z is the identity exactly when X = w0*M, an
+      early return leaks w0 through timing.
 - [ ] Values marked secret and later handed out as public output (a random
       prefix or salt, say) are declassified at that point. Otherwise ctgrind
       reports false positives in the caller.
