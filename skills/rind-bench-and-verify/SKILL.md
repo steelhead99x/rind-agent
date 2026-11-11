@@ -75,3 +75,12 @@ code on that path, glue included, is machine-checked.
 
 `SLOW_TESTS=1 cargo test` adds the large vector sets (for example CCTV's
 million ML-KEM vectors).
+
+## Miri
+
+Some dev-dependencies (`aws-lc-sys` among them) only exist outside Miri.
+Every test or helper that touches one needs `#[cfg(not(miri))]`, like the
+existing aws-lc tests; one missing gate stops Miri compiling every unit
+test in the crate. After adding a differential test, check that the Miri
+build still compiles (`cargo +nightly miri test --no-run -p rind --lib`).
+

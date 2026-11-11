@@ -101,6 +101,14 @@ Change direction mid-run with a short steer, not a restart.
      `--responses`. A medium-effort round found real bugs that a
      low-effort round missed, so don't treat a clean low-effort round as
      a pass.
+   - When only low findings remain, fix them and add a line under the
+     review record naming the new head's full SHA and how each was
+     handled. A medium or higher finding means another round on the new
+     head, even when the fix is one line.
+   - If the base branch moves between rounds, review against the new base
+     and record which base each round used.
+   - Include before/after numbers in a response when a fix touches a hot
+     path, so the next round can check the claim.
    - Don't rerun a round while its findings are still open. Fix or refute
      them first, and give the reviewer the responses file along with the
      head SHA it answers.
