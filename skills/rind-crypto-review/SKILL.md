@@ -26,6 +26,14 @@ explained in the PR.
 - [ ] Point addition handles equal and opposite inputs, either through a
       complete formula or a constant-time select. Many Jacobian `add`
       routines are undefined for P = Q, and a peer can force that case.
+- [ ] Every function that returns a value has a test that checks the value,
+      through vectors or a differential, not only its length or that it
+      differs from another output. Wrong per-curve constants pass shape-only
+      tests.
+- [ ] Tests reach the edges: inputs at and just past the modulus, values
+      that reduce to zero, every hash the RFC gives vectors for, and
+      parameters that aren't powers of two (such as lane counts). Fixed
+      lists of four to six inputs belong in a proptest.
 
 ## Hostile input
 
@@ -36,6 +44,13 @@ explained in the PR.
 - [ ] Rejection sampling masks the candidate to the bound's bit length before
       comparing. Otherwise a fixed retry cap fails most of the time for sizes
       just past a byte boundary, such as 1025-bit moduli.
+- [ ] Large allocations are fallible all the way through: no `vec![..]`
+      on a size the caller controls. On Linux with overcommit,
+      `try_reserve` succeeding doesn't mean the pages exist, so the docs
+      shouldn't promise an error where the OOM killer may strike instead.
+- [ ] A fuzz target's oracle matches the spec. For a KDF that hashes the
+      output length (Argon2), a truncated tag isn't a prefix of the full
+      one. A wrong oracle reports crashes on correct code.
 
 ## Constant time
 
@@ -48,6 +63,14 @@ explained in the PR.
       reports false positives in the caller.
 - [ ] Every new entry point is wrapped in `Entry::new_secret()` or
       `Entry::new_public()`.
+      Inner helpers don't open their own nested `Entry`.
+- [ ] The ctgrind test calls every public function on the secret path, not
+      just the main one. SIMD paths valgrind can't run (AVX-512) get a
+      randomized comparison against the scalar version and an SDE run.
+- [ ] Comments and `AGENTS.md` don't claim ctgrind coverage that the test
+      doesn't actually give.
+- [ ] Types holding secret-derived values don't derive `Debug` or
+      `PartialEq`: write a redacting `Debug` and a constant-time equality.
 - [ ] `admin/ct-vartime` still passes; any new division is listed in
       `admin/ct-vartime.toml` only if its operands are public.
 
@@ -63,6 +86,8 @@ explained in the PR.
       `low::zeroise` / `low::zeroise_value`, under the `wipe` feature.
 - [ ] Nothing else gets wiped (digest contexts, plaintext, stack temporaries);
       that's speed spent for nothing.
+- [ ] `heap_scratch` covers every heap buffer that holds a secret, in
+      `verify` as well as `derive`.
 
 ## API
 
