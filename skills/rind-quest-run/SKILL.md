@@ -66,6 +66,25 @@ unsure, ask whoever is coordinating instead of starting. Leave a claim
 marker early: a draft PR on the fork that names the quest path, so
 others can see it.
 
+Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
+after the in-flight check above, run this feasibility check and skip the
+quest if it fails. Compare the target's size to the closest landed proof
+in `proofs/` (see `proofs/README.md`), by instruction count and by lines
+of HOL Light or Lean. A target several times that proof's instruction
+count fails, as does a proof several times its length. Check that
+the spec lemmas it needs already exist and are not opaque.
+`proofs/README.md` names the opaque ones, such as `edPow` and `edMul` in
+`proofs/Rind/Ed25519.lean`. Check that any spec it needs is merged
+upstream. An open s2n-bignum pull request counts as unmerged. Check
+that it needs no new axiom of the kind the composition rule in
+`quest/m3/verified/README.md` adds, one per imported routine, and
+that its check mark in `benchmarks/verified.toml`
+does not also depend on another unproven quest. Confirm
+`nix develop .#prove --command admin/prove` runs on this machine. That
+shell is Nix, Lean, Charon, Aeneas, and HOL Light. Cloud VMs usually
+lack it. A failed check is a development past quest size. Prefer
+correctness, testing, or missing functionality.
+
 Pick against current upstream `main`, not the fork's. A fork that lags
 upstream will still list quests the maintainer merged that day. Confirm
 the quest file still exists on upstream `main`. Base a new quest branch
