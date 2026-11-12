@@ -102,7 +102,8 @@ touches (shared CI configs such as `mutants.yml` and `fuzz.yml`,
 `admin/prove`, and shared directories under `proofs/`). Prefer
 `quest unblocked --unclaimed` when a GitHub token is available. It
 skips a quest's own claim and does not replace the checks above.
-Leave a claim marker early: a draft PR on the fork that names the
+It does not see a fork branch named `cursor/*`. Still list those
+branches. Leave a claim marker early: a draft PR on the fork that names the
 quest path, so others can see it.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
@@ -632,6 +633,14 @@ merge, re-read the quest file on current upstream `main`.
     `Queue build / Build`. A red Queue check with zero jobs is not a test
     failure in the pull request. Do not edit `queue.yml` on a feature branch
     to diverge from upstream `main`; take the sync that contains `876a68d0`.
+15. `quest unblocked --unclaimed` holds a quest only when the quest's own
+    branch (its path without `.md`) is on upstream, or an open PR is from
+    that branch, including from a fork (quest README at
+    [`93c9c2e`](https://github.com/moq-dev/quest/blob/93c9c2ef65f074e82094bf5272076db44ac19030/README.md),
+    lines 150-152 and 221, the `quest` revision rind's `flake.lock` pins
+    at `c333c59`). A fork branch named `cursor/<name>` is neither, so the
+    command does not show that claim. The overlap check still lists those
+    branches.
 
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
