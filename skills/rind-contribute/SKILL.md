@@ -75,7 +75,9 @@ Things that trip `just check` on new code:
 
 Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR, with the host and the
-date.
+date. For the published report's operations and timing, follow
+[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md): that run is
+`admin/bench-report`, and an unfiltered `cargo bench` times a different set.
 
 ## Git, commits and pull requests
 
