@@ -77,6 +77,10 @@ it; never rebase or force-push it.
   `git commit-tree`. After the branch has been pushed, do not amend;
   add a new commit instead.
 - No binaries or build artifacts.
+- On a fork branch still in review, a fix for a review finding is its own
+  small commit, and the subject names the fix. Leave the earlier commits
+  as they are. The upstream-bound rebuild still squashes those into one
+  commit.
 
 ## Pull requests
 
@@ -89,7 +93,13 @@ not apply. A finished quest's PR also names the quest it claims and
 deletes that quest file.
 
 Open a draft while working; mark it ready when the gate passes and the
-body lists no decision the maintainer still owns.
+body lists no decision the maintainer still owns. List each open
+decision in the description, and leave the decision to the maintainer.
+
+The body says which environment each result came from, and which base a
+review diff used (`up/main...HEAD` when the pull request targets a fork).
+Carrying commits out of a closed pull request is in
+[Salvaging a closed pull request](../rind-quest-run/SKILL.md#salvaging-a-closed-pull-request).
 
 ## Squash-merge
 

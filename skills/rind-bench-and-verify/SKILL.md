@@ -104,6 +104,24 @@ and DER length octets, the ASN.1 parser's bounds checks, and the `Vec`'s
 own drop. Declassify a secret-derived buffer with `public` before
 comparing it (`assert_eq!`, `==`).
 
+That still leaves the payload unmarked, so a passing run can miss
+coverage. When a failure is fixed in the test's marking, confirm the
+same bytes are still covered. A declassify before `assert_eq` covers
+only a true public output or a test artifact, such as a verify `Result`.
+
+ctgrind under valgrind needs Linux x86. It does not run on Apple Silicon.
+A cloud VM can run it when that VM is Linux x86. The run is for that head;
+repeat it when the head moves.
+
+Run a new primitive's ctgrind test and its canonical-encoding checks on
+every backend the crate builds: native x86_64, the portable backend
+(`--cfg rind_portable` with `curve25519_dalek_backend="serial"`, as
+`sh/portable.sh` sets), aarch64, and armv7. `TESTING.md` names the ctgrind
+job for the portable backend. Decide whether the primitive needs a
+`ct_binsec_*` test; `admin/ct-binsec` does not cover armv7. Compare a
+non-canonical encoding with an established implementation, such as
+`akd_core` for ECVRF.
+
 Do not use `cargo test --all-features` as a local stand-in for
 `admin/ctgrind`: it enables `__ctgrind` and needs the valgrind headers
 the `.#ctgrind` shell provides. Without them, bindgen fails to find
