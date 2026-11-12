@@ -18,15 +18,19 @@ stubs call the `quest` CLI, which carries the real instructions.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
    starts ready quests and takes open PRs toward merge until only the
    maintainer's decisions remain.
-4. Each quest: its own branch, the `rind-contribute` steps, the
-   `rind-crypto-review` checklist, then a PR.
+4. Each quest: claim it with `quest start` before other work, then its own
+   branch, the `rind-contribute` steps, the `rind-crypto-review` checklist,
+   then a PR.
 
 ## Working from a fork
 
-`quest start` opens its claim PR against the repo that holds `quest/README.md`,
-which for a fork is moq-dev/rind. Don't run it until the work is meant to go
-upstream. Until then, branch by hand off upstream `main` and treat the quest
-file as the spec.
+Before any work on a quest, including from a fork, claim it with `quest start`
+or the repo's `quest-spawn` / `quest-start` stubs. `quest start` opens a
+placeholder claim PR on moq-dev/rind, the repo that holds `quest/README.md`.
+That PR locks the quest so other contributors and agents don't duplicate the
+work. Run the overlap check in [Picking a quest](#picking-a-quest) first. A
+claim must not be taken on a quest already in flight. Implementation PRs can
+still target the fork's `main`.
 
 ## Sync the fork first
 
@@ -40,6 +44,12 @@ those unrelated upstream commits. Quest branches still base on upstream
 `main`, and fork-only commits still must not go upstream.
 
 ## Picking a quest
+
+An agent works only quests that already exist on upstream moq-dev/rind
+`quest/`, written by the maintainer. Never invent, write, or add a quest
+file. Never make up requirements, vectors, test results, or benchmark
+numbers. When something is unclear or missing, record it as a question
+for the maintainer.
 
 Run `quest unblocked`, then skip anything it marks held, anything with an
 open upstream PR or branch (`gh pr list --repo moq-dev/rind`), and anything
@@ -67,14 +77,15 @@ form, counts as taken, so a search of PRs alone misses them. Run the
 same overlap check again immediately
 before pushing, right before a branch goes to review, and right
 before proposing anything upstream. If it overlaps, stop. A claim
-can land while the work is in progress. Also check running cloud or
+must not be taken on a quest already in flight. A claim can land
+while the work is in progress. Also check running cloud or
 coding agents on the backlog, and files an in-flight quest already
 touches (shared CI configs such as `mutants.yml` and `fuzz.yml`,
 `admin/prove`, and shared directories under `proofs/`). Prefer
 `quest unblocked --unclaimed` when a GitHub token is available. It
 skips a quest's own claim and does not replace the checks above.
-Leave a claim marker early: a draft PR on the fork that names the
-quest path, so others can see it.
+Once the check is clear, claim with `quest start` before any other
+work. The placeholder claim PR on moq-dev/rind locks the quest.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
 after the in-flight check above, run this feasibility check and skip the
@@ -111,7 +122,8 @@ Every vector set and differential test it names is required. When one is
 impossible, record the exact reason in the PR's Follow-ups as a question for
 the maintainer, for example a reference implementation that is `pub(crate)`
 in its latest release while `deny.toml` denies git dependencies. Never push a
-partial quest.
+partial quest. When a requirement, vector, test result, or benchmark number
+is unclear or missing, record it as a question for the maintainer.
 
 A docs-only quest that closes an epic still needs precise, testable rules
 (exact target triples, not prose about architecture and OS pairs) and must
@@ -127,22 +139,32 @@ benchmark.
 
 Sync the fork with upstream first. Give the agent the outcome, not a script:
 
-- the repo (usually a fork) and that PRs go to the fork's `main` only;
+- the repo (usually a fork). The agent claims each quest with `quest start`
+  (or the `quest-spawn` / `quest-start` stubs) before working it.
+  Implementation PRs can still target the fork's `main`;
+- work only quests that already exist on upstream moq-dev/rind `quest/`,
+  written by the maintainer; never invent, write, or add a quest file, and
+  never make up requirements, vectors, test results, or benchmark numbers;
+  when something is unclear or missing, record it as a question for the
+  maintainer;
 - to install quest, run `quest skill spawn`, and pick well-scoped,
   independently mergeable quests first (correctness, verification, missing
   algorithms, build and infra before speculative micro-optimizations);
-- one branch and one PR per quest, `just check` green, benchmarks where
-  performance changes;
+- one implementation branch and one implementation PR per quest, `just check`
+  green, benchmarks where performance changes;
 - never weaken constant-time properties or delete tests or proof checks to get
   green;
-- report: quest setup result, quests picked and why, one PR link and line per
-  quest, test and bench results, blocked quests (for example ones needing
-  hardware the agent doesn't have), and an honest quality and risk read.
+- report: quest setup result, quests picked and why, the claim PR and the
+  implementation PR for each quest, test and bench results, blocked quests
+  (for example ones needing hardware the agent doesn't have), and an honest
+  quality and risk read.
 
 To run several agents at once, give each one quest whose `## Required`
-section is empty or already merged, and check open upstream PRs first so two
-efforts never share a quest. Quests that build on each other (hash-to-curve,
-then FROST and the OPRF) wait for their base to merge.
+section is empty or already merged, and run the overlap check in
+[Picking a quest](#picking-a-quest) before claiming, so two efforts never
+share a quest. A claim must not be taken on a quest already in flight.
+Quests that build on each other (hash-to-curve, then FROST and the OPRF)
+wait for their base to merge.
 
 Change direction mid-run with a short steer, not a restart.
 
