@@ -116,10 +116,16 @@ is in [Platform rules](../rind-crypto-review/SKILL.md#platform-rules).
 
 ## Working from a fork
 
-Open pull requests against the fork's `main` first. Send anything upstream
-only after the fork owner has reviewed it and said so. Before new work,
-sync the fork with upstream as in
+Open pull requests against the fork's `main` first. Do not contact the
+upstream maintainer, and do not open, comment on, or update an upstream
+pull request or issue, unless the fork owner has approved the exact text.
+Collect questions for the maintainer and wait for that approval before
+posting. Send a fork change upstream only after the fork owner has
+reviewed it and approved the exact text. Before new work, sync the fork
+with upstream as in
 [Sync the fork first](../rind-quest-run/SKILL.md#sync-the-fork-first).
 For remotes, branch names, and how to rebuild an upstream-bound branch,
-follow [rind-git](../rind-git/SKILL.md). The rest of the upstream sequence
-is in [Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
+follow [rind-git](../rind-git/SKILL.md), including fetching both remotes
+before every step and before every push. The rest of the upstream
+sequence is in
+[Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).

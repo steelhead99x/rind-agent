@@ -39,23 +39,49 @@ each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
 ## Updating a pushed branch
 
 Merge `up/main` into the branch. Never rebase, amend, or force-push a
-branch that has already been pushed.
+branch that has already been pushed. Do not use `--force` or
+`--force-with-lease` unless the fork owner has explicitly approved
+rewriting the named branch. A revert removes the unwanted tree from the
+tip but leaves the commits in the pull request's history; cleaning that
+history is a force-push and needs the same approval.
 
 Never merge the fork's `main` into an upstream-bound branch: the fork's
-`main` can carry files upstream does not.
+`main` can carry fork-only files (an extra algorithm, for example) that
+upstream does not, and those files would appear on an upstream pull
+request.
+
+A fork branch that is already the head of an open upstream pull request
+is in that category even when the change first landed on the fork.
+Never merge the fork's `main` into it, and never include it in a bulk
+update of fork branches. Before any such sweep, list those heads and
+exclude them:
+
+```shell
+gh pr list --repo moq-dev/rind --author <fork-owner> --state open --json headRefName
+```
+
+`<fork-owner>` is the account that opened the fork's upstream pull
+requests (`gh api user --jq .login` when that account is logged in).
+Branches meant to go upstream take updates from upstream `main` only.
+
+Before every push, confirm the target branch is not one of those heads.
 
 When merging `up/main` into a feature branch, resolve a conflict in a
 shared list (the README's algorithm table, for example) by keeping both
 entries, then rerun that feature's tests before pushing.
 
-If other work may push to the same branch, fetch and merge
-`origin/<branch>` immediately before every push, and wait for the head
-to settle before a review round.
+When more than one agent or person may be working on the fork or on
+the same branch, fetch the fork (`origin`) and upstream (`up`) before
+every step, and again immediately before every push. Merge anything that
+moved: `origin/<branch>` into the branch you are about to push, and
+`up/main` into the fork's `main` only when you were told to sync. Never
+overwrite another writer's commits. Wait for the head to settle before a
+review round.
 
 Do not push to a branch that is the head of an open upstream pull request
-unless that push is needed (a conflict fix, for example). Any push to
-that branch appears on the upstream PR and reruns its CI, so a routine
-sync should skip it unless the branch conflicts.
+unless the fork owner has approved that push. Any push to that branch
+appears on the upstream PR and reruns its CI, so a routine sync should
+skip it.
 
 Before every push, check that the pull request is still open: a push after
 merge recreates the deleted branch. Run `just ci` before every push, as
@@ -77,7 +103,10 @@ it; never rebase or force-push it.
 - Conventional-commit subjects: `feat(rustls): ...`, `fix: ...`, `perf: ...`,
   `docs: ...`, `chore: ...`. Breaking change: `feat!: ...`.
 - Attribution goes in a `Co-Authored-By:` trailer only, never in the
-  subject, body, or pull request text.
+  subject, body, or pull request text. The commit author is the fork
+  owner's GitHub account, using that account's noreply address (the
+  `id+username@users.noreply.github.com` form when email privacy is on).
+  Do not set the author or committer to another organization.
 - Exactly one `Co-Authored-By: Cursor Agent <cursoragent@cursor.com>`
   trailer, and no other `Co-Authored-By` trailers. Check with
   `git log -1 --format=%B`. Some environments append their own trailer
