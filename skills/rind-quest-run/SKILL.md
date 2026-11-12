@@ -111,6 +111,29 @@ upstream will still list quests the maintainer merged that day. Confirm
 the quest file still exists on upstream `main`. Base a new quest branch
 on upstream `main`.
 
+Before each push to a quest branch, before each review round, and before
+proposing it upstream, re-read the quest file on upstream `main`, not the
+copy on the branch. Diff its `## Required` and `## Plan` sections against
+the copy the branch started from. The overlap check above does not read
+those sections. A new Required item that is not merged blocks the quest.
+Stop adding work that the new item says should come from elsewhere, say
+so in the PR as a question for the maintainer, and leave the PR a draft
+until the item lands. `quest unblocked` on upstream `main` omits a quest
+whose file has a `## Required` section, which is a quick signal.
+
+[moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669) (`ad43e51a`,
+2026-11-12, "chore(quest): plan test coverage of the published code") added
+to `quest/m2/confidence/mutants-adapters.md` the Required item
+"rind-aws-lc-rs passes aws-lc-rs's own test suite"
+(`quest/m2/confidence/aws-lc-rs-upstream-tests.md`): upstream's tests kill
+rind-aws-lc-rs's mutants first, so none gets a hand-written test. A fork
+branch for that quest was already open. It merged upstream `main` only
+through `aee2586a`, the parent of `ad43e51a`, so the copy on the branch
+did not gain the item, and it still added hand-written tests for
+rind-aws-lc-rs mutants in `rind-aws-lc-rs/tests/surfaces.rs`. That quest's
+other Required item, `quest/m0/adapters/README.md`, was still unmerged as
+[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652).
+
 Search upstream issues for the quest path and the title, as well as
 pull requests. An issue that names the quest is taken even when no
 pull request or quest branch exists. Repeat that search before opening
@@ -222,6 +245,8 @@ the exact text. Collect questions for the maintainer until then.
    `main` and recently merged PRs for an equivalent change (the same
    `just` recipe, test target, or title). If it already landed or the
    work overlaps, stop and say so rather than opening a duplicate.
+   Also re-read that quest's `## Required` and `## Plan` on upstream
+   `main`, as [Picking a quest](#picking-a-quest) describes.
 3. Rebuild the branch as [rind-git](../rind-git/SKILL.md) describes for an
    upstream-bound branch: one squashed commit on a fresh branch from
    `up/main`, with no fork-only files, even in history.
