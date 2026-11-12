@@ -12,7 +12,10 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 1. Install and pin `quest` per <https://github.com/moq-dev/quest/blob/main/SETUP.md>.
    Confirm `quest --version` and `quest check`. Without Nix, build the commit
-   the flake pins; don't use a GitHub release the setup guide says to skip.
+   the flake pins: `bun install --frozen-lockfile && bun run build` in that
+   checkout, then `bun <checkout>/dist/quest.js` from the target repo.
+   Running `src/cli/bin.ts` from another directory fails. Skip a GitHub
+   release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
@@ -106,6 +109,29 @@ upstream will still list quests the maintainer merged that day. Confirm
 the quest file still exists on upstream `main`. Base a new quest branch
 on upstream `main`.
 
+Before each push to a quest branch, before each review round, and before
+proposing it upstream, re-read the quest file on upstream `main`, not the
+copy on the branch. Diff its `## Required` and `## Plan` sections against
+the copy the branch started from. The overlap check above does not read
+those sections. A new Required item that is not merged blocks the quest.
+Stop adding work that the new item says should come from elsewhere, say
+so in the PR as a question for the maintainer, and leave the PR a draft
+until the item lands. `quest unblocked` on upstream `main` omits a quest
+whose file has a `## Required` section, which is a quick signal.
+
+[moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669) (`ad43e51a`,
+2026-11-12, "chore(quest): plan test coverage of the published code") added
+to `quest/m2/confidence/mutants-adapters.md` the Required item
+"rind-aws-lc-rs passes aws-lc-rs's own test suite"
+(`quest/m2/confidence/aws-lc-rs-upstream-tests.md`): upstream's tests kill
+rind-aws-lc-rs's mutants first, so none gets a hand-written test. A fork
+branch for that quest was already open. It merged upstream `main` only
+through `aee2586a`, the parent of `ad43e51a`, so the copy on the branch
+did not gain the item, and it still added hand-written tests for
+rind-aws-lc-rs mutants in `rind-aws-lc-rs/tests/surfaces.rs`. That quest's
+other Required item, `quest/m0/adapters/README.md`, was still unmerged as
+[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652).
+
 Search upstream issues for the quest path and the title, as well as
 pull requests. An issue that names the quest is taken even when no
 pull request or quest branch exists. Repeat that search before opening
@@ -183,6 +209,19 @@ fork is in [rind-quest-fleet](../rind-quest-fleet/SKILL.md).
 
 Change direction mid-run with a short steer, not a restart.
 
+After an agent finishes, send the `rind-crypto-review` findings as one
+follow-up. If upstream now covers that quest, stop the agent. A scheduled
+run can reply only to agents launched in that same conversation. Write
+other follow-ups into the conversation that launched them. Jobs that skip
+pull requests need a separate clone, one worktree per PR, an isolated
+`CARGO_HOME`, and `target/` removed afterward. Run them at the PR head and
+at the parent commit. `nix develop --profile <logs>/dev-profile --command bash --noprofile --norc -c '...'`
+keeps the tools from being garbage-collected and keeps a login `PATH` from
+shadowing the shell. On macOS, if `xcode-select` points at the Command Line
+Tools, set `DEVELOPER_DIR` to the Xcode app for `simctl` and `xcrun`. When
+nothing unclaimed remains, deepen open fork PRs or fix CI on upstream
+`main`.
+
 ## Salvaging a closed pull request
 
 Re-verify each piece moved into the new pull request on its own. Resolve
@@ -204,6 +243,8 @@ the exact text. Collect questions for the maintainer until then.
    `main` and recently merged PRs for an equivalent change (the same
    `just` recipe, test target, or title). If it already landed or the
    work overlaps, stop and say so rather than opening a duplicate.
+   Also re-read that quest's `## Required` and `## Plan` on upstream
+   `main`, as [Picking a quest](#picking-a-quest) describes.
 3. Rebuild the branch as [rind-git](../rind-git/SKILL.md) describes for an
    upstream-bound branch: one squashed commit on a fresh branch from
    `up/main`, with no fork-only files, even in history.
@@ -216,12 +257,15 @@ the exact text. Collect questions for the maintainer until then.
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
 6. On the final head, run `just ci`, the ctgrind tests for new secret
-   paths, and the full `nix develop --command just check`. Every
-   `rind-crypto-review` item from the second pass is resolved. A pass on
-   an older head is stale once the head moves. ctgrind under valgrind
-   needs Linux x86, not Apple Silicon. Re-measure benchmark numbers on
-   the rebuilt head, or state the hardware and date of the earlier
-   figures.
+   paths, and the full `nix develop --command just check`, with the dev
+   shell rooted as
+   [Gate locally](../rind-contribute/SKILL.md#gate-locally) describes
+   (`just check up/main` the same way). Do not collect Nix garbage while
+   it runs. Every `rind-crypto-review` item from the second pass is
+   resolved. A pass on an older head is stale once the head moves.
+   ctgrind under valgrind needs Linux x86, not Apple Silicon. Re-measure
+   benchmark numbers on the rebuilt head, or state the hardware and date
+   of the earlier figures.
 7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
@@ -434,3 +478,17 @@ merge, re-read the quest file on current upstream `main`.
    requests also edit `uncovered-functions.md`. Newly added quests are
    often claimed immediately. Re-check open upstream pull requests and
    `quest/*` branches right before claiming.
+
+On Nov 12, 2026, two quest agents ended in an error state after pushing
+only their empty claim commit. Roughly an hour of work was lost, and the
+quests looked claimed but had no implementation:
+
+- OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50)
+- FROST, fork [steelhead99x/rind#51](https://github.com/steelhead99x/rind/pull/51)
+
+Push work in small, buildable commits as each Plan item lands, rather
+than at the end. The hourly loop treats a fork quest draft PR whose only
+commit is the claim, and whose agent is in error, as a resume item: reply
+to that agent, or launch a new one on the same branch. Upstream
+moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+files still override this skill.
