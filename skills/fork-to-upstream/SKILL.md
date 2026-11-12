@@ -28,7 +28,12 @@ one.
   pull request, or closing one), fetch the fork and upstream remotes.
   Other writers may be on the same branches. If a matching branch or
   pull request already exists, stop and report it; never duplicate or
-  overwrite it.
+  overwrite it. If another writer has already pushed fixes you were
+  about to add, leave their branch alone. Don't open a competing fix
+  branch and don't force-push over their work. If your local work
+  found a problem their fix missed, report it to the user, and with
+  the user's approval comment on the pull request so that writer can
+  take the fix.
 - Never print tokens or credentialed remote URLs. Refer to remotes by
   name only.
 - Follow [rind-git](../rind-git/SKILL.md) for history that is already
@@ -36,9 +41,10 @@ one.
   change on a fresh branch name, as
   [Upstream-bound branches](../rind-git/SKILL.md#upstream-bound-branches)
   describes, and push it normally.
-- Don't open, close, comment on, or mark ready any upstream pull
-  request until the user has approved the list of changes. After that,
-  do only what they approved.
+- Don't open, close, comment on, or mark ready any pull request,
+  upstream or on the fork, until the user has approved the list of
+  changes and the text of any comment. After that, do only what they
+  approved.
 - A known correctness or security bug in a change must be fixed in the
   pull request before it is marked ready. Don't defer that kind of fix
   to a follow-up. Refactors and extra tests may go in a follow-up after
@@ -89,11 +95,22 @@ On outgoing branches, list commit authors (`git -C <repo> log
 the diffs for real names, home paths, hostnames, work domains, and
 personal emails.
 
+A commit that appears under the publishing identity may have come
+from another of the user's machines or agents. Fetch and check its
+authorship and message before replacing or rebuilding over it.
+
 ## Sync
 
 Fetch both remotes. Fast-forward the local default branch only with
 `--ff-only`, and only if the working tree is clean. Report how far the
 fork is ahead of or behind upstream.
+
+The fork's default branch may have its own commits and may not
+fast-forward to upstream. Don't force-update it. Merging upstream into
+the fork can restore files the fork is missing, but it can also undo
+intentional fork-only changes; get the user's approval first.
+Upstream-bound rebuilds still start from current upstream `main`, so a
+diverging fork default branch does not block them.
 
 ## Find what goes out
 
@@ -131,6 +148,11 @@ If review finds a known correctness or security bug, treat it as
 blocking: it has to land in this pull request, with a regression test,
 not in a later follow-up.
 
+If another writer claims to have fixed review findings but has not
+run the local gates the change needs, including constant-time checks,
+run those gates on the current head before treating the findings as
+closed.
+
 Parallelize by splitting worktrees between workers. Each worker owns
 its own branches.
 
@@ -163,12 +185,29 @@ title and body: no identifying info, no out-of-date claims, and a link
 to the pull request it supersedes. Close the superseded upstream pull
 request with a one-line pointer.
 
+## Maintainer takeover
+
+If a maintainer starts working on an open draft (adds a label, rewrites
+the description, pushes commits, or takes it out of draft), do not
+close or replace that pull request and do not overwrite their branch.
+Leave any local rebuild unused. Don't comment unless the user
+approves the text.
+
+A watch routine should notify the user when a maintainer comments,
+reviews, or pushes, and must not mark the pull request ready while a
+maintainer request is still open.
+
+After that pull request merges, rebuild any stacked follow-up from
+the merged result and drop commits the merge already covered,
+including changes the maintainer made on the branch.
+
 ## Fork review
 
 If the user's review process runs only on fork pull requests, open a
 fork pull request for each new branch based on the fork's default
 branch (so the diff is just the one commit), and name the matching
-upstream pull request in the body. Wait for that review's verdict and
+upstream pull request in the body, for example
+`Upstream: <owner>/<repo>#N`. Wait for that review's verdict and
 address every actionable finding with new commits, not amends. Copy
 the recorded review into the upstream pull request body the way
 [rind-git](../rind-git/SKILL.md#pull-requests) and the repo's
@@ -189,7 +228,12 @@ a recorded passing review, and the pull request merges cleanly. If
 other-OS or extra-gate results are posted on the fork or upstream
 pull requests as comments, commits, or description updates, wait for
 those too. A new head needs the other-OS gates rerun; hand the new
-SHA to whoever runs them.
+SHA to whoever runs them. If a maintainer request is still open,
+leave the pull request as a draft.
+
+When a new base-branch requirement appears, for example an automated
+review the repository now requires, report it. Don't treat "still a
+draft, and CI has not started" as the only remaining blocker.
 
 Use a scheduled check for these conditions instead of waiting
 in-session, and have it stay silent until something changes. If the
@@ -229,5 +273,5 @@ Scan logs and build caches for tokens before deleting them. Then run
 
 For each pull request: link, head SHA, gates passed or failed, review
 verdict, CI state, and what's still blocking. Also report what was
-cleaned up and any secrets or identity problems that remain in pushed
-history.
+cleaned up, the backup branches, and any secrets or identity problems
+that remain in pushed history.
