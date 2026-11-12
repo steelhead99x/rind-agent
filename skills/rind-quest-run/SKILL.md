@@ -103,6 +103,10 @@ the maintainer, for example a reference implementation that is `pub(crate)`
 in its latest release while `deny.toml` denies git dependencies. Never push a
 partial quest.
 
+A docs-only quest that closes an epic still needs precise, testable rules
+(exact target triples, not prose about architecture and OS pairs) and must
+keep the epic's stated goal.
+
 A finished quest's PR also deletes its quest file and updates the docs that
 list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
 When aws-lc-rs lacks the algorithm, use the reference crate the Plan names
@@ -191,6 +195,12 @@ Change direction mid-run with a short steer, not a restart.
      head, even when the fix is one line.
    - If the base branch moves between rounds, review against the new base
      and record which base each round used.
+   - After merging the base into a reviewed branch, compare the branch's
+     own diff (`git diff <base>...<head>`) before and after. If only hunk
+     offsets or context changed, the earlier review still applies.
+   - A review round that could not read the repository (for example, git
+     was unavailable) and returns a placeholder score does not count.
+     Discard it and rerun.
    - Include before/after numbers in a response when a fix touches a hot
      path, so the next round can check the claim.
    - Don't rerun a round while its findings are still open. Fix or refute

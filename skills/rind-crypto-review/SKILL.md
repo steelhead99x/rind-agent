@@ -47,6 +47,10 @@ explained in the PR.
       that reduce to zero, every hash the RFC gives vectors for, and
       parameters that aren't powers of two (such as lane counts). Fixed
       lists of four to six inputs belong in a proptest.
+- [ ] Differential tests cover every constructor and entry point (seed,
+      expanded key, `generate`, PKCS#8 import and export, signing) and
+      malformed inputs: wrong lengths, mismatched parameter sets, and a
+      PKCS#8 whose public key does not match.
 
 ## Hostile input
 
@@ -64,6 +68,11 @@ explained in the PR.
       do. A copy forces an arbitrary length cap the RFC doesn't have.
 - [ ] The cost of rejecting bad input is bounded (no attacker-controlled loop
       counts or allocations).
+- [ ] Map errors with typed error values or variants, never by matching
+      error message text.
+- [ ] When rejecting a key for the wrong algorithm or parameter set,
+      check the OID or parameter set before any key expansion. Don't
+      reparse the key under each alternative to decide.
 - [ ] A hash-to-curve or `expand_message` entry point refuses an empty
       domain-separation tag, a requested length above the RFC's 65535-byte or
       255-block limit, and a reduction wider than the bignum helper can read.
@@ -98,7 +107,9 @@ explained in the PR.
       `Entry::new_public()`.
       Inner helpers don't open their own nested `Entry`.
 - [ ] The ctgrind test calls every public function on the secret path, not
-      just the main one. SIMD paths valgrind can't run (AVX-512) get a
+      just the main one, including every constructor and entry point
+      (seed, expanded key, `generate`, PKCS#8 import and export, and
+      signing). SIMD paths valgrind can't run (AVX-512) get a
       randomized comparison against the scalar version and an SDE run.
 - [ ] A comment that names a test names one that exists.
 - [ ] Comments and `AGENTS.md` don't claim ctgrind coverage that the test
@@ -124,6 +135,8 @@ explained in the PR.
 ## Wiping
 
 - [ ] Key types wipe their whole value on drop, public parts included.
+      A zeroing test covers every constructor (seed, expanded key,
+      `generate`, and PKCS#8 import), not only one path.
 - [ ] Keyed state and heap scratch derived from a private key are wiped through
       `low::zeroise` / `low::zeroise_value`, under the `wipe` feature.
 - [ ] Nothing else gets wiped (digest contexts, plaintext, stack temporaries);
