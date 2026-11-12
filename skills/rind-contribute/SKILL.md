@@ -32,6 +32,10 @@ cpuid, timing and fuzz crates. Read `AGENTS.md`, `ARCHITECTURE.md`,
 5. New secret-handling path: a ctgrind test (`admin/ctgrind`).
 6. Before starting a follow-up the branch's PR still lists (a SIMD path, a
    missing backend), read the later commits. The work may already be there.
+7. Gate every test or helper that touches aws-lc with
+   `#[cfg(not(any(miri, target_family = "wasm")))]`. A missing gate breaks
+   `just wasm` and the wasm nightly, not only Miri
+   (`rind/tests/heap_scratch.rs` after ML-DSA).
 
 ## Gate locally
 

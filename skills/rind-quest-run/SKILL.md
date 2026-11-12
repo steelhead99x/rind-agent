@@ -110,6 +110,17 @@ Before starting a follow-up a PR body still lists (a SIMD path, a missing
 backend), read the current branch and the later commits first. The work may
 already have landed on that branch.
 
+## Stay inside the quest
+
+A feature PR must not edit sibling quest files or shared docs that an
+open upstream PR already touches. Before editing any file outside the
+quest's own scope, check open and draft upstream PRs for that path
+(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
+`quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
+The same rule is in
+[rind-git](../rind-git/SKILL.md#files-outside-the-change).
+
 ## Done means the Plan is met
 
 Read the quest's Plan section line by line and mark each item met or not met.
