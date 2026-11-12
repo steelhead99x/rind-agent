@@ -303,3 +303,20 @@ on the closed pull request does not carry over.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Known issues
+
+On Nov 12, 2026, within about an hour, the maintainer opened his own
+upstream PRs for four quests the fork had already claimed with fork draft
+PRs:
+
+- [moq-dev/rind#674](https://github.com/moq-dev/rind/pull/674) (ecvrf, fork [steelhead99x/rind#19](https://github.com/steelhead99x/rind/pull/19))
+- [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677) (fips/drbg, fork [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24))
+- [moq-dev/rind#671](https://github.com/moq-dev/rind/pull/671) (rind-dart-cryptography, fork [steelhead99x/rind#36](https://github.com/steelhead99x/rind/pull/36))
+- [moq-dev/rind#670](https://github.com/moq-dev/rind/pull/670) (android-armv7-abi, fork [steelhead99x/rind#21](https://github.com/steelhead99x/rind/pull/21))
+
+Fork draft-PR claims are not visible upstream and don't reserve a quest.
+Check upstream open PRs and `quest/*` branches, not just claim commits,
+before claiming, again partway through, and again before marking ready.
+When upstream takes a quest, stop and hold the fork PR with a comment.
+Prefer quests whose files show no recent upstream activity.
