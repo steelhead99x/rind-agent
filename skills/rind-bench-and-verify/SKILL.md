@@ -65,7 +65,7 @@ date of the earlier figures.
 
 ```shell
 just armv7                # build, lint, and Linux gnueabihf qemu tests
-just qemu <shell>         # portable backend; shells are listed in CONTRIBUTING.md
+just qemu <shell>         # portable backend; shells are in TESTING.md, "Running the tools"
 just wasm                 # portable backend on wasm32-wasip2 under wasmtime
 just miri                 # portable backend under Miri
 just miri s390x-unknown-linux-gnu   # big-endian under Miri
