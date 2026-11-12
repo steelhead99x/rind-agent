@@ -159,7 +159,9 @@ Sync the fork with upstream first. Give the agent the outcome, not a script:
 To run several agents at once, give each one quest whose `## Required`
 section is empty or already merged, and check open upstream PRs first so two
 efforts never share a quest. Quests that build on each other (hash-to-curve,
-then FROST and the OPRF) wait for their base to merge.
+then FROST and the OPRF) wait for their base to merge. The parallel
+procedure from a fork is
+[rind-quest-fleet](../rind-quest-fleet/SKILL.md).
 
 Change direction mid-run with a short steer, not a restart.
 
