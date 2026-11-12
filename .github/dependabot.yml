@@ -1,0 +1,16 @@
+# Keeps the pinned action SHAs current, one weekly PR for all.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # A week's wait lets a compromised release be caught before it is proposed.
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore(ci)
+    groups:
+      actions:
+        patterns:
+          - "*"

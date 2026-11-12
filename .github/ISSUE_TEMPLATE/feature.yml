@@ -1,0 +1,17 @@
+name: New skill or rule
+description: Propose a skill or a rule that rind's documentation or review practice supports.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence in rind
+      description: The rind file, CI check, review rule, or public PR it comes from.
+    validations:
+      required: true
