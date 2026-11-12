@@ -371,6 +371,29 @@ and exclude them. Those branches take updates from upstream `main`
 only, never the fork's `main`. The rule is in
 [Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch).
 
+[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652)
+(merged 2026-11-12, `98568332`) deleted the adapters epic
+(`quest/m0/adapters/README.md`) and rewrote several open quest
+files. Before resuming work on a quest that was open before that
+merge, re-read the quest file on current upstream `main`.
+
+- `quest/m2/api/cpu-check.md` still names pyrind, rind-dart, and
+  rind-cpuid in its Goal, but the Plan now says this quest removes
+  only rind's own check. Adapter `check()` and `MissingFeature`
+  removals ship with rind 0.4 in `quest/m2/api/release-0.4.md`.
+- `quest/m2/confidence/mutants-adapters.md` no longer requires the
+  adapters epic. It still requires
+  `quest/m2/confidence/aws-lc-rs-upstream-tests.md`
+  ([moq-dev/rind#679](https://github.com/moq-dev/rind/pull/679)).
+- `quest/m2/confidence/adapter-api-diff.md` no longer requires the
+  epic.
+- `quest/m2/confidence/mutants-pins.md` was added by
+  [moq-dev/rind#687](https://github.com/moq-dev/rind/pull/687)
+  (merged 2026-11-12, `0f4e45f0`), planned from
+  [moq-dev/rind#655](https://github.com/moq-dev/rind/pull/655).
+  It shares the adapter `exclude_re` pins with `mutants-adapters`.
+  Do not claim it; the maintainer opened it from his own work.
+
 5. [moq-dev/rind#668](https://github.com/moq-dev/rind/pull/668)
    (merged 2026-11-12, `aee2586a`) makes `mutants.yml` run nightly and
    on `workflow_dispatch` only, not on pull requests. The workflow
