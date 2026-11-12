@@ -147,19 +147,36 @@ a shared box.
 
 ## Mutation testing
 
-The nightly `mutants` workflow, through `admin/mutants`, mutates recent
-Rust on each architecture rind has a runner for, on armv7 under qemu, and
-on the AVX-512 paths under Intel SDE. A mutant no architecture's tests
-catch fails the run; combine the `mutants.out` directories with
+The `mutants` workflow runs nightly and on `workflow_dispatch`. Like
+fuzzing, it never runs on pull requests. Nightly, through
+`admin/mutants`, it mutates the Rust that changed in the last day, on
+each architecture rind has a runner for, on armv7 under qemu, and on
+the AVX-512 paths under Intel SDE. A mutant no architecture's tests
+catch fails the run. `alert.yml` reports that failure when the run was
+scheduled. Combine the `mutants.out` directories with
 `admin/mutants --survivors`. macOS arm64 covers only the DIT code.
 `.github/workflows/mutants.yml` and `admin/mutants` have the details.
 
-A pull request that touches the mutation inputs also gets a run over its
-diff. That run is advisory, but fix a red one before merging, as
-`CONTRIBUTING.md` says. A large diff can exceed the job limit: shard it
-with cargo-mutants' `--shard k/n`, choosing `n` from `--list`'s count so
-each shard fits, then combine the shards with `admin/mutants --survivors`.
-The planned work is in `quest/m2/confidence/mutants-large-diffs.md`.
+`CONTRIBUTING.md` still names a mutation run over a pull request's
+diff. The workflow does not start it. For evidence on a branch,
+dispatch the workflow or run `admin/mutants` locally on the touched
+crates.
+
+`gh workflow run mutants --ref <branch>` dispatches it. With no `base`
+input it mutates the last day on that ref. Set `base` to mutate what
+the branch changed since that revision.
+
+A local run uses the dev shell, which provides cargo-mutants.
+Arguments pass through, and the run covers this host's architecture:
+
+```shell
+nix develop --command admin/mutants -p <crate>
+```
+
+`quest/m2/confidence/mutants-adapters.md` uses that `-p <crate>` form.
+Pass `--in-diff` a diff of `*.rs` since the merge-base of `<base>` and
+`HEAD` to limit the run to the branch, as the workflow's diff step
+does.
 
 ## Proofs
 
