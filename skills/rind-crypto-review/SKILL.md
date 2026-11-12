@@ -1,6 +1,6 @@
 ---
 name: rind-crypto-review
-description: Use when reviewing or self-checking a rind diff before it merges — the correctness, constant-time, input-handling and wiping rules a crypto change must pass.
+description: Use when reviewing or self-checking a rind diff for correctness, constant time, hostile input, wiping, and API shape.
 ---
 
 # Reviewing a rind change
