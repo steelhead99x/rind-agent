@@ -22,7 +22,8 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 `quest start` opens its claim PR against the repo that holds `quest/README.md`,
 which for a fork is moq-dev/rind. Don't run it until the work is meant to go
-upstream. Until then, branch by hand and treat the quest file as the spec.
+upstream. Until then, branch by hand off upstream `main` and treat the quest
+file as the spec.
 
 ## Picking a quest
 
@@ -32,6 +33,11 @@ waiting on an upstream release that hasn't shipped. Also skip work needing
 hardware or accounts you don't have, and proofs you can't check with
 `admin/prove`. Prefer missing functionality and correctness over
 micro-optimizations.
+
+Pick against current upstream `main`, not the fork's. A fork that lags
+upstream will still list quests the maintainer merged that day. Confirm
+the quest file still exists on upstream `main`, and search recently
+merged upstream PRs for it. Base a new quest branch on upstream `main`.
 
 Before starting a follow-up a PR body still lists (a SIMD path, a missing
 backend), read the current branch and the later commits first. The work may
