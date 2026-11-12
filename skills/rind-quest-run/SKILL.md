@@ -257,3 +257,20 @@ Change direction mid-run with a short steer, not a restart.
    Work that fits no quest of its own belongs in the PR of a quest that
    already owns that work, or it stays held: do not open or merge it on
    its own.
+3. A verdict pins a head SHA. rind `CONTRIBUTING.md` ("Reviews") counts
+   the `## Review` record as the required review when it names the head
+   being merged. The branch can be rewritten after that verdict, so the
+   tip is a new SHA. [steelhead99x/rind#1](https://github.com/steelhead99x/rind/pull/1)
+   went from verified head `26ee84ec` to `64eb50db` with identical tree
+   `4f96b4ef`. Before relying on the verdict, compare
+   `git rev-parse <sha>^{tree}`. An identical tree means the verdict
+   still covers the content. A different tree needs re-verification.
+4. GitHub Actions on the fork can sit queued for a long time: dozens of
+   jobs for 30 minutes or more. Wait until every required check has
+   completed and passed. A queued or in-progress run is not a pass,
+   required or advisory (rind `CONTRIBUTING.md`: fix failing CI checks
+   before merging; a path-filtered workflow cannot be a required check).
+   Do not push a merge of upstream `main` onto a branch whose CI is
+   still running. rind `.github/workflows/check.yml` sets
+   `cancel-in-progress: true` on `check-${{ github.ref }}`, so that push
+   cancels the run and starts it over.
