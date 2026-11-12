@@ -32,6 +32,10 @@ cpuid, timing and fuzz crates. Read `AGENTS.md`, `ARCHITECTURE.md`,
 5. New secret-handling path: a ctgrind test (`admin/ctgrind`).
 6. Before starting a follow-up the branch's PR still lists (a SIMD path, a
    missing backend), read the later commits. The work may already be there.
+7. Gate every test or helper that touches aws-lc with
+   `#[cfg(not(any(miri, target_family = "wasm")))]`. A missing gate breaks
+   `just wasm` and the wasm nightly, not only Miri
+   (`rind/tests/heap_scratch.rs` after ML-DSA).
 
 ## Gate locally
 
@@ -85,11 +89,22 @@ Branching, trailers, updating a pushed branch, and squash-merges are in
 [rind-git](../rind-git/SKILL.md). Follow that before the first commit.
 Run `just ci` before every push.
 
+Before a branch goes upstream, `nix develop --command just check` has
+passed on that head. A pass on an older head does not count. The rest of
+that gate is in
+[Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
+
+A fix for a CI job that used to pass names the change that broke it and
+why. The Android armv7 job was green at `fcfb32f8` and failing from
+`1175aab5`.
+
 A pull request that touches the platform workflow inputs also gets a
 cheap subset of those workflows: one ctgrind row, the armv7, portable,
 and Dart jobs of `build`, a mutation run over the PR's diff, and a
 timing build. These are advisory, but fix a red one before merging.
-The list is in `CONTRIBUTING.md`.
+The list is in `CONTRIBUTING.md`. An instruction-set or cross job the
+author cannot run locally stays open until that job is green. The check
+is in [Platform rules](../rind-crypto-review/SKILL.md#platform-rules).
 
 ## Working from a fork
 
