@@ -31,6 +31,7 @@ This is an independent project, not maintained by or affiliated with moq-dev.
 | [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
+| [`rind-quest-fleet`](skills/rind-quest-fleet/SKILL.md) | Running more than one rind quest from a fork. |
 
 [`NOTES.md`](NOTES.md) has background on rind and where changes land.
 
