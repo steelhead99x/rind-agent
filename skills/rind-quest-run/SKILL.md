@@ -106,9 +106,25 @@ upstream will still list quests the maintainer merged that day. Confirm
 the quest file still exists on upstream `main`. Base a new quest branch
 on upstream `main`.
 
+Search upstream issues for the quest path and the title, as well as
+pull requests. An issue that names the quest is taken even when no
+pull request or quest branch exists. Repeat that search before opening
+an upstream pull request.
+
 Before starting a follow-up a PR body still lists (a SIMD path, a missing
 backend), read the current branch and the later commits first. The work may
 already have landed on that branch.
+
+## Stay inside the quest
+
+A feature PR must not edit sibling quest files or shared docs that an
+open upstream PR already touches. Before editing any file outside the
+quest's own scope, check open and draft upstream PRs for that path
+(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
+`quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
+The same rule is in
+[rind-git](../rind-git/SKILL.md#files-outside-the-change).
 
 ## Done means the Plan is met
 
@@ -123,11 +139,23 @@ A docs-only quest that closes an epic still needs precise, testable rules
 (exact target triples, not prose about architecture and OS pairs) and must
 keep the epic's stated goal.
 
+Check platform and target claims against `.github/workflows/build.yml`,
+`Cross.toml`, and `sh/dispatch.sh`. A target that only compiles
+(`aarch64-apple-ios` is `cargo test --no-run`; `wasm32-unknown-unknown`
+is compile-only) is not a tested one.
+
+When a PR defers related work, add a `quest/` file for it. A sentence in
+Follow-ups is not the record. An `rs-matter` differential the PR cannot
+include is that kind of follow-up. An item the Plan requires and that
+cannot be done stays a question for the maintainer.
+
 A finished quest's PR also deletes its quest file and updates the docs that
 list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
 When aws-lc-rs lacks the algorithm, use the reference crate the Plan names
 for the differential test, and say in Alternatives that there is no aws-lc-rs
-benchmark.
+benchmark. A CI fix that closes a quest deletes that file too
+(`quest/m0/android-armv7-abi.md`). The PR names the change that broke a
+job which used to pass, and why.
 
 ## Hand it to a coding agent
 
@@ -148,21 +176,28 @@ Sync the fork with upstream first. Give the agent the outcome, not a script:
 To run several agents at once, give each one quest whose `## Required`
 section is empty or already merged, and check open upstream PRs first so two
 efforts never share a quest. Quests that build on each other (hash-to-curve,
-then FROST and the OPRF) wait for their base to merge.
+then FROST and the OPRF) wait for their base to merge. Doing that from a
+fork is in [rind-quest-fleet](../rind-quest-fleet/SKILL.md).
 
 Change direction mid-run with a short steer, not a restart.
+
+## Salvaging a closed pull request
+
+Re-verify each piece moved into the new pull request on its own. Resolve
+a conflict from the upstream merge against upstream's current text,
+including `TESTING.md`. Re-run the gate on the new head. A green result
+on the closed pull request does not carry over.
 
 ## Before going upstream
 
 1. Review each fork PR against `rind-crypto-review`.
-2. Repeat the overlap check from [Picking a quest](#picking-a-quest):
-   `git ls-remote up 'refs/heads/quest/*'`, a `chore(quest): claim`
-   commit, and open and merged PRs searched by
-   `quest/<milestone>/<area>/<name>` and by title. Also
-   search upstream `main` and recently merged PRs for an equivalent
-   change (the same `just` recipe, test target, or title). If it
-   already landed or the work overlaps, stop and say so rather than
-   opening a duplicate.
+2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
+   including upstream issues: `git ls-remote up 'refs/heads/quest/*'`, a
+   `chore(quest): claim` commit, and open and merged PRs searched by
+   `quest/<milestone>/<area>/<name>` and by title. Also search upstream
+   `main` and recently merged PRs for an equivalent change (the same
+   `just` recipe, test target, or title). If it already landed or the
+   work overlaps, stop and say so rather than opening a duplicate.
 3. Rebuild the branch as [rind-git](../rind-git/SKILL.md) describes for an
    upstream-bound branch: one squashed commit on a fresh branch from
    `up/main`, with no fork-only files, even in history.
@@ -174,12 +209,16 @@ Change direction mid-run with a short steer, not a restart.
    in a separate small commit, and name it in the Review section as "not
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
-6. Run `just ci` and the ctgrind tests for new secret paths on the final head,
-   with the dev shell rooted as
+6. On the final head, run `just ci`, the ctgrind tests for new secret
+   paths, and the full `nix develop --command just check`, with the dev
+   shell rooted as
    [Gate locally](../rind-contribute/SKILL.md#gate-locally) describes
    (`just check up/main` the same way). Do not collect Nix garbage while
-   it runs. Re-measure benchmark numbers on the rebuilt head, or state the
-   hardware and date of the earlier figures.
+   it runs. Every `rind-crypto-review` item from the second pass is
+   resolved. A pass on an older head is stale once the head moves.
+   ctgrind under valgrind needs Linux x86, not Apple Silicon. Re-measure
+   benchmark numbers on the rebuilt head, or state the hardware and date
+   of the earlier figures.
 7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
@@ -187,7 +226,11 @@ Change direction mid-run with a short steer, not a restart.
    - Cloud VMs usually lack the reviewer CLIs (`claude`, `codex`), so
      `quest review` exits 2 there. A workstation with both the `claude`
      and `codex` CLIs logged in can run it; quest picks a reviewer that
-     is not the last writer. Use at least medium effort, base the review
+     is not the last writer. A cloud VM can run the first-pass checks,
+     the tests, and ctgrind under valgrind when the VM is Linux x86.
+     `/quest-review` and the full `nix develop --command just check` run
+     on that workstation. Say in the PR which environment each result
+     came from. Use at least medium effort, base the review
      on upstream `main` when the PR targets that, and write the record
      to a file. Do not let the tooling write the record into an upstream
      PR unless that is intended. Build `quest` from the commit the repo's
@@ -197,6 +240,9 @@ Change direction mid-run with a short steer, not a restart.
      commits as bases. A SHA that exists only on the fork means nothing to
      the maintainer, so map it to the matching upstream `main` commit, or
      say "upstream main as of <date>".
+   - A fork pull request's GitHub diff is against the fork's `main`.
+     When that branch lags upstream, review `git diff up/main...HEAD`
+     (`up` may be named `upstream`) and name that base in the notes.
    - If the clone's remote is a local mirror, quest can't write the record
      into the PR. Paste it in yourself, along with the head SHA it reviewed.
    - If several jobs may push to the same branch, wait for the head to
@@ -231,16 +277,49 @@ Change direction mid-run with a short steer, not a restart.
    - Don't rerun a round while its findings are still open. Fix or refute
      them first, and give the reviewer the responses file along with the
      head SHA it answers.
-8. Open one upstream PR as a draft first, and send the rest after the
+   - A fix after a second-pass finding resets that finding's review. On
+     the fork branch, push it as its own small commit whose subject names
+     the fix. Re-check the fix itself: a declassify covers only a true
+     public output, such as a verify `Result`. Then run full ctgrind and
+     `nix develop --command just check` on the new head. The
+     upstream-bound rebuild still squashes, as rind-git says.
+8. Before opening the pull request, check `UPSTREAM.md`. It lists every
+   workaround for a bug or gap in a tool or dependency rind doesn't own.
+   A pull request that adds one adds its entry and names that entry, by
+   its heading, in the workaround's comment (`See UPSTREAM.md, "<heading>".`).
+   A pull request that drops one removes it from its entry, and deletes
+   the entry once it lists no workaround. The rule is rind's
+   `CONTRIBUTING.md`, under Upstream.
+9. Open one upstream PR as a draft first, and send the rest after the
    maintainer has responded to it. Several large drafts at once from a new
    contributor is a lot to review. Lead with a standalone change, and hold
    ones that overlap the maintainer's open work.
 
-   - Keep it a draft while its body lists a decision the maintainer still
-     owns; otherwise mark it ready.
+   - List every open maintainer decision in the PR description. Whether
+     rustls-webpki and rcgen join `patch`/`fixture` in
+     `quest/m2/adoption/aws-lc-rs/aws-lc-rs-patch.md` is that kind of
+     question. Leave the decision to the maintainer. Keep the PR a draft
+     while any of them is unanswered.
    - Ask a scoping question (for example, which differential reference is
      acceptable) as one short PR comment that names the constraint and the
      options. Don't open an issue for it when the repo tracks work in quest
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Known issues
+
+On Nov 12, 2026, within about an hour, the maintainer opened his own
+upstream PRs for four quests the fork had already claimed with fork draft
+PRs:
+
+- [moq-dev/rind#674](https://github.com/moq-dev/rind/pull/674) (ecvrf, fork [steelhead99x/rind#19](https://github.com/steelhead99x/rind/pull/19))
+- [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677) (fips/drbg, fork [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24))
+- [moq-dev/rind#671](https://github.com/moq-dev/rind/pull/671) (rind-dart-cryptography, fork [steelhead99x/rind#36](https://github.com/steelhead99x/rind/pull/36))
+- [moq-dev/rind#670](https://github.com/moq-dev/rind/pull/670) (android-armv7-abi, fork [steelhead99x/rind#21](https://github.com/steelhead99x/rind/pull/21))
+
+Fork draft-PR claims are not visible upstream and don't reserve a quest.
+Check upstream open PRs and `quest/*` branches, not just claim commits,
+before claiming, again partway through, and again before marking ready.
+When upstream takes a quest, stop and hold the fork PR with a comment.
+Prefer quests whose files show no recent upstream activity.

@@ -27,6 +27,15 @@ One quest or one problem per branch. For a quest, name the branch from the
 quest path: `quest/<milestone>/<area>/<name>` (the path under `quest/`
 without the `.md`). Do not reuse a name that already exists on upstream.
 
+## Files outside the change
+
+A feature PR must not edit sibling quest files or shared docs that an
+open upstream PR already touches. Before editing any file outside the
+quest's own scope, check open and draft upstream PRs for that path
+(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
+`quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
+
 ## Updating a pushed branch
 
 Merge `up/main` into the branch. Never rebase, amend, or force-push a
@@ -77,6 +86,10 @@ it; never rebase or force-push it.
   `git commit-tree`. After the branch has been pushed, do not amend;
   add a new commit instead.
 - No binaries or build artifacts.
+- On a fork branch still in review, a fix for a review finding is its own
+  small commit, and the subject names the fix. Leave the earlier commits
+  as they are. The upstream-bound rebuild still squashes those into one
+  commit.
 
 ## Pull requests
 
@@ -88,8 +101,22 @@ bullet per public API change, with migration for breaking ones),
 not apply. A finished quest's PR also names the quest it claims and
 deletes that quest file.
 
+Before opening the pull request, check `UPSTREAM.md`. It lists every
+workaround for a bug or gap in a tool or dependency rind doesn't own.
+A pull request that adds one adds its entry and names that entry, by
+its heading, in the workaround's comment (`See UPSTREAM.md, "<heading>".`).
+A pull request that drops one removes it from its entry, and deletes
+the entry once it lists no workaround. The rule is rind's
+`CONTRIBUTING.md`, under Upstream.
+
 Open a draft while working; mark it ready when the gate passes and the
-body lists no decision the maintainer still owns.
+body lists no decision the maintainer still owns. List each open
+decision in the description, and leave the decision to the maintainer.
+
+The body says which environment each result came from, and which base a
+review diff used (`up/main...HEAD` when the pull request targets a fork).
+Carrying commits out of a closed pull request is in
+[Salvaging a closed pull request](../rind-quest-run/SKILL.md#salvaging-a-closed-pull-request).
 
 ## Squash-merge
 
