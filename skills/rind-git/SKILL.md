@@ -27,6 +27,15 @@ One quest or one problem per branch. For a quest, name the branch from the
 quest path: `quest/<milestone>/<area>/<name>` (the path under `quest/`
 without the `.md`). Do not reuse a name that already exists on upstream.
 
+## Files outside the change
+
+A feature PR must not edit sibling quest files or shared docs that an
+open upstream PR already touches. Before editing any file outside the
+quest's own scope, check open and draft upstream PRs for that path
+(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
+`quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
+
 ## Updating a pushed branch
 
 Merge `up/main` into the branch. Never rebase, amend, or force-push a
