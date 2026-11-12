@@ -29,6 +29,7 @@ This is an independent project, not maintained by or affiliated with moq-dev.
 | [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | A side sheet for those hosts, and a results repository for the JSON. |
 | [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks before flashing an RP2040 or an EFR32MG24. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
+| [`rind-quest-fleet`](skills/rind-quest-fleet/SKILL.md) | Running more than one rind quest from a fork. |
 
 [`NOTES.md`](NOTES.md) has background on rind and where changes land.
 

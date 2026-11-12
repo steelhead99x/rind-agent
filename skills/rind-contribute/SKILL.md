@@ -98,6 +98,14 @@ A fix for a CI job that used to pass names the change that broke it and
 why. The Android armv7 job was green at `fcfb32f8` and failing from
 `1175aab5`.
 
+Before opening the pull request, check `UPSTREAM.md`. It lists every
+workaround for a bug or gap in a tool or dependency rind doesn't own.
+A pull request that adds one adds its entry and names that entry, by
+its heading, in the workaround's comment (`See UPSTREAM.md, "<heading>".`).
+A pull request that drops one removes it from its entry, and deletes
+the entry once it lists no workaround. The rule is rind's
+`CONTRIBUTING.md`, under Upstream.
+
 A pull request that touches the platform workflow inputs also gets a
 cheap subset of those workflows: one ctgrind row, the armv7, portable,
 and Dart jobs of `build`, a mutation run over the PR's diff, and a
