@@ -91,7 +91,9 @@ A pull request that touches the platform workflow inputs also gets a
 cheap subset of those workflows: one ctgrind row, the armv7, portable,
 and Dart jobs of `build`, a mutation run over the PR's diff, and a
 timing build. These are advisory, but fix a red one before merging.
-The list is in `CONTRIBUTING.md`.
+The list is in `CONTRIBUTING.md`. A pull request skips the `android`
+job; run it with the QEMU recipe in
+[Android under QEMU](../rind-bench-and-verify/SKILL.md#android-under-qemu).
 
 ## Working from a fork
 
