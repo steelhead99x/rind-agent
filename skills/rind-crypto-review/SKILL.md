@@ -249,6 +249,25 @@ explained in the PR.
       `wasm32_unknown_unknown_js` is
       `all(target_arch = "wasm32", target_os = "unknown")`, so
       wasm32-wasip2 (`target_os = "wasi"`) keeps its WASI source.
+- [ ] A new public item in the `rind` crate is the change itself. When a
+      binding, an adapter, or a performance change only needs the item,
+      keep it `pub(crate)`, or ask the maintainer and leave the PR a draft
+      while that decision is open. `AGENTS.md` requires one way to do each
+      job, and that misuse fails to compile. `CONTRIBUTING.md` lists every
+      public API change under Impact.
+      `RandomizedNonceKey::seal_in_place_append_tag_with_nonce` takes a
+      caller-chosen nonce, a second way to seal. aws-lc-rs's
+      `RandomizedNonceKey` seals under a nonce it generates. Exporting
+      `cpu::wide_multiplier`, or a public `drbg` module when the quest
+      plan kept the generator in the FIPS module, asks the same question.
+- [ ] An adapter item put behind a cargo feature to match upstream still
+      builds. Build that crate with `--no-default-features`, and with
+      `--no-default-features --features` set to each feature on its own.
+      Its own ungated callers may still use the item. For example, gating
+      `PublicKey::modulus_len` on `ring-io` matches aws-lc-rs 1.19.0
+      `src/rsa/key.rs`. `KeyPair::public_modulus_len` still calls it, and
+      `cargo check -p rind-aws-lc-rs --no-default-features` then fails to
+      find the method (E0599).
 
 ## Performance
 
