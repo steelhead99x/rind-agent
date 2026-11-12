@@ -12,7 +12,10 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 1. Install and pin `quest` per <https://github.com/moq-dev/quest/blob/main/SETUP.md>.
    Confirm `quest --version` and `quest check`. Without Nix, build the commit
-   the flake pins; don't use a GitHub release the setup guide says to skip.
+   the flake pins: `bun install --frozen-lockfile && bun run build` in that
+   checkout, then `bun <checkout>/dist/quest.js` from the target repo.
+   Running `src/cli/bin.ts` from another directory fails. Skip a GitHub
+   release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
@@ -183,6 +186,19 @@ fork is in [rind-quest-fleet](../rind-quest-fleet/SKILL.md).
 
 Change direction mid-run with a short steer, not a restart.
 
+After an agent finishes, send the `rind-crypto-review` findings as one
+follow-up. If upstream now covers that quest, stop the agent. A scheduled
+run can reply only to agents launched in that same conversation. Write
+other follow-ups into the conversation that launched them. Jobs that skip
+pull requests need a separate clone, one worktree per PR, an isolated
+`CARGO_HOME`, and `target/` removed afterward. Run them at the PR head and
+at the parent commit. `nix develop --profile <logs>/dev-profile --command bash --noprofile --norc -c '...'`
+keeps the tools from being garbage-collected and keeps a login `PATH` from
+shadowing the shell. On macOS, if `xcode-select` points at the Command Line
+Tools, set `DEVELOPER_DIR` to the Xcode app for `simctl` and `xcrun`. When
+nothing unclaimed remains, deepen open fork PRs or fix CI on upstream
+`main`.
+
 ## Salvaging a closed pull request
 
 Re-verify each piece moved into the new pull request on its own. Resolve
@@ -216,12 +232,15 @@ the exact text. Collect questions for the maintainer until then.
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
 6. On the final head, run `just ci`, the ctgrind tests for new secret
-   paths, and the full `nix develop --command just check`. Every
-   `rind-crypto-review` item from the second pass is resolved. A pass on
-   an older head is stale once the head moves. ctgrind under valgrind
-   needs Linux x86, not Apple Silicon. Re-measure benchmark numbers on
-   the rebuilt head, or state the hardware and date of the earlier
-   figures.
+   paths, and the full `nix develop --command just check`, with the dev
+   shell rooted as
+   [Gate locally](../rind-contribute/SKILL.md#gate-locally) describes
+   (`just check up/main` the same way). Do not collect Nix garbage while
+   it runs. Every `rind-crypto-review` item from the second pass is
+   resolved. A pass on an older head is stale once the head moves.
+   ctgrind under valgrind needs Linux x86, not Apple Silicon. Re-measure
+   benchmark numbers on the rebuilt head, or state the hardware and date
+   of the earlier figures.
 7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
@@ -434,3 +453,17 @@ merge, re-read the quest file on current upstream `main`.
    requests also edit `uncovered-functions.md`. Newly added quests are
    often claimed immediately. Re-check open upstream pull requests and
    `quest/*` branches right before claiming.
+
+On Nov 12, 2026, two quest agents ended in an error state after pushing
+only their empty claim commit. Roughly an hour of work was lost, and the
+quests looked claimed but had no implementation:
+
+- OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50)
+- FROST, fork [steelhead99x/rind#51](https://github.com/steelhead99x/rind/pull/51)
+
+Push work in small, buildable commits as each Plan item lands, rather
+than at the end. The hourly loop treats a fork quest draft PR whose only
+commit is the claim, and whose agent is in error, as a resume item: reply
+to that agent, or launch a new one on the same branch. Upstream
+moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+files still override this skill.
