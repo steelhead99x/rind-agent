@@ -43,7 +43,11 @@ agents that read that directory. The names don't collide with rind's own
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Changes land through pull requests only, one change per PR, with a
+conventional-commit title and every rule traced to rind. `cargo run` checks
+the skills, links, and workflow pins; CI runs it with fmt, clippy, tests,
+and an MSRV build. The full process is in [`CONTRIBUTING.md`](CONTRIBUTING.md),
+and security reports go through [`SECURITY.md`](SECURITY.md).
 
 ## License
 

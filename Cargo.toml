@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.74"
 license = "Apache-2.0 OR ISC OR MIT-0"
-description = "Checks the rind skills: frontmatter and relative Markdown links."
+description = "Checks the rind skills: frontmatter, links, privacy, action pins, and PR format."
 repository = "https://github.com/steelhead99x/rind-agent"
 publish = false
 

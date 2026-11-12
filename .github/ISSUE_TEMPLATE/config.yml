@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A vulnerability in rind
+    url: https://github.com/moq-dev/rind/security
+    about: Report it privately to rind's maintainers, not here.
+  - name: A bug or question about rind itself
+    url: https://github.com/moq-dev/rind
+    about: rind's own behavior belongs in rind's repository.

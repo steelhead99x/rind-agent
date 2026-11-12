@@ -1,0 +1,39 @@
+name: Incorrect or outdated guidance
+description: A skill says something rind doesn't do, or a step fails.
+labels: [documentation]
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Skill
+      description: The skill and section, such as rind-contribute, "Gate locally".
+    validations:
+      required: true
+  - type: textarea
+    id: says
+    attributes:
+      label: What the skill says
+    validations:
+      required: true
+  - type: textarea
+    id: rind
+    attributes:
+      label: What rind does
+      description: Link the rind file, commit, workflow run, or PR that shows it.
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: rind commit
+      description: The rind commit you checked against.
+      placeholder: 3c0ea6e
+    validations:
+      required: true
+  - type: checkboxes
+    id: public
+    attributes:
+      label: Public
+      options:
+        - label: This report has no personal or environment details (names, paths, host names, IDs, tokens).
+          required: true
