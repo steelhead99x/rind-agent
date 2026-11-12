@@ -1,6 +1,6 @@
 ---
 name: rind-contribute
-description: Use when making any code change to rind (moq-dev/rind or a fork) — setup, branch, local gate, commit and PR format.
+description: Use when making a code change to rind — setup, the change itself, and the local gate.
 ---
 
 # Contributing a change to rind
@@ -77,52 +77,24 @@ Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR, with the host and the
 date.
 
-## Commit and PR
+## Git, commits and pull requests
 
-- Conventional-commit subjects: `feat(rustls): ...`, `fix: ...`, `perf: ...`,
-  `docs: ...`, `chore: ...`. Breaking change: `feat!: ...`.
-- PRs squash onto `main`, so the PR title becomes the commit subject.
-- AI attribution goes in a `Co-Authored-By:` trailer only, never in the
-  subject, body or PR text.
-- Check the trailer count with `git log -1 --format=%B`; some environments
-  append their own trailer on `git commit` (a commit-msg hook, for one).
-  Rewrite the message with `git -c core.hooksPath=/dev/null commit --amend`
-  or build it with `git commit-tree` before the first push.
-- When squash-merging, pass the documented author email explicitly
-  (`gh pr merge --squash --author-email`) and a body with exactly one
-  `Co-Authored-By:` trailer, then verify the resulting `main` commit's
-  author, committer, and trailer count.
-- No binaries or build artifacts.
-- PR body, short and structured: **Problem**, **Approach**, **Impact** (one
-  bullet per public API change, with migration for breaking ones),
-  **Alternatives**, **Follow-ups** (issues hit, quests created). A finished
-  quest's PR also names the quest it claims and deletes that quest file.
-- Run `just ci` before every push, and check that the PR is still open
-  before pushing: a push after merge recreates the deleted branch.
-- A pull request that touches the platform workflow inputs also gets a
-  cheap subset of those workflows: one ctgrind row, the armv7, portable,
-  and Dart jobs of `build`, a mutation run over the PR's diff, and a
-  timing build. These are advisory, but fix a red one before merging.
-  The list is in `CONTRIBUTING.md`.
+Branching, trailers, updating a pushed branch, and squash-merges are in
+[rind-git](../rind-git/SKILL.md). Follow that before the first commit.
+Run `just ci` before every push.
+
+A pull request that touches the platform workflow inputs also gets a
+cheap subset of those workflows: one ctgrind row, the armv7, portable,
+and Dart jobs of `build`, a mutation run over the PR's diff, and a
+timing build. These are advisory, but fix a red one before merging.
+The list is in `CONTRIBUTING.md`.
 
 ## Working from a fork
 
-Open PRs against the fork's `main` first. Send anything upstream only after
-the fork owner has reviewed it and said so. Before new work, sync the fork
-with upstream as in
+Open pull requests against the fork's `main` first. Send anything upstream
+only after the fork owner has reviewed it and said so. Before new work,
+sync the fork with upstream as in
 [Sync the fork first](../rind-quest-run/SKILL.md#sync-the-fork-first).
-
-A branch headed upstream must not carry fork-only files (a review config,
-for example), even in history. After rebuilding it on upstream `main`,
-repeat the quest-branch and PR overlap check, check open upstream PRs for
-overlapping files, trial-merge those heads, and open one draft first:
-lead with a standalone change and hold work that overlaps. If it
-overlaps, stop. The full sequence is in
-[Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
-
-When merging upstream `main` into a feature branch, resolve a conflict in
-a shared list (the README's algorithm table, for example) by keeping both
-entries, then rerun that feature's tests before pushing. Merge updates
-into a branch that is under review; never rebase or force-push it. If the
-same branch may receive a merge of upstream `main` from elsewhere, fetch
-and merge `origin/<branch>` immediately before pushing.
+For remotes, branch names, and how to rebuild an upstream-bound branch,
+follow [rind-git](../rind-git/SKILL.md). The rest of the upstream sequence
+is in [Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
