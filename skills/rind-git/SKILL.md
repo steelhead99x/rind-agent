@@ -39,10 +39,32 @@ each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
 ## Updating a pushed branch
 
 Merge `up/main` into the branch. Never rebase, amend, or force-push a
-branch that has already been pushed.
+branch that has already been pushed. Do not use `--force` or
+`--force-with-lease` unless the fork owner has explicitly approved
+rewriting the named branch. A revert removes the unwanted tree from the
+tip but leaves the commits in the pull request's history; cleaning that
+history is a force-push and needs the same approval.
 
 Never merge the fork's `main` into an upstream-bound branch: the fork's
-`main` can carry files upstream does not.
+`main` can carry fork-only files (an extra algorithm, for example) that
+upstream does not, and those files would appear on an upstream pull
+request.
+
+A fork branch that is already the head of an open upstream pull request
+is in that category even when the change first landed on the fork.
+Never merge the fork's `main` into it, and never include it in a bulk
+update of fork branches. Before any such sweep, list those heads and
+exclude them:
+
+```shell
+gh pr list --repo moq-dev/rind --author <fork-owner> --state open --json headRefName
+```
+
+`<fork-owner>` is the account that opened the fork's upstream pull
+requests (`gh api user --jq .login` when that account is logged in).
+Branches meant to go upstream take updates from upstream `main` only.
+
+Before every push, confirm the target branch is not one of those heads.
 
 When merging `up/main` into a feature branch, resolve a conflict in a
 shared list (the README's algorithm table, for example) by keeping both
