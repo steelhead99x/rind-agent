@@ -16,6 +16,10 @@ explained in the PR.
 - [ ] Where aws-lc cannot build (wasm, for example), check verdicts against a
       file recorded from aws-lc, plus a host test that keeps the file equal
       to aws-lc. Never accept "either verdict" as a check.
+- [ ] Every test or helper that touches aws-lc is gated with
+      `#[cfg(not(any(miri, target_family = "wasm")))]`. A missing gate
+      breaks `just wasm` and the wasm nightly, not only Miri
+      (`rind/tests/heap_scratch.rs` after ML-DSA).
 - [ ] New arithmetic says where its correctness argument comes from (a proof,
       a cited paper, or the upstream it was taken from).
 - [ ] Code copied from another project keeps its copyright lines and an

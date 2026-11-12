@@ -56,6 +56,8 @@ example) needs qemu-user with that target, not `just qemu`.
 `just wasm` runs the portable backend's release vectors on wasm32-wasip2
 under wasmtime. There are no differential tests on wasm, because aws-lc
 does not build for it; `just portable` runs the same Rust against aws-lc.
+Any test or helper that still touches aws-lc needs the gate in
+[Miri](#miri).
 
 Tests under wasmtime do not inherit the host environment. Forward
 `SLOW_TESTS`, `PROPTEST_CASES` and `PROPTEST_RNG_SEED` into the guest
@@ -159,9 +161,20 @@ million ML-KEM vectors).
 
 ## Miri
 
-Some dev-dependencies (`aws-lc-sys` among them) only exist outside Miri.
-Every test or helper that touches one needs `#[cfg(not(miri))]`, like the
-existing aws-lc tests; one missing gate stops Miri compiling every unit
-test in the crate. After adding a differential test, check that the Miri
-build still compiles (`cargo +nightly miri test --no-run -p rind --lib`).
+Some dev-dependencies (`aws-lc-rs` and `aws-lc-sys` among them) are left
+out of Miri and wasm builds. `rind/Cargo.toml` gates them with
+`cfg(not(any(miri, target_family = "wasm")))`: Miri cannot run C, and
+aws-lc does not build for wasm.
+
+Every test or helper that touches one needs
+`#[cfg(not(any(miri, target_family = "wasm")))]`, like the existing aws-lc
+tests. A file that only exists to call aws-lc uses the inner `#!` form.
+A missing gate breaks `just wasm` and the wasm nightly (the `wasm` job in
+`.github/workflows/build.yml`), not only Miri: the build fails to compile
+the tests. After ML-DSA, `rind/tests/heap_scratch.rs` called aws-lc under
+`#![cfg(feature = "wipe")]` alone.
+
+After adding a differential test, check that the Miri build still compiles
+(`cargo +nightly miri test --no-run -p rind --lib`) and that `just wasm`
+still compiles.
 
