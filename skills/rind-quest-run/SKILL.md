@@ -317,10 +317,24 @@ on the closed pull request does not carry over.
    rind `CONTRIBUTING.md` still lists "a mutation run over the PR's
    diff" among advisory runs to fix when red. After #668, `mutants.yml`
    does not start that run on a pull request.
-2. The fork's GitHub Actions can stall. On Nov 12, 2026, jobs sat
-   queued on `ubuntu-latest` for hours with no runner, so those checks
-   were not green and merges were held. At 11:15 UTC, `ctgrind`'s
-   `binsec (x86_64)` had been queued since 08:26 UTC. When every fork
-   run is queued and nothing is in progress, report that as a blocker
-   for the repo owner. Do not re-queue the runs repeatedly. Keep
-   holding merges.
+2. A fork Actions queue that looks frozen can be a backlog. On
+   Nov 12, 2026, about 100 runs were queued while others were in
+   progress, including long `mutants (armv7, ...)` jobs that already
+   had a `runner_name`. A queued job can show an empty `runner_name`
+   at the same time. Before calling a stall, list in-progress runs
+   (`gh run list --repo <owner>/<repo> --status in_progress`) and
+   read each job's `runner_name`
+   (`gh api repos/<owner>/<repo>/actions/runs/<id>/jobs`). A backlog
+   is waiting. It is not a billing or owner blocker. Do not re-queue
+   the runs.
+3. [moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669)
+   (merged 2026-11-12, `ad43e51a`) added
+   `quest/m2/confidence/coverage-report.md`,
+   `aws-lc-rs-upstream-tests.md`, and `uncovered-functions.md`. The
+   maintainer opened upstream pull requests for the first two within
+   minutes: [#678](https://github.com/moq-dev/rind/pull/678) and
+   [#679](https://github.com/moq-dev/rind/pull/679). Each branch's
+   first commit is `chore(quest): claim quest/...md`. Both pull
+   requests also edit `uncovered-functions.md`. Newly added quests are
+   often claimed immediately. Re-check open upstream pull requests and
+   `quest/*` branches right before claiming.
