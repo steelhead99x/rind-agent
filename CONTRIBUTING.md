@@ -60,6 +60,10 @@ subject in `git log`.
 - Scopes: a skill without its `rind-` prefix (`docs(crypto-review): ...`),
   `check` for the checker (`feat(check): ...`, `fix(check): ...`), or `ci`.
 - Co-author attribution goes in a `Co-Authored-By:` trailer, not the body.
+- When squash-merging, pass `--author-email` set to the account's GitHub
+  noreply address and a `--body` with exactly one `Co-Authored-By:`
+  trailer, then verify the resulting `main` commit's author, committer,
+  and trailer count.
 - Never commit binaries or build artifacts.
 
 ## Pull requests

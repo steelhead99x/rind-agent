@@ -30,6 +30,8 @@ cpuid, timing and fuzz crates. Read `AGENTS.md`, `ARCHITECTURE.md`,
 4. New primitive or new path: Wycheproof vectors where they exist, plus a
    differential test against aws-lc-rs (a dev-dependency only).
 5. New secret-handling path: a ctgrind test (`admin/ctgrind`).
+6. Before starting a follow-up the branch's PR still lists (a SIMD path, a
+   missing backend), read the later commits. The work may already be there.
 
 ## Gate locally
 
@@ -58,7 +60,8 @@ Things that trip `just check` on new code:
   fuzz target, so lint those too.
 
 Touching performance: run the relevant `cargo bench` before and after, and
-compare against aws-lc-rs. Put the numbers in the PR.
+compare against aws-lc-rs. Put the numbers in the PR, with the host and the
+date.
 
 ## Commit and PR
 
@@ -71,6 +74,10 @@ compare against aws-lc-rs. Put the numbers in the PR.
   append their own trailer on `git commit` (a commit-msg hook, for one).
   Rewrite the message with `git -c core.hooksPath=/dev/null commit --amend`
   or build it with `git commit-tree` before the first push.
+- When squash-merging, pass the documented author email explicitly
+  (`gh pr merge --squash --author-email`) and a body with exactly one
+  `Co-Authored-By:` trailer, then verify the resulting `main` commit's
+  author, committer, and trailer count.
 - No binaries or build artifacts.
 - PR body, short and structured: **Problem**, **Approach**, **Impact** (one
   bullet per public API change, with migration for breaking ones),

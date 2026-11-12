@@ -33,6 +33,10 @@ hardware or accounts you don't have, and proofs you can't check with
 `admin/prove`. Prefer missing functionality and correctness over
 micro-optimizations.
 
+Before starting a follow-up a PR body still lists (a SIMD path, a missing
+backend), read the current branch and the later commits first. The work may
+already have landed on that branch.
+
 ## Done means the Plan is met
 
 Read the quest's Plan section line by line and mark each item met or not met.
@@ -74,7 +78,10 @@ Change direction mid-run with a short steer, not a restart.
 ## Before going upstream
 
 1. Review each fork PR against `rind-crypto-review`.
-2. Rebuild the branch on current upstream `main`. If the fork's `main`
+2. Search upstream `main` and recently merged PRs for an equivalent change
+   (the same `just` recipe, test target, or title). If it already landed,
+   stop and say so rather than opening a duplicate.
+3. Rebuild the branch on current upstream `main`. If the fork's `main`
    carries files upstream does not (a review config, for example), the
    branch must not include them, even in history. Cherry-pick the quest's
    own commits onto upstream `main`, and drop merge commits from the fork
@@ -83,18 +90,18 @@ Change direction mid-run with a short steer, not a restart.
    rebuilt branch under a new name; don't force-push a branch someone has
    already reviewed. Once a branch is already pushed upstream, merge
    updates into it; never rebase or force-push it.
-3. After rebuilding, check upstream's open PRs for overlap: list the files
+4. After rebuilding, check upstream's open PRs for overlap: list the files
    each open PR changes, intersect them with yours, and trial-merge the
    overlapping heads locally. Say in the body which PR should land first,
    or that this one rebases cleanly on either.
-4. Reconcile against upstream drift (a constant or API removed upstream)
+5. Reconcile against upstream drift (a constant or API removed upstream)
    in a separate small commit, and name it in the Review section as "not
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
-5. Run `just ci` and the ctgrind tests for new secret paths on the final head.
+6. Run `just ci` and the ctgrind tests for new secret paths on the final head.
    Re-measure benchmark numbers on the rebuilt head, or state the hardware
    and date of the earlier figures.
-6. Run `/quest-review` with the other vendor's model and put its `## Review`
+7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
 
@@ -132,7 +139,7 @@ Change direction mid-run with a short steer, not a restart.
    - Don't rerun a round while its findings are still open. Fix or refute
      them first, and give the reviewer the responses file along with the
      head SHA it answers.
-7. Open one upstream PR as a draft first, and send the rest after the
+8. Open one upstream PR as a draft first, and send the rest after the
    maintainer has responded to it. Several large drafts at once from a new
    contributor is a lot to review. Lead with a standalone change, and hold
    ones that overlap the maintainer's open work.

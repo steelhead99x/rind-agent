@@ -13,7 +13,7 @@ The skills condense rind's own
 [`CONTRIBUTING.md`](https://github.com/moq-dev/rind/blob/main/CONTRIBUTING.md).
 Where they disagree, rind's repository is authoritative. They were last
 checked against rind at
-[`3c0ea6e`](https://github.com/moq-dev/rind/commit/3c0ea6e3e56907b6cddd502fe90326855c570052).
+[`34c65da`](https://github.com/moq-dev/rind/commit/34c65da32f687b127375e83c6963327bbff389c9).
 
 This is an independent project, not maintained by or affiliated with moq-dev.
 
