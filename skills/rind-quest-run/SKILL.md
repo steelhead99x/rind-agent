@@ -1,6 +1,6 @@
 ---
 name: rind-quest-run
-description: Use when working rind's planned backlog with quest (`/quest-spawn`), either yourself or by handing it to a coding agent.
+description: Use when working rind's planned `quest/` backlog with `quest skill spawn` or `quest skill run`.
 ---
 
 # Working the rind backlog with quest
@@ -18,8 +18,9 @@ stubs call the `quest` CLI, which carries the real instructions.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
    starts ready quests and takes open PRs toward merge until only the
    maintainer's decisions remain.
-4. Each quest: its own branch, the `rind-contribute` steps, the
-   `rind-crypto-review` checklist, then a PR.
+4. Each quest: its own branch named from the quest path, the
+   `rind-contribute` and `rind-git` steps, the `rind-crypto-review`
+   checklist, then a PR.
 
 ## Working from a fork
 
@@ -153,15 +154,9 @@ Change direction mid-run with a short steer, not a restart.
    change (the same `just` recipe, test target, or title). If it
    already landed or the work overlaps, stop and say so rather than
    opening a duplicate.
-3. Rebuild the branch on current upstream `main`. If the fork's `main`
-   carries files upstream does not (a review config, for example), the
-   branch must not include them, even in history. Cherry-pick the quest's
-   own commits onto upstream `main`, and drop merge commits from the fork
-   and stray artifacts (for example `mutants.out`). Then check that
-   `git diff upstream/main --stat` shows only the quest's files. Push the
-   rebuilt branch under a new name; don't force-push a branch someone has
-   already reviewed. Once a branch is already pushed upstream, merge
-   updates into it; never rebase or force-push it.
+3. Rebuild the branch as [rind-git](../rind-git/SKILL.md) describes for an
+   upstream-bound branch: one squashed commit on a fresh branch from
+   `up/main`, with no fork-only files, even in history.
 4. After rebuilding, check upstream's open PRs for overlap: list the files
    each open PR changes, intersect them with yours, and trial-merge the
    overlapping heads locally. Say in the body which PR should land first,
