@@ -241,3 +241,19 @@ Change direction mid-run with a short steer, not a restart.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Known issues
+
+1. Never add or invent a quest file. A follow-up a quest file mentions is
+   left for the maintainer through `/quest-plan` (rind `CONTRIBUTING.md`,
+   "Follow-ups") and raised as a question in the PR.
+   `quest/m4/protocols/spake2plus.md` plans a `rind-rs-matter` adapter
+   "once this lands", and `quest/m4/protocols/README.md` says a
+   `rind-<consumer>` adapter is "planned when one is wanted".
+   `quest/m4/protocols/rind-rs-matter.md` is not in upstream `quest/`.
+2. Before starting work, map it to a quest path that already exists on
+   upstream `main`. rind `AGENTS.md` says to run `quest context` and
+   follow it before any work. A clean verification does not make a quest.
+   Work that fits no quest of its own belongs in the PR of a quest that
+   already owns that work, or it stays held: do not open or merge it on
+   its own.
