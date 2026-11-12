@@ -190,6 +190,10 @@ on the closed pull request does not carry over.
 
 ## Before going upstream
 
+Do not open, comment on, or update an upstream pull request or issue,
+and do not contact the maintainer, unless the fork owner has approved
+the exact text. Collect questions for the maintainer until then.
+
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
    including upstream issues: `git ls-remote up 'refs/heads/quest/*'`, a
@@ -243,8 +247,10 @@ on the closed pull request does not carry over.
    - If the clone's remote is a local mirror, quest can't write the record
      into the PR. Paste it in yourself, along with the head SHA it reviewed.
    - If several jobs may push to the same branch, wait for the head to
-     settle before a review round, and fetch and merge `origin/<branch>`
-     before every push.
+     settle before a review round. Fetch the fork and upstream before
+     every step and immediately before every push, and merge anything
+     that moved, as [rind-git](../rind-git/SKILL.md#updating-a-pushed-branch)
+     describes.
    - A low-effort round finds obvious bugs, but it skips the constant-time,
      vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
      that depth explicitly, or follow the round with a `rind-crypto-review`
