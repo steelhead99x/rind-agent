@@ -122,8 +122,9 @@ the entry once it lists no workaround. The rule is rind's
 
 A pull request that touches the platform workflow inputs also gets a
 cheap subset of those workflows: one ctgrind row, the armv7, portable,
-and Dart jobs of `build`, a mutation run over the PR's diff, and a
-timing build. These are advisory, but fix a red one before merging.
+and Dart jobs of `build`, and a timing build. These are advisory, but
+fix a red one before merging. Mutation evidence is in
+[Mutation testing](../rind-bench-and-verify/SKILL.md#mutation-testing).
 The list is in `CONTRIBUTING.md`. An instruction-set or cross job the
 author cannot run locally stays open until that job is green. The check
 is in [Platform rules](../rind-crypto-review/SKILL.md#platform-rules).
