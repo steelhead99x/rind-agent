@@ -87,12 +87,23 @@ Branching, trailers, updating a pushed branch, and squash-merges are in
 [rind-git](../rind-git/SKILL.md). Follow that before the first commit.
 Run `just ci` before every push.
 
+Before a branch goes upstream, `nix develop --command just check` has
+passed on that head. A pass on an older head does not count. The rest of
+that gate is in
+[Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
+
+A fix for a CI job that used to pass names the change that broke it and
+why. The Android armv7 job was green at `fcfb32f8` and failing from
+`1175aab5`.
+
 A pull request that touches the platform workflow inputs also gets a
 cheap subset of those workflows: one ctgrind row, the armv7, portable,
 and Dart jobs of `build`, a mutation run over the PR's diff, and a
 timing build. These are advisory, but fix a red one before merging.
-The list is in `CONTRIBUTING.md`. A pull request skips the `android`
-job; run it with the QEMU recipe in
+The list is in `CONTRIBUTING.md`. An instruction-set or cross job the
+author cannot run locally stays open until that job is green. The check
+is in [Platform rules](../rind-crypto-review/SKILL.md#platform-rules).
+A pull request skips the `android` job; run it with the QEMU recipe in
 [Android under QEMU](../rind-bench-and-verify/SKILL.md#android-under-qemu).
 
 ## Working from a fork
