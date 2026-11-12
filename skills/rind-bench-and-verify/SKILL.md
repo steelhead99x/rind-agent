@@ -12,17 +12,54 @@ before `just check` or `just ci`, or the gate stops early.
 
 ## Benchmarks
 
+The published comparison is `admin/bench-report`.
+
 ```shell
-cargo bench                              # local criterion benches
-admin/bench-report collect               # report benches on each bench host over ssh
-admin/bench-report render --from DIR     # regenerate BENCHMARKS.md and SVGs
+cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing
+admin/bench-report run --host NAME --commit REV --jobs N --target-dir DIR --out FILE
+                                        # the report's operations, filter, and timing
+admin/bench-report summary DIR          # rind versus the fastest other library; HOSTS only
+admin/bench-report collect              # the six hosts in HOSTS, over ssh
+admin/bench-report render --from DIR    # rewrite this checkout's BENCHMARKS.md and SVGs
 ```
 
+`cargo bench` with no package and no filter builds every harness under
+`rind-bench/benches` and uses criterion's defaults, 3 s of warm-up and 5 s
+of measurement. `admin/bench-report` shortens that to
+`--warm-up-time 1 --measurement-time 3` so one host takes about half an
+hour, and it times only `OPERATIONS` (62 operations at the commit the
+README cites). Harnesses the report never asks for, such as `mldsa44`,
+`mldsa87`, `sha1`, `md5`, `pbkdf2`, and `rsa_gen`, still run under a bare
+`cargo bench`. Use `run` for the report's set.
+
+`collect` is the maintainer path. `HOSTS` is fixed: `nixos`, `desktop`,
+`nixos2`, `kixtop`, `ovh-iad`, `ovh-sea`. Any other `--host` fails with
+`unknown host`. For each name it archives the commit with `git archive`.
+When that name is the first label of this machine's hostname, the archive
+is unpacked locally; otherwise it is copied over ssh. On the host it runs
+`nix shell` of the quest revision pinned in `flake.lock`, then `quest gate`,
+then `nix develop --command python3 admin/bench-report run`. That host
+needs Nix with flakes, and network so Nix can fetch the pinned quest and
+the dev shell's inputs. `summary` considers only those six names.
+
+`render` writes this checkout's `BENCHMARKS.md` and `benchmarks/*.svg`, and
+it deletes a generated SVG the new report does not contain. `--from DIR`
+imports only `<host>.json` files named in `HOSTS`. Any other file is
+ignored. It then exits if a gap over 10% (`SLOWER` is 1.1) has no decision
+in `benchmarks/gaps.toml`, or a decision's `on` is not a `HOSTS` name or a
+nightly tier. Leave a host outside that list out of `render`.
+
+Measuring any other machine is
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md). A sheet for those hosts,
+and a results repository for the JSON, is
+[rind-bench-results](../rind-bench-results/SKILL.md). Both leave the repo's
+`BENCHMARKS.md` untouched.
+
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
-Every gap over 10% needs a quest or a reason in `benchmarks/gaps.toml`.
-Record the host (CPU and OS) and the date with every number. Re-measure on
-the head that will merge, or state that hardware and date of the earlier
-figures.
+Every gap over 10% in the published report needs a quest or a reason in
+`benchmarks/gaps.toml`. Record the host (CPU and OS) and the date with every
+number. Re-measure on the head that will merge, or state that hardware and
+date of the earlier figures.
 
 ## Other architectures
 
