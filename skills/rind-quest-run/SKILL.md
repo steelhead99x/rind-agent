@@ -396,3 +396,44 @@ merge, re-read the quest file on current upstream `main`.
   [moq-dev/rind#655](https://github.com/moq-dev/rind/pull/655).
   It shares the adapter `exclude_re` pins with `mutants-adapters`.
   Do not claim it; the maintainer opened it from his own work.
+
+5. [moq-dev/rind#668](https://github.com/moq-dev/rind/pull/668)
+   (merged 2026-11-12, `aee2586a`) makes `mutants.yml` run nightly and
+   on `workflow_dispatch` only, not on pull requests. The workflow
+   header says it never runs on pull requests, like fuzzing. A mutants
+   failure or timeout on an upstream pull request is no longer a
+   pull-request CI failure to fix on a fork branch. A run started
+   before that merge can still fail or hit `timeout-minutes: 300`.
+   [moq-dev/rind#663](https://github.com/moq-dev/rind/pull/663) still
+   had armv7 shards in progress after the merge
+   ([run 43190491966](https://github.com/moq-dev/rind/actions/runs/43190491966)).
+   A surviving mutant found that way is a coverage gap to note, not a
+   pull-request blocker. `mutants.yml` says a mutant no architecture's
+   tests catch fails the nightly run, which `alert.yml` reports: kill
+   it with a test, or list it under `exclude_re` in `.cargo/mutants.toml`
+   with why no test can. `quest/m2/confidence/portable-fuzz-mutants.md`
+   runs that campaign nightly, in `mutants.yml`, not in `just ci`.
+   rind `CONTRIBUTING.md` still lists "a mutation run over the PR's
+   diff" among advisory runs to fix when red. After #668, `mutants.yml`
+   does not start that run on a pull request.
+6. A fork Actions queue that looks frozen can be a backlog. On
+   Nov 12, 2026, about 100 runs were queued while others were in
+   progress, including long `mutants (armv7, ...)` jobs that already
+   had a `runner_name`. A queued job can show an empty `runner_name`
+   at the same time. Before calling a stall, list in-progress runs
+   (`gh run list --repo <owner>/<repo> --status in_progress`) and
+   read each job's `runner_name`
+   (`gh api repos/<owner>/<repo>/actions/runs/<id>/jobs`). A backlog
+   is waiting. It is not a billing or owner blocker. Do not re-queue
+   the runs.
+7. [moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669)
+   (merged 2026-11-12, `ad43e51a`) added
+   `quest/m2/confidence/coverage-report.md`,
+   `aws-lc-rs-upstream-tests.md`, and `uncovered-functions.md`. The
+   maintainer opened upstream pull requests for the first two within
+   minutes: [#678](https://github.com/moq-dev/rind/pull/678) and
+   [#679](https://github.com/moq-dev/rind/pull/679). Each branch's
+   first commit is `chore(quest): claim quest/...md`. Both pull
+   requests also edit `uncovered-functions.md`. Newly added quests are
+   often claimed immediately. Re-check open upstream pull requests and
+   `quest/*` branches right before claiming.
