@@ -320,3 +320,17 @@ Check upstream open PRs and `quest/*` branches, not just claim commits,
 before claiming, again partway through, and again before marking ready.
 When upstream takes a quest, stop and hold the fork PR with a comment.
 Prefer quests whose files show no recent upstream activity.
+
+On Nov 12, 2026, two quest agents ended in an error state after pushing
+only their empty claim commit. Roughly an hour of work was lost, and the
+quests looked claimed but had no implementation:
+
+- OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50)
+- FROST, fork [steelhead99x/rind#51](https://github.com/steelhead99x/rind/pull/51)
+
+Push work in small, buildable commits as each Plan item lands, rather
+than at the end. The hourly loop treats a fork quest draft PR whose only
+commit is the claim, and whose agent is in error, as a resume item: reply
+to that agent, or launch a new one on the same branch. Upstream
+moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+files still override this skill.
