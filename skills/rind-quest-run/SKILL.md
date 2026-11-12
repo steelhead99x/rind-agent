@@ -232,12 +232,15 @@ the exact text. Collect questions for the maintainer until then.
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
 6. On the final head, run `just ci`, the ctgrind tests for new secret
-   paths, and the full `nix develop --command just check`. Every
-   `rind-crypto-review` item from the second pass is resolved. A pass on
-   an older head is stale once the head moves. ctgrind under valgrind
-   needs Linux x86, not Apple Silicon. Re-measure benchmark numbers on
-   the rebuilt head, or state the hardware and date of the earlier
-   figures.
+   paths, and the full `nix develop --command just check`, with the dev
+   shell rooted as
+   [Gate locally](../rind-contribute/SKILL.md#gate-locally) describes
+   (`just check up/main` the same way). Do not collect Nix garbage while
+   it runs. Every `rind-crypto-review` item from the second pass is
+   resolved. A pass on an older head is stale once the head moves.
+   ctgrind under valgrind needs Linux x86, not Apple Silicon. Re-measure
+   benchmark numbers on the rebuilt head, or state the hardware and date
+   of the earlier figures.
 7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.

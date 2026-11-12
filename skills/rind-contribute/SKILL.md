@@ -56,8 +56,22 @@ Things that trip `just check` on new code:
 - A trait with methods named `add`, `mul` or `sqr` shadows the curve types'
   methods once it's in scope. Prefix them (`field_mul`).
 - `nix develop --command bash -lc '...'` starts a login shell that drops the
-  dev shell's `PATH`, so you get the host's older Cargo. Use
-  `nix develop --command cargo ...` or `bash -c` without `-l`.
+  dev shell's `PATH`, so you get the host's older Cargo. On macOS a login
+  zsh (`path_helper` and `brew shellenv`) puts Homebrew's `cargo` ahead of
+  the flake toolchain. An isolated `CARGO_HOME` has no `bin/`, so cargo
+  subcommands come from `PATH`. `nix develop --command` also does not
+  register a gcroot. `.envrc` pins only the shell direnv loaded, then runs
+  `nix-collect-garbage --delete-older-than 7d` in the background at most
+  once a week. The age applies to old profile generations; unrooted paths
+  are deleted anyway, and a manual `nix-collect-garbage` does the same.
+  Either can remove `cargo-modules` while `just check` is still running.
+  `sh/dispatch.sh` looks tools up once at startup, so it still runs
+  `structure` (when `rind/src`, `rind/Cargo.toml`, or `admin/structure`
+  changed) and `cargo modules` fails with `no such command: modules`.
+  Root the shell from outside the checkout and skip startup files:
+  `nix develop --profile <dir>/rind-dev-profile --command bash --noprofile --norc -c 'just check <base>'`.
+  Use the same form for `just ci`. Do not collect Nix garbage while a check
+  is running.
 - In an integration test or fuzz target, `use rind::foo::{self}` hides an
   external crate also called `foo`. Write `::foo` for the external crate.
 - `just ci` clippy-checks every crate that depends on `rind`, including a new
