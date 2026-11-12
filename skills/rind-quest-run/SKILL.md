@@ -25,6 +25,17 @@ which for a fork is moq-dev/rind. Don't run it until the work is meant to go
 upstream. Until then, branch by hand off upstream `main` and treat the quest
 file as the spec.
 
+## Sync the fork first
+
+Before picking quests or handing them to agents, merge upstream `main` into
+the fork's `main` with a merge commit (`gh repo sync <fork> --branch main`,
+GitHub's Sync fork, or a PR from `moq-dev:main` into the fork's `main`
+merged with a merge commit). Never force-push or reset: the fork's own
+commits (a review config, for example) must stay. Otherwise a lagging fork
+lists quests upstream already finished, and a fork PR's diff includes
+those unrelated upstream commits. Quest branches still base on upstream
+`main`, and fork-only commits still must not go upstream.
+
 ## Picking a quest
 
 Run `quest unblocked`, then skip anything it marks held, anything with an
@@ -60,7 +71,7 @@ benchmark.
 
 ## Hand it to a coding agent
 
-Give the agent the outcome, not a script:
+Sync the fork with upstream first. Give the agent the outcome, not a script:
 
 - the repo (usually a fork) and that PRs go to the fork's `main` only;
 - to install quest, run `quest skill spawn`, and pick well-scoped,
