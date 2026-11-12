@@ -60,7 +60,10 @@ Things that trip `just check` on new code:
   fuzz target, so lint those too.
 - A rustup shim on `PATH` (for example from a host package manager) with no
   default toolchain can shadow the Nix dev shell's `cargo-fmt`. Keep the Nix
-  shell's `PATH` first, or set a rustup default.
+  shell's `PATH` first, or set a rustup default. Inside `nix develop`,
+  export `RUSTUP_TOOLCHAIN` to the dev shell's toolchain directory
+  (`$(dirname $(dirname $(which cargo)))`) so the shim cannot shadow
+  `cargo fmt` or clippy.
 - `cargo test --all-features` turns on rind's `__ctgrind` feature, which
   needs valgrind headers. Without them, bindgen fails to find
   `valgrind/valgrind.h`. Locally, run default features plus the specific
@@ -111,9 +114,10 @@ with upstream as in
 
 A branch headed upstream must not carry fork-only files (a review config,
 for example), even in history. After rebuilding it on upstream `main`,
-check open upstream PRs for overlapping files, trial-merge those heads,
-and open one draft first: lead with a standalone change and hold work that
-overlaps the maintainer's open PRs. The full sequence is in
+repeat the quest-branch and PR overlap check, check open upstream PRs for
+overlapping files, trial-merge those heads, and open one draft first:
+lead with a standalone change and hold work that overlaps. If it
+overlaps, stop. The full sequence is in
 [Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
 
 When merging upstream `main` into a feature branch, resolve a conflict in
