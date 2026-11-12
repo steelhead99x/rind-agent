@@ -101,6 +101,14 @@ bullet per public API change, with migration for breaking ones),
 not apply. A finished quest's PR also names the quest it claims and
 deletes that quest file.
 
+Before opening the pull request, check `UPSTREAM.md`. It lists every
+workaround for a bug or gap in a tool or dependency rind doesn't own.
+A pull request that adds one adds its entry and names that entry, by
+its heading, in the workaround's comment (`See UPSTREAM.md, "<heading>".`).
+A pull request that drops one removes it from its entry, and deletes
+the entry once it lists no workaround. The rule is rind's
+`CONTRIBUTING.md`, under Upstream.
+
 Open a draft while working; mark it ready when the gate passes and the
 body lists no decision the maintainer still owns. List each open
 decision in the description, and leave the decision to the maintainer.
