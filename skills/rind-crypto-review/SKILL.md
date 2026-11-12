@@ -103,6 +103,9 @@ explained in the PR.
 - [ ] Values marked secret and later handed out as public output (a random
       prefix or salt, say) are declassified at that point. Otherwise ctgrind
       reports false positives in the caller.
+- [ ] A ctgrind test's `secret` and `public` on a `Vec<u8>` take the bytes
+      (`&v[..]`), not the header. Declassify a secret-derived buffer with
+      `public` before comparing it (`assert_eq!`, `==`).
 - [ ] Every new entry point is wrapped in `Entry::new_secret()` or
       `Entry::new_public()`.
       Inner helpers don't open their own nested `Entry`.
