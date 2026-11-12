@@ -295,3 +295,32 @@ on the closed pull request does not carry over.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Known issues
+
+1. [moq-dev/rind#668](https://github.com/moq-dev/rind/pull/668)
+   (merged 2026-11-12, `aee2586a`) makes `mutants.yml` run nightly and
+   on `workflow_dispatch` only, not on pull requests. The workflow
+   header says it never runs on pull requests, like fuzzing. A mutants
+   failure or timeout on an upstream pull request is no longer a
+   pull-request CI failure to fix on a fork branch. A run started
+   before that merge can still fail or hit `timeout-minutes: 300`.
+   [moq-dev/rind#663](https://github.com/moq-dev/rind/pull/663) still
+   had armv7 shards in progress after the merge
+   ([run 43190491966](https://github.com/moq-dev/rind/actions/runs/43190491966)).
+   A surviving mutant found that way is a coverage gap to note, not a
+   pull-request blocker. `mutants.yml` says a mutant no architecture's
+   tests catch fails the nightly run, which `alert.yml` reports: kill
+   it with a test, or list it under `exclude_re` in `.cargo/mutants.toml`
+   with why no test can. `quest/m2/confidence/portable-fuzz-mutants.md`
+   runs that campaign nightly, in `mutants.yml`, not in `just ci`.
+   rind `CONTRIBUTING.md` still lists "a mutation run over the PR's
+   diff" among advisory runs to fix when red. After #668, `mutants.yml`
+   does not start that run on a pull request.
+2. The fork's GitHub Actions can stall. On Nov 12, 2026, jobs sat
+   queued on `ubuntu-latest` for hours with no runner, so those checks
+   were not green and merges were held. At 11:15 UTC, `ctgrind`'s
+   `binsec (x86_64)` had been queued since 08:26 UTC. When every fork
+   run is queued and nothing is in progress, report that as a blocker
+   for the repo owner. Do not re-queue the runs repeatedly. Keep
+   holding merges.
