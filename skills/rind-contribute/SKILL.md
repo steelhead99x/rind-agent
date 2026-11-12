@@ -61,6 +61,14 @@ Things that trip `just check` on new code:
 - A rustup shim on `PATH` (for example from a host package manager) with no
   default toolchain can shadow the Nix dev shell's `cargo-fmt`. Keep the Nix
   shell's `PATH` first, or set a rustup default.
+- `cargo test --all-features` turns on rind's `__ctgrind` feature, which
+  needs valgrind headers. Without them, bindgen fails to find
+  `valgrind/valgrind.h`. Locally, run default features plus the specific
+  features a test needs, and leave ctgrind to `admin/ctgrind` in the
+  `.#ctgrind` Nix shell, or to CI.
+- In a shell script, a failure inside `$(...)` in an assignment can be
+  silently ignored. Check the status explicitly, and add a self-test for
+  that failure path.
 
 Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR, with the host and the
@@ -107,3 +115,10 @@ check open upstream PRs for overlapping files, trial-merge those heads,
 and open one draft first: lead with a standalone change and hold work that
 overlaps the maintainer's open PRs. The full sequence is in
 [Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
+
+When merging upstream `main` into a feature branch, resolve a conflict in
+a shared list (the README's algorithm table, for example) by keeping both
+entries, then rerun that feature's tests before pushing. Merge updates
+into a branch that is under review; never rebase or force-push it. If the
+same branch may receive a merge of upstream `main` from elsewhere, fetch
+and merge `origin/<branch>` immediately before pushing.
