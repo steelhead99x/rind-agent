@@ -81,5 +81,11 @@ compare against aws-lc-rs. Put the numbers in the PR.
 Open PRs against the fork's `main` first. Send anything upstream only after
 the fork owner has reviewed it and said so. Keep the fork's `main` a
 fast-forward of upstream's (`gh repo sync <fork> --branch main`) so branches
-start from what upstream will merge into. Before going upstream, follow
-"Before going upstream" in `rind-quest-run`.
+start from what upstream will merge into.
+
+A branch headed upstream must not carry fork-only files (a review config,
+for example), even in history. After rebuilding it on upstream `main`,
+check open upstream PRs for overlapping files, trial-merge those heads,
+and open one draft first: lead with a standalone change and hold work that
+overlaps the maintainer's open PRs. The full sequence is in
+[Before going upstream](../rind-quest-run/SKILL.md#before-going-upstream).
