@@ -14,8 +14,18 @@ The skills condense rind's own
 Where they disagree, rind's repository is authoritative. They were last
 checked against rind at
 [`7ab9f85`](https://github.com/moq-dev/rind/commit/7ab9f8524e27d8a186d3eb35681d07cd2a5203d7).
+Mutation testing in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) and the
+platform-workflow sentence in
+[`rind-contribute`](skills/rind-contribute/SKILL.md) were checked against
+[`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
 
 This is an independent project, not maintained by or affiliated with moq-dev.
+
+The `just qemu` shell list in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) was checked
+against
+[`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
 
 ## Skills
 
@@ -25,6 +35,9 @@ This is an independent project, not maintained by or affiliated with moq-dev.
 | [`rind-git`](skills/rind-git/SKILL.md) | Branching, committing, pushing, or squash-merging a change. |
 | [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
+| [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Measuring the report on a host outside `admin/bench-report`'s six. |
+| [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | A side sheet for those hosts, and a results repository for the JSON. |
+| [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks before flashing an RP2040 or an EFR32MG24. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
 | [`rind-quest-fleet`](skills/rind-quest-fleet/SKILL.md) | Running more than one rind quest from a fork. |
 
