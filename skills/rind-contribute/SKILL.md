@@ -86,9 +86,9 @@ date.
 ## Working from a fork
 
 Open PRs against the fork's `main` first. Send anything upstream only after
-the fork owner has reviewed it and said so. Keep the fork's `main` a
-fast-forward of upstream's (`gh repo sync <fork> --branch main`) so branches
-start from what upstream will merge into.
+the fork owner has reviewed it and said so. Before new work, sync the fork
+with upstream as in
+[Sync the fork first](../rind-quest-run/SKILL.md#sync-the-fork-first).
 
 A branch headed upstream must not carry fork-only files (a review config,
 for example), even in history. After rebuilding it on upstream `main`,
