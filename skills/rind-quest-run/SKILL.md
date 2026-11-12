@@ -60,9 +60,12 @@ the files and the quest path they touch, not by the branch name alone.
 Also search open and merged upstream PRs by the conventional head
 branch `quest/<milestone>/<area>/<name>` and by title. List upstream
 quest branches with `git ls-remote up 'refs/heads/quest/*'` (`up` is
-the upstream remote; it may be named `upstream`). Maintainers often
-push a `quest/...` branch before opening a PR, so a search of PRs
-alone misses them. Run the same overlap check again immediately
+the upstream remote; it may be named `upstream`). Maintainers claim a
+quest by pushing an upstream `quest/<milestone>/<area>/<name>` branch
+whose first commit is `chore(quest): claim quest/...md`, before any
+PR exists. An upstream branch with that name, or a commit of that
+form, counts as taken, so a search of PRs alone misses them. Run the
+same overlap check again immediately
 before pushing, right before a branch goes to review, and right
 before proposing anything upstream. If it overlaps, stop. A claim
 can land while the work is in progress. Also check running cloud or
@@ -148,8 +151,9 @@ Change direction mid-run with a short steer, not a restart.
 
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest):
-   `git ls-remote up 'refs/heads/quest/*'`, and open and merged PRs
-   searched by `quest/<milestone>/<area>/<name>` and by title. Also
+   `git ls-remote up 'refs/heads/quest/*'`, a `chore(quest): claim`
+   commit, and open and merged PRs searched by
+   `quest/<milestone>/<area>/<name>` and by title. Also
    search upstream `main` and recently merged PRs for an equivalent
    change (the same `just` recipe, test target, or title). If it
    already landed or the work overlaps, stop and say so rather than

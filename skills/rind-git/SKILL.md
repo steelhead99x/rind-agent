@@ -16,8 +16,10 @@ Keep an upstream remote, usually `up` (sometimes `upstream`), pointing at
 
 Base every new branch on current upstream `main` (`up/main`), not the
 fork's `main`. Before starting, and again before handoff, run the overlap
-check in [Picking a quest](../rind-quest-run/SKILL.md#picking-a-quest). If
-it overlaps, stop.
+check in [Picking a quest](../rind-quest-run/SKILL.md#picking-a-quest).
+An upstream `quest/<milestone>/<area>/<name>` branch, or a first commit
+of the form `chore(quest): claim quest/...md`, counts as taken. If it
+overlaps, stop.
 
 ## Branch naming
 
