@@ -94,6 +94,12 @@ A new secret path gets a test that marks its secrets with ctgrind and
 declassifies only the final public output; the run should end with valgrind's
 `ERROR SUMMARY: 0`.
 
+Do not use `cargo test --all-features` as a local stand-in for
+`admin/ctgrind`: it enables `__ctgrind` and needs the valgrind headers
+the `.#ctgrind` shell provides. Without them, bindgen fails to find
+`valgrind/valgrind.h`. For ordinary local tests, use default features
+plus the specific features a test needs.
+
 `admin/ct-vartime` runs inside `just check` and fails on unlisted divisions or
 floating point. Counting blocks of a hash whose output isn't a power of two
 (SHA-384's 48 bytes) with a loop keeps a division out of it. A public
