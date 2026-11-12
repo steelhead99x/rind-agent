@@ -94,6 +94,16 @@ A new secret path gets a test that marks its secrets with ctgrind and
 declassifies only the final public output; the run should end with valgrind's
 `ERROR SUMMARY: 0`.
 
+Pass a `Vec<u8>`'s bytes to the `secret` and `public` helpers in an
+adapter's ctgrind test (`rind-aws-lc-rs/tests/ctgrind.rs` is one):
+`secret(&v[..])` and `public(&v[..])`. They take `&T` and mark
+`size_of_val` bytes, so `secret(&v)` marks the header (pointer, capacity,
+length) and taints that public length. Lengths derived from it are
+public, but ctgrind reports them as secret-dependent branches: PKCS#8
+and DER length octets, the ASN.1 parser's bounds checks, and the `Vec`'s
+own drop. Declassify a secret-derived buffer with `public` before
+comparing it (`assert_eq!`, `==`).
+
 Do not use `cargo test --all-features` as a local stand-in for
 `admin/ctgrind`: it enables `__ctgrind` and needs the valgrind headers
 the `.#ctgrind` shell provides. Without them, bindgen fails to find
