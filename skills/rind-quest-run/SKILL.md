@@ -144,10 +144,12 @@ Check platform and target claims against `.github/workflows/build.yml`,
 (`aarch64-apple-ios` is `cargo test --no-run`; `wasm32-unknown-unknown`
 is compile-only) is not a tested one.
 
-When a PR defers related work, add a `quest/` file for it. A sentence in
-Follow-ups is not the record. An `rs-matter` differential the PR cannot
-include is that kind of follow-up. An item the Plan requires and that
-cannot be done stays a question for the maintainer.
+When a PR defers related work, do not add a quest file. A follow-up a
+quest file mentions is left for the maintainer through `/quest-plan`
+(rind `CONTRIBUTING.md`, "Follow-ups") and raised as a question in the
+PR. An `rs-matter` differential the PR cannot include is that kind of
+follow-up. An item the Plan requires and that cannot be done stays a
+question for the maintainer.
 
 A finished quest's PR also deletes its quest file and updates the docs that
 list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
