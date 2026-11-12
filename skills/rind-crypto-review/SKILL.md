@@ -12,6 +12,9 @@ explained in the PR.
 
 - [ ] Every new or changed primitive is tested against Wycheproof where vectors
       exist, and differentially against aws-lc-rs.
+- [ ] Where aws-lc cannot build (wasm, for example), check verdicts against a
+      file recorded from aws-lc, plus a host test that keeps the file equal
+      to aws-lc. Never accept "either verdict" as a check.
 - [ ] New arithmetic says where its correctness argument comes from (a proof,
       a cited paper, or the upstream it was taken from).
 - [ ] Code copied from another project keeps its copyright lines and an
@@ -90,6 +93,8 @@ explained in the PR.
 - [ ] A comment that names a test names one that exists.
 - [ ] Comments and `AGENTS.md` don't claim ctgrind coverage that the test
       doesn't actually give.
+- [ ] Wasm test tiers do not check constant time: the engine recompiles and
+      may branch. Docs that describe the tier say so.
 - [ ] Types holding secret-derived values don't derive `Debug` or
       `PartialEq`: write a redacting `Debug` and a constant-time equality.
 - [ ] Constants are stored in the form the code uses, not decoded lazily.
@@ -111,6 +116,8 @@ explained in the PR.
       that's speed spent for nothing.
 - [ ] `heap_scratch` covers every heap buffer that holds a secret, in
       `verify` as well as `derive`.
+- [ ] Wipe and leak canaries report through the same comparison path as the
+      real checks, without relying on panics, so they run on every target.
 
 ## API
 
@@ -122,6 +129,10 @@ explained in the PR.
       they're as clear, and `MIGRATING.md` maps them.
 - [ ] Adapter crates expose exactly their upstream provider's API, nothing
       added.
+- [ ] A feature that is accepted but does nothing is a bug. If an adapter
+      crate takes a feature name from its upstream (rind-ring's
+      `wasm32_unknown_unknown_js`, for example), wire it to what that crate's
+      same-named feature does, and clippy-check it on every PR.
 
 ## Performance
 
