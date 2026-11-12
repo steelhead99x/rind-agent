@@ -28,13 +28,20 @@ figures.
 
 ```shell
 just armv7                # 32-bit ARM build, lint, and qemu tests
-just qemu <shell>         # portable backend: s390x, riscv64, loongarch64, powerpc*, armv6, i686
+just qemu <shell>         # portable backend; shells are listed in CONTRIBUTING.md
+just wasm                 # portable backend on wasm32-wasip2 under wasmtime
 just miri                 # portable backend under Miri
 just miri s390x-unknown-linux-gnu   # big-endian under Miri
 ```
 
-`just qemu` lints and tests only the portable backend. To exercise a lower
-CPU tier on a capable host, set `RIND_CPU_DISABLE_<id>` (dots dropped, so
+`just qemu` lints and tests only the portable backend. The shells include
+`s390x`, `riscv64`, `riscv64-musl`, `loongarch64`, `armv6`,
+`armv6-softfloat`, `powerpc64le`, `powerpc64`, `powerpc`, and `i686`.
+`i686` runs natively on an x86_64 host and is covered at the workspace
+MSRV. The others run under qemu unless the host is already that target.
+
+To exercise a lower CPU tier on a capable host, set
+`RIND_CPU_DISABLE_<id>` (dots dropped, so
 `sse4.1` is `RIND_CPU_DISABLE_sse41`) in a debug build, or in a release
 build with `--cfg rind_cpu_disable`. The ids are the feature names
 TESTING.md's denied tiers and `rind/src/low/<arch>/cpu.rs` use, for example
@@ -45,6 +52,10 @@ A native SIMD path on another architecture (NEON on an x86_64 host, for
 example) needs qemu-user with that target, not `just qemu`.
 
 ## Wasm
+
+`just wasm` runs the portable backend's release vectors on wasm32-wasip2
+under wasmtime. There are no differential tests on wasm, because aws-lc
+does not build for it; `just portable` runs the same Rust against aws-lc.
 
 Tests under wasmtime do not inherit the host environment. Forward
 `SLOW_TESTS`, `PROPTEST_CASES` and `PROPTEST_RNG_SEED` into the guest
@@ -72,7 +83,10 @@ nix develop .#ctgrind --command admin/ctgrind
 nix develop .#ctgrind --command admin/ctgrind unit --release -- <test path>   # one test
 nix develop .#sde --command admin/ct-sde          # AVX-512, VAES, SHA ext code
 nix develop .#ct-qemu --command admin/ct-qemu     # armv7 crypto ext code
+nix develop .#ct-qemu-aarch64 --command admin/ct-qemu --target aarch64-unknown-linux-gnu
+                                                  # aarch64 code that runs only with SHA3
 nix develop .#binsec --command admin/ct-binsec    # symbolic proof of ct_binsec_* tests
+nix develop .#binsec --command admin/ct-binsec --exact [test]   # one harness
 nix develop .#dudect --command admin/timing dudect
 ```
 
@@ -94,6 +108,22 @@ does.
 
 dudect and Marvin need quiet hardware; don't trust numbers from
 a shared box.
+
+## Mutation testing
+
+The nightly `mutants` workflow, through `admin/mutants`, mutates recent
+Rust on each architecture rind has a runner for, on armv7 under qemu, and
+on the AVX-512 paths under Intel SDE. A mutant no architecture's tests
+catch fails the run; combine the `mutants.out` directories with
+`admin/mutants --survivors`. macOS arm64 covers only the DIT code.
+`.github/workflows/mutants.yml` and `admin/mutants` have the details.
+
+A pull request that touches the mutation inputs also gets a run over its
+diff. That run is advisory, but fix a red one before merging, as
+`CONTRIBUTING.md` says. A large diff can exceed the job limit: shard it
+with cargo-mutants' `--shard k/n`, choosing `n` from `--list`'s count so
+each shard fits, then combine the shards with `admin/mutants --survivors`.
+The planned work is in `quest/m2/confidence/mutants-large-diffs.md`.
 
 ## Proofs
 

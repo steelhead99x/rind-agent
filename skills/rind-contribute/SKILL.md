@@ -58,6 +58,9 @@ Things that trip `just check` on new code:
   external crate also called `foo`. Write `::foo` for the external crate.
 - `just ci` clippy-checks every crate that depends on `rind`, including a new
   fuzz target, so lint those too.
+- A rustup shim on `PATH` (for example from a host package manager) with no
+  default toolchain can shadow the Nix dev shell's `cargo-fmt`. Keep the Nix
+  shell's `PATH` first, or set a rustup default.
 
 Touching performance: run the relevant `cargo bench` before and after, and
 compare against aws-lc-rs. Put the numbers in the PR, with the host and the
@@ -81,7 +84,15 @@ date.
 - No binaries or build artifacts.
 - PR body, short and structured: **Problem**, **Approach**, **Impact** (one
   bullet per public API change, with migration for breaking ones),
-  **Alternatives**, **Follow-ups** (issues hit, quests created).
+  **Alternatives**, **Follow-ups** (issues hit, quests created). A finished
+  quest's PR also names the quest it claims and deletes that quest file.
+- Run `just ci` before every push, and check that the PR is still open
+  before pushing: a push after merge recreates the deleted branch.
+- A pull request that touches the platform workflow inputs also gets a
+  cheap subset of those workflows: one ctgrind row, the armv7, portable,
+  and Dart jobs of `build`, a mutation run over the PR's diff, and a
+  timing build. These are advisory, but fix a red one before merging.
+  The list is in `CONTRIBUTING.md`.
 
 ## Working from a fork
 

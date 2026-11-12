@@ -13,7 +13,7 @@ The skills condense rind's own
 [`CONTRIBUTING.md`](https://github.com/moq-dev/rind/blob/main/CONTRIBUTING.md).
 Where they disagree, rind's repository is authoritative. They were last
 checked against rind at
-[`34c65da`](https://github.com/moq-dev/rind/commit/34c65da32f687b127375e83c6963327bbff389c9).
+[`797429b`](https://github.com/moq-dev/rind/commit/797429b26faf092e100ded68d6b389c4c05f2dc7).
 
 This is an independent project, not maintained by or affiliated with moq-dev.
 
@@ -24,7 +24,7 @@ This is an independent project, not maintained by or affiliated with moq-dev.
 | [`rind-contribute`](skills/rind-contribute/SKILL.md) | Making any change: setup, branching, `just check`, commit and PR format. |
 | [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
-| [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn`. |
+| [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
 
 [`NOTES.md`](NOTES.md) has background on rind and where changes land.
 

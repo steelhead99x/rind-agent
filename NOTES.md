@@ -11,4 +11,4 @@ Background for anyone using these skills.
   [moq-dev/rind](https://github.com/moq-dev/rind) only after review on the
   fork.
 - The planned backlog is rind's `quest/` directory, worked with
-  `quest skill spawn`.
+  `quest skill spawn` or `quest skill run`.

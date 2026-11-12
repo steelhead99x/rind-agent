@@ -11,7 +11,8 @@ explained in the PR.
 ## Correctness
 
 - [ ] Every new or changed primitive is tested against Wycheproof where vectors
-      exist, and differentially against aws-lc-rs.
+      exist, against NIST ACVP samples where `TESTING.md` lists them, and
+      differentially against aws-lc-rs.
 - [ ] Where aws-lc cannot build (wasm, for example), check verdicts against a
       file recorded from aws-lc, plus a host test that keeps the file equal
       to aws-lc. Never accept "either verdict" as a check.
@@ -110,6 +111,10 @@ explained in the PR.
       A `OnceLock` init pulls std's panic path into the variable-time scan.
 - [ ] `admin/ct-vartime` still passes; any new division is listed in
       `admin/ct-vartime.toml` only if its operands are public.
+- [ ] BINSEC (`admin/ct-binsec`) covers the `ct_binsec_*` tests on x86_64 and
+      the portable backend, and a short aarch64 set. It does not run on
+      armv7, and it denies CPU features it cannot decode. Those paths stay
+      with ctgrind, `admin/ct-sde`, or `admin/ct-qemu`, as `TESTING.md` says.
 
 ## Platform rules
 
@@ -130,6 +135,10 @@ explained in the PR.
 - [ ] Error paths wipe the same secret state the success path does. A failed
       `blind`, `finalize`, `derive`, or handshake still drops the types that
       hold the secret, and no early return skips a wipe of heap scratch.
+- [ ] `low::guard_pages` still covers each assembly kernel that takes a
+      caller's slice. Valgrind cannot decode the fastest tiers and
+      AddressSanitizer does not instrument assembly, so this is the bounds
+      check on them.
 
 ## API
 
