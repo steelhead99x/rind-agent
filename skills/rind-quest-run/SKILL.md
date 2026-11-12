@@ -144,10 +144,12 @@ Check platform and target claims against `.github/workflows/build.yml`,
 (`aarch64-apple-ios` is `cargo test --no-run`; `wasm32-unknown-unknown`
 is compile-only) is not a tested one.
 
-When a PR defers related work, add a `quest/` file for it. A sentence in
-Follow-ups is not the record. An `rs-matter` differential the PR cannot
-include is that kind of follow-up. An item the Plan requires and that
-cannot be done stays a question for the maintainer.
+When a PR defers related work, do not add a quest file. A follow-up a
+quest file mentions is left for the maintainer through `/quest-plan`
+(rind `CONTRIBUTING.md`, "Follow-ups") and raised as a question in the
+PR. An `rs-matter` differential the PR cannot include is that kind of
+follow-up. An item the Plan requires and that cannot be done stays a
+question for the maintainer.
 
 A finished quest's PR also deletes its quest file and updates the docs that
 list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
@@ -189,6 +191,10 @@ including `TESTING.md`. Re-run the gate on the new head. A green result
 on the closed pull request does not carry over.
 
 ## Before going upstream
+
+Do not open, comment on, or update an upstream pull request or issue,
+and do not contact the maintainer, unless the fork owner has approved
+the exact text. Collect questions for the maintainer until then.
 
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
@@ -243,8 +249,10 @@ on the closed pull request does not carry over.
    - If the clone's remote is a local mirror, quest can't write the record
      into the PR. Paste it in yourself, along with the head SHA it reviewed.
    - If several jobs may push to the same branch, wait for the head to
-     settle before a review round, and fetch and merge `origin/<branch>`
-     before every push.
+     settle before a review round. Fetch the fork and upstream before
+     every step and immediately before every push, and merge anything
+     that moved, as [rind-git](../rind-git/SKILL.md#updating-a-pushed-branch)
+     describes.
    - A low-effort round finds obvious bugs, but it skips the constant-time,
      vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
      that depth explicitly, or follow the round with a `rind-crypto-review`
@@ -320,6 +328,37 @@ Check upstream open PRs and `quest/*` branches, not just claim commits,
 before claiming, again partway through, and again before marking ready.
 When upstream takes a quest, stop and hold the fork PR with a comment.
 Prefer quests whose files show no recent upstream activity.
+
+1. Never add or invent a quest file. A follow-up a quest file mentions is
+   left for the maintainer through `/quest-plan` (rind `CONTRIBUTING.md`,
+   "Follow-ups") and raised as a question in the PR.
+   `quest/m4/protocols/spake2plus.md` plans a `rind-rs-matter` adapter
+   "once this lands", and `quest/m4/protocols/README.md` says a
+   `rind-<consumer>` adapter is "planned when one is wanted".
+   `quest/m4/protocols/rind-rs-matter.md` is not in upstream `quest/`.
+2. Before starting work, map it to a quest path that already exists on
+   upstream `main`. rind `AGENTS.md` says to run `quest context` and
+   follow it before any work. A clean verification does not make a quest.
+   Work that fits no quest of its own belongs in the PR of a quest that
+   already owns that work, or it stays held: do not open or merge it on
+   its own.
+3. A verdict pins a head SHA. rind `CONTRIBUTING.md` ("Reviews") counts
+   the `## Review` record as the required review when it names the head
+   being merged. The branch can be rewritten after that verdict, so the
+   tip is a new SHA. [steelhead99x/rind#1](https://github.com/steelhead99x/rind/pull/1)
+   went from verified head `26ee84ec` to `64eb50db` with identical tree
+   `4f96b4ef`. Before relying on the verdict, compare
+   `git rev-parse <sha>^{tree}`. An identical tree means the verdict
+   still covers the content. A different tree needs re-verification.
+4. GitHub Actions on the fork can sit queued for a long time: dozens of
+   jobs for 30 minutes or more. Wait until every required check has
+   completed and passed. A queued or in-progress run is not a pass,
+   required or advisory (rind `CONTRIBUTING.md`: fix failing CI checks
+   before merging; a path-filtered workflow cannot be a required check).
+   Do not push a merge of upstream `main` onto a branch whose CI is
+   still running. rind `.github/workflows/check.yml` sets
+   `cancel-in-progress: true` on `check-${{ github.ref }}`, so that push
+   cancels the run and starts it over.
 
 On Nov 12, 2026, a bulk update merged the fork's `main` into
 `spake2plus-up-r7`, the head of open upstream
