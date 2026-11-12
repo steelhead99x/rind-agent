@@ -18,20 +18,27 @@ stubs call the `quest` CLI, which carries the real instructions.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
    starts ready quests and takes open PRs toward merge until only the
    maintainer's decisions remain.
-4. Each quest: claim it with `quest start` before other work, then its own
-   branch named from the quest path, the `rind-contribute` and `rind-git`
-   steps, the `rind-crypto-review` checklist, then a PR.
+4. Each quest: claim it first, as in
+   [Working from a fork](#working-from-a-fork), then its own branch, the
+   `rind-contribute` and `rind-git` steps, the `rind-crypto-review`
+   checklist, then a PR.
 
 ## Working from a fork
 
-Before any work on a quest, including from a fork, claim it with `quest start`
-or the repo's `quest-spawn` / `quest-start` stubs. `quest start` opens a
-placeholder claim PR on moq-dev/rind, the repo that holds `quest/README.md`.
-That PR locks the quest so other contributors and agents don't duplicate the
-work. Run the overlap check in [Picking a quest](#picking-a-quest) first. A
-claim must not be taken on a quest already in flight. Those checks can miss
-work that starts in the same hour, so run them again before handoff.
-Implementation PRs can still target the fork's `main`.
+Before any work on a quest, including from a fork, claim it after the
+overlap check in [Picking a quest](#picking-a-quest). A claim must not be
+taken on a quest already in flight. When the token can open pull requests
+on moq-dev/rind, claim with `quest start` or the repo's `quest-spawn` /
+`quest-start` stubs. `quest start` opens a placeholder claim PR on
+moq-dev/rind, the repo that holds `quest/README.md`. That PR locks the
+quest so other contributors and agents don't duplicate the work. When
+`quest start` returns 403 `Resource not accessible by integration`, the
+token cannot open that PR. Claim by opening a draft pull request on the
+fork right away. Its title and body name the quest path. That draft is
+the lock. The overlap check includes those fork drafts. The check can
+miss work that starts in the same hour, so run it again before handoff.
+Implementation PRs can still target the fork's `main`. A cloud agent
+branch stays `cursor/<name>`; see [Known issues](#known-issues).
 
 ## Sync the fork first
 
@@ -65,10 +72,15 @@ open for help.
 Before claiming a quest, whether you're a person or an agent, check every
 place work can be in flight. Syncing the fork does not show it. Open and
 draft PRs and branches on upstream and the fork both count, including
-`cursor/*` and other branches not named for the quest. Match them by
-the files and the quest path they touch, not by the branch name alone.
+`cursor/*` and other branches not named for the quest. A draft on the
+fork whose title or body names a quest path is that quest's claim.
+Match them by the files and the quest path they touch, not by the
+branch name alone. A legacy branch is a claim too: `quest/oss-fuzz`
+holds `quest/m4/oss-fuzz.md`
+([moq-dev/rind#639](https://github.com/moq-dev/rind/pull/639)).
 Also search open and merged upstream PRs by the conventional head
-branch `quest/<milestone>/<area>/<name>` and by title. List upstream
+branch `quest/<milestone>/<area>/<name>` and by title. That search
+misses the legacy name. List upstream
 quest branches with `git ls-remote up 'refs/heads/quest/*'` (`up` is
 the upstream remote; it may be named `upstream`). Maintainers claim a
 quest by pushing an upstream `quest/<milestone>/<area>/<name>` branch
@@ -84,9 +96,12 @@ coding agents on the backlog, and files an in-flight quest already
 touches (shared CI configs such as `mutants.yml` and `fuzz.yml`,
 `admin/prove`, and shared directories under `proofs/`). Prefer
 `quest unblocked --unclaimed` when a GitHub token is available. It
-skips a quest's own claim and does not replace the checks above.
-Once the check is clear, claim with `quest start` before any other
-work. The placeholder claim PR on moq-dev/rind locks the quest.
+skips a quest's own claim and does not replace the checks above,
+and it ignores a quest's `## Waiting` section. Read that section
+before claiming. Once the check is clear, claim with `quest start`
+when the token can open pull requests on moq-dev/rind. That
+placeholder PR locks the quest. When `quest start` returns 403, the
+fork draft in [Working from a fork](#working-from-a-fork) is the claim.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
 after the in-flight check above, run this feasibility check and skip the
@@ -141,8 +156,10 @@ benchmark.
 Sync the fork with upstream first. Give the agent the outcome, not a script:
 
 - the repo (usually a fork). The agent claims each quest with `quest start`
-  (or the `quest-spawn` / `quest-start` stubs) before working it.
-  Implementation PRs can still target the fork's `main`;
+  (or the `quest-spawn` / `quest-start` stubs) before working it, when the
+  token can open pull requests on moq-dev/rind. If `quest start` returns
+  403, it opens a draft PR on the fork right away whose title and body name
+  the quest path. Implementation PRs can still target the fork's `main`;
 - work only quests that already exist on upstream moq-dev/rind `quest/`,
   written by the maintainer; never invent, write, or add a quest file, and
   never make up requirements, vectors, test results, or benchmark numbers;
@@ -259,3 +276,45 @@ Change direction mid-run with a short steer, not a restart.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Known issues
+
+These limits are current. Report a step they block. An agent does not
+invent a quest, a requirement, or a result to get past one.
+
+1. `quest start` from a fork opens its claim PR on the upstream that holds
+   `quest/README.md` (quest README, "Claim a quest",
+   [`f3301ef`](https://github.com/moq-dev/quest/blob/f3301efd8c7831c7aa33ae2e6f13995170f3e205/README.md)).
+   An agent token that cannot open pull requests on moq-dev/rind gets
+   403 `Resource not accessible by integration`. Use the fork draft in
+   [Working from a fork](#working-from-a-fork).
+2. `quest unblocked --unclaimed` drops a quest someone already holds, and
+   it does not read `## Waiting`. Outside waits are `quest waiting`
+   (quest README, "Prioritize ready work" and "Find what waits on you",
+   same commit). Read each candidate's `## Waiting` section before
+   claiming it.
+3. A claim on a legacy branch name is invisible to a search for
+   `quest/<milestone>/<area>/<name>`.
+   [moq-dev/rind#639](https://github.com/moq-dev/rind/pull/639) is
+   `quest/oss-fuzz` for `quest/m4/oss-fuzz.md`. Match the files the
+   branch or PR touches.
+4. A cloud VM has no Nix, so it cannot run `nix develop .#ctgrind`,
+   `admin/ctgrind`, `nix develop .#prove`, or `admin/prove` (rind
+   `CONTRIBUTING.md`, "Building and testing", at the commit the README
+   cites). It also lacks the `claude` and `codex` CLIs, so `quest review`
+   exits 2. Report each of those steps as not run.
+5. [rind-git](../rind-git/SKILL.md) names a quest branch
+   `quest/<milestone>/<area>/<name>`. A cloud agent checkout is
+   `cursor/<name>`. That name is not the claim. The claim is the
+   `quest start` PR or the fork draft. An upstream-bound rebuild still
+   follows `rind-git`.
+6. The ready backlog is often already held or waiting. FROST and the OPRF
+   (`quest/m4/protocols/frost.md`, `quest/m4/protocols/oprf.md`) require
+   hash-to-curve, open as
+   [moq-dev/rind#632](https://github.com/moq-dev/rind/pull/632). OPAQUE
+   (`quest/m4/protocols/opaque.md`) also requires Argon2id, open as
+   [moq-dev/rind#634](https://github.com/moq-dev/rind/pull/634). HPKE's
+   post-quantum KEM (`quest/m4/protocols/hpke-pq.md`) requires ML-KEM,
+   open as
+   [moq-dev/rind#606](https://github.com/moq-dev/rind/pull/606).
+   Report that and stop.
