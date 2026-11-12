@@ -254,20 +254,16 @@ explained in the PR.
       keep it `pub(crate)`, or ask the maintainer and leave the PR a draft
       while that decision is open. `AGENTS.md` requires one way to do each
       job, and that misuse fails to compile. `CONTRIBUTING.md` lists every
-      public API change under Impact.
-      `RandomizedNonceKey::seal_in_place_append_tag_with_nonce` takes a
-      caller-chosen nonce, a second way to seal. aws-lc-rs's
-      `RandomizedNonceKey` seals under a nonce it generates. Exporting
-      `cpu::wide_multiplier`, or a public `drbg` module when the quest
-      plan kept the generator in the FIPS module, asks the same question.
+      public API change under Impact. A public
+      `seal_in_place_append_tag_with_nonce` on `RandomizedNonceKey`, a
+      public `cpu::wide_multiplier`, or a public `drbg` module is a
+      maintainer question.
 - [ ] An adapter item put behind a cargo feature to match upstream still
       builds. Build that crate with `--no-default-features`, and with
       `--no-default-features --features` set to each feature on its own.
-      Its own ungated callers may still use the item. For example, gating
-      `PublicKey::modulus_len` on `ring-io` matches aws-lc-rs 1.19.0
-      `src/rsa/key.rs`. `KeyPair::public_modulus_len` still calls it, and
-      `cargo check -p rind-aws-lc-rs --no-default-features` then fails to
-      find the method (E0599).
+      Its own ungated callers may still use the item. An aws-lc-rs adapter
+      method gated on `ring-io`, with its caller left ungated, broke
+      `cargo check -p rind-aws-lc-rs --no-default-features` with E0599.
 
 ## Performance
 
