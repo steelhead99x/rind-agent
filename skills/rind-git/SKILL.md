@@ -40,10 +40,13 @@ shared list (the README's algorithm table, for example) by keeping both
 entries, then rerun that feature's tests before pushing.
 
 If other work may push to the same branch, fetch and merge
-`origin/<branch>` immediately before every push.
+`origin/<branch>` immediately before every push, and wait for the head
+to settle before a review round.
 
 Do not push to a branch that is the head of an open upstream pull request
-unless that push is needed (a conflict fix, for example).
+unless that push is needed (a conflict fix, for example). Any push to
+that branch appears on the upstream PR and reruns its CI, so a routine
+sync should skip it unless the branch conflicts.
 
 Before every push, check that the pull request is still open: a push after
 merge recreates the deleted branch. Run `just ci` before every push, as
@@ -99,6 +102,11 @@ gh pr merge --squash --author-email <github-noreply> \
 `--author-email` must be the account's GitHub noreply address. When email
 privacy is on, use the `id+username@users.noreply.github.com` form; the
 bare `username@users.noreply.github.com` form may be rejected.
+
+If a commit was authored under a tool's own name, or has extra
+`Co-Authored-By` trailers, fix the author and trailer list in the
+squash-merge subject and body. Do not rewrite pushed history to correct
+them.
 
 Then verify the resulting `main` commit's author, committer, and that it
 has exactly one `Co-Authored-By:` trailer.

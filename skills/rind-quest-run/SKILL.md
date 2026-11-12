@@ -24,10 +24,15 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 ## Working from a fork
 
-`quest start` opens its claim PR against the repo that holds `quest/README.md`,
-which for a fork is moq-dev/rind. Don't run it until the work is meant to go
-upstream. Until then, branch by hand off upstream `main` and treat the quest
-file as the spec.
+`quest start` (and the `quest-spawn` / `quest-start` stubs) take a lock by
+opening a placeholder claim PR against the repo that holds
+`quest/README.md`, which for a fork is moq-dev/rind. That is the intended
+way to prevent duplicate work. A fork's `quest start` posts that PR
+upstream, so only run it once the work is meant to go upstream. Until
+then, branch by hand off upstream `main`, treat the quest file as the
+spec, and rely on the branch and PR overlap checks. Those checks still
+miss work that starts in the same hour, so run them again before
+handoff.
 
 ## Sync the fork first
 
@@ -177,9 +182,13 @@ Change direction mid-run with a short steer, not a restart.
    that section rather than leaving it out.
 
    - Cloud VMs usually lack the reviewer CLIs (`claude`, `codex`), so
-     `quest review` exits 2 there. A workstation with Claude Code or Codex
-     logged in can run it. Build `quest` from the commit the repo's flake
-     pins; Bun is enough to build it without Nix.
+     `quest review` exits 2 there. A workstation with both the `claude`
+     and `codex` CLIs logged in can run it; quest picks a reviewer that
+     is not the last writer. Use at least medium effort, base the review
+     on upstream `main` when the PR targets that, and write the record
+     to a file. Do not let the tooling write the record into an upstream
+     PR unless that is intended. Build `quest` from the commit the repo's
+     flake pins; Bun is enough to build it without Nix.
    - Review against the same base the PR targets. For an upstream PR, that
      is upstream `main`, not the fork's. Review tables must name upstream
      commits as bases. A SHA that exists only on the fork means nothing to
@@ -187,6 +196,9 @@ Change direction mid-run with a short steer, not a restart.
      say "upstream main as of <date>".
    - If the clone's remote is a local mirror, quest can't write the record
      into the PR. Paste it in yourself, along with the head SHA it reviewed.
+   - If several jobs may push to the same branch, wait for the head to
+     settle before a review round, and fetch and merge `origin/<branch>`
+     before every push.
    - A low-effort round finds obvious bugs, but it skips the constant-time,
      vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
      that depth explicitly, or follow the round with a `rind-crypto-review`
