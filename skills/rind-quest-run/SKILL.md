@@ -167,10 +167,12 @@ Check platform and target claims against `.github/workflows/build.yml`,
 (`aarch64-apple-ios` is `cargo test --no-run`; `wasm32-unknown-unknown`
 is compile-only) is not a tested one.
 
-When a PR defers related work, add a `quest/` file for it. A sentence in
-Follow-ups is not the record. An `rs-matter` differential the PR cannot
-include is that kind of follow-up. An item the Plan requires and that
-cannot be done stays a question for the maintainer.
+When a PR defers related work, do not add a quest file. A follow-up a
+quest file mentions is left for the maintainer through `/quest-plan`
+(rind `CONTRIBUTING.md`, "Follow-ups") and raised as a question in the
+PR. An `rs-matter` differential the PR cannot include is that kind of
+follow-up. An item the Plan requires and that cannot be done stays a
+question for the maintainer.
 
 A finished quest's PR also deletes its quest file and updates the docs that
 list what rind offers: `ALGORITHMS.md`, `TESTING.md`, and the README's table.
@@ -212,6 +214,10 @@ including `TESTING.md`. Re-run the gate on the new head. A green result
 on the closed pull request does not carry over.
 
 ## Before going upstream
+
+Do not open, comment on, or update an upstream pull request or issue,
+and do not contact the maintainer, unless the fork owner has approved
+the exact text. Collect questions for the maintainer until then.
 
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
@@ -268,8 +274,10 @@ on the closed pull request does not carry over.
    - If the clone's remote is a local mirror, quest can't write the record
      into the PR. Paste it in yourself, along with the head SHA it reviewed.
    - If several jobs may push to the same branch, wait for the head to
-     settle before a review round, and fetch and merge `origin/<branch>`
-     before every push.
+     settle before a review round. Fetch the fork and upstream before
+     every step and immediately before every push, and merge anything
+     that moved, as [rind-git](../rind-git/SKILL.md#updating-a-pushed-branch)
+     describes.
    - A low-effort round finds obvious bugs, but it skips the constant-time,
      vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
      that depth explicitly, or follow the round with a `rind-crypto-review`
@@ -345,3 +353,68 @@ Check upstream open PRs and `quest/*` branches, not just claim commits,
 before claiming, again partway through, and again before marking ready.
 When upstream takes a quest, stop and hold the fork PR with a comment.
 Prefer quests whose files show no recent upstream activity.
+
+1. Never add or invent a quest file. A follow-up a quest file mentions is
+   left for the maintainer through `/quest-plan` (rind `CONTRIBUTING.md`,
+   "Follow-ups") and raised as a question in the PR.
+   `quest/m4/protocols/spake2plus.md` plans a `rind-rs-matter` adapter
+   "once this lands", and `quest/m4/protocols/README.md` says a
+   `rind-<consumer>` adapter is "planned when one is wanted".
+   `quest/m4/protocols/rind-rs-matter.md` is not in upstream `quest/`.
+2. Before starting work, map it to a quest path that already exists on
+   upstream `main`. rind `AGENTS.md` says to run `quest context` and
+   follow it before any work. A clean verification does not make a quest.
+   Work that fits no quest of its own belongs in the PR of a quest that
+   already owns that work, or it stays held: do not open or merge it on
+   its own.
+3. A verdict pins a head SHA. rind `CONTRIBUTING.md` ("Reviews") counts
+   the `## Review` record as the required review when it names the head
+   being merged. The branch can be rewritten after that verdict, so the
+   tip is a new SHA. [steelhead99x/rind#1](https://github.com/steelhead99x/rind/pull/1)
+   went from verified head `26ee84ec` to `64eb50db` with identical tree
+   `4f96b4ef`. Before relying on the verdict, compare
+   `git rev-parse <sha>^{tree}`. An identical tree means the verdict
+   still covers the content. A different tree needs re-verification.
+4. GitHub Actions on the fork can sit queued for a long time: dozens of
+   jobs for 30 minutes or more. Wait until every required check has
+   completed and passed. A queued or in-progress run is not a pass,
+   required or advisory (rind `CONTRIBUTING.md`: fix failing CI checks
+   before merging; a path-filtered workflow cannot be a required check).
+   Do not push a merge of upstream `main` onto a branch whose CI is
+   still running. rind `.github/workflows/check.yml` sets
+   `cancel-in-progress: true` on `check-${{ github.ref }}`, so that push
+   cancels the run and starts it over.
+
+On Nov 12, 2026, a bulk update merged the fork's `main` into
+`spake2plus-up-r7`, the head of open upstream
+[moq-dev/rind#685](https://github.com/moq-dev/rind/pull/685).
+The fork's `main` carried fork-only files, which then appeared on the
+upstream pull request. The merge was reverted, and the history was
+later rewritten with the fork owner's approval. Before any sweep,
+list the head branches of the fork owner's open upstream pull requests
+and exclude them. Those branches take updates from upstream `main`
+only, never the fork's `main`. The rule is in
+[Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch).
+
+[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652)
+(merged 2026-11-12, `98568332`) deleted the adapters epic
+(`quest/m0/adapters/README.md`) and rewrote several open quest
+files. Before resuming work on a quest that was open before that
+merge, re-read the quest file on current upstream `main`.
+
+- `quest/m2/api/cpu-check.md` still names pyrind, rind-dart, and
+  rind-cpuid in its Goal, but the Plan now says this quest removes
+  only rind's own check. Adapter `check()` and `MissingFeature`
+  removals ship with rind 0.4 in `quest/m2/api/release-0.4.md`.
+- `quest/m2/confidence/mutants-adapters.md` no longer requires the
+  adapters epic. It still requires
+  `quest/m2/confidence/aws-lc-rs-upstream-tests.md`
+  ([moq-dev/rind#679](https://github.com/moq-dev/rind/pull/679)).
+- `quest/m2/confidence/adapter-api-diff.md` no longer requires the
+  epic.
+- `quest/m2/confidence/mutants-pins.md` was added by
+  [moq-dev/rind#687](https://github.com/moq-dev/rind/pull/687)
+  (merged 2026-11-12, `0f4e45f0`), planned from
+  [moq-dev/rind#655](https://github.com/moq-dev/rind/pull/655).
+  It shares the adapter `exclude_re` pins with `mutants-adapters`.
+  Do not claim it; the maintainer opened it from his own work.
