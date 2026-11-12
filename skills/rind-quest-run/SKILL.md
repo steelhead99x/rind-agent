@@ -45,6 +45,20 @@ hardware or accounts you don't have, and proofs you can't check with
 `admin/prove`. Prefer missing functionality and correctness over
 micro-optimizations.
 
+Before claiming a quest, whether you're a person or an agent, check every
+place work can be in flight. Syncing the fork does not show it. Open and
+draft PRs and branches on upstream and the fork both count, including
+`cursor/*` and other branches not named for the quest. Match them by the
+files and the quest path they touch, not by the branch name. Also check
+running cloud or coding agents on the backlog, and files an in-flight
+quest already touches (shared CI configs such as `mutants.yml` and
+`fuzz.yml`, `admin/prove`, and shared directories under `proofs/`).
+Prefer `quest unblocked --unclaimed` when a GitHub token is available.
+It skips a quest's own claim and does not replace the checks above. If
+unsure, ask whoever is coordinating instead of starting. Leave a claim
+marker early: a draft PR on the fork that names the quest path, so
+others can see it.
+
 Pick against current upstream `main`, not the fork's. A fork that lags
 upstream will still list quests the maintainer merged that day. Confirm
 the quest file still exists on upstream `main`, and search recently
