@@ -12,7 +12,10 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 1. Install and pin `quest` per <https://github.com/moq-dev/quest/blob/main/SETUP.md>.
    Confirm `quest --version` and `quest check`. Without Nix, build the commit
-   the flake pins; don't use a GitHub release the setup guide says to skip.
+   the flake pins: `bun install --frozen-lockfile && bun run build` in that
+   checkout, then `bun <checkout>/dist/quest.js` from the target repo.
+   Running `src/cli/bin.ts` from another directory fails. Skip a GitHub
+   release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
@@ -151,6 +154,20 @@ efforts never share a quest. Quests that build on each other (hash-to-curve,
 then FROST and the OPRF) wait for their base to merge.
 
 Change direction mid-run with a short steer, not a restart.
+
+After an agent finishes, review against `rind-crypto-review` and send the
+findings as one follow-up. On every pass, re-check upstream `quest/*`
+branches; if upstream now covers that quest, stop the agent. A scheduled
+run can reply only to agents launched in that same conversation. Write
+other follow-ups into the conversation that launched them. Jobs that skip
+pull requests need a separate clone, one worktree per PR, an isolated
+`CARGO_HOME`, and `target/` removed afterward. Run them at the PR head and
+at the parent commit. `nix develop --profile <logs>/dev-profile --command bash --noprofile --norc -c '...'`
+keeps the tools from being garbage-collected and keeps a login `PATH` from
+shadowing the shell. On macOS, if `xcode-select` points at the Command Line
+Tools, set `DEVELOPER_DIR` to the Xcode app for `simctl` and `xcrun`. When
+nothing unclaimed remains, deepen open fork PRs or fix CI on upstream
+`main`. Leave claimed quests alone.
 
 ## Before going upstream
 
