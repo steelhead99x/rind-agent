@@ -66,12 +66,19 @@ explained in the PR.
       expanded key, `generate`, PKCS#8 import and export, signing) and
       malformed inputs: wrong lengths, mismatched parameter sets, and a
       PKCS#8 whose public key does not match.
+- [ ] A shared primitive added for one feature is used only by that
+      feature, or the other callers are checked and their behavior is
+      unchanged. Portable `edwards25519::Point::from_bytes`, added for
+      ECVRF, is checked against Ed25519.
 
 ## Hostile input
 
 - [ ] Malformed keys, signatures, ciphertexts and encodings return an error,
       never panic. Hostile input gets a protocol error, not `Fault`, which
       is reserved for internal bugs.
+- [ ] A new `Fault` path, such as a SPAKE2+ encode failure, is unreachable
+      from peer-controlled input. If a peer can reach it, the PR says
+      which protocol error it returns instead.
 - [ ] A function documented to take one encoding accepts only that one.
       An SPKI parser that falls back to a parser that also takes bare PKCS#1
       returns keys missing the parameters the SPKI would have carried.
@@ -176,6 +183,10 @@ explained in the PR.
       a hand-written `ct_equal` that declassifies only the boolean. Nothing
       else compares them outside `cfg(test)`: `as_ref()` slices, `Hash`,
       `Ord`, or serialization.
+- [ ] When an expected confirmation tag or MAC stays secret through
+      `ct_equal`, the full ctgrind suite is rerun, not only that test.
+- [ ] A hash-state change, such as cloning a SHA-512 prefix state, is
+      checked for whether every byte absorbed into that state is public.
 - [ ] A value computed from a secret and meant to be published (a VRF
       `Output`, for example) has a written decision on whether it is secret.
       While it is secret, or that decision is still open, it does not derive
@@ -204,6 +215,14 @@ explained in the PR.
       triples and `arm-linux-androideabi` are covered. When that cross test
       cannot be run locally, the PR says so and waits for the CI job to be
       green.
+- [ ] An instruction-set or target claim (Thumb versus ARM, Vita, Android)
+      is checked with `rustc --print target-spec-json` on the pinned
+      toolchain. The PR names that `rustc --version` and that it is the
+      `rust-toolchain` `flake.nix` pins. rind has no `rust-toolchain.toml`.
+- [ ] A local emulator run is evidence, not the CI job. qemu-arm with NDK
+      r27c, API 28, and static bionic is not CI's dynamic bionic, and the
+      PR names that difference. The CI job is still green. The notes show
+      the test failing before the fix and passing after.
 
 ## Wiping
 
@@ -220,6 +239,8 @@ explained in the PR.
       real checks, without relying on panics, so they run on every target.
       A refactor that drops `should_panic` still proves, on native, that a
       planted leak is caught.
+- [ ] Canaries that call the real `independent` and `zeroed` checks are
+      run on wasm32-wasip2 as well as native.
 - [ ] A wipe test's needle is long enough that a chance match is not a pass,
       and short enough to catch a partial wipe (16 bytes, for example).
       The test comment says why that length.
