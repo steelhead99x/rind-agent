@@ -25,7 +25,9 @@ explained in the PR.
 - [ ] Every key encoding the RFC requires is accepted. RFC 9474, for example,
       needs id-RSASSA-PSS SPKIs as well as rsaEncryption.
 - [ ] When a modulus' bit length is 1 mod 8, the byte dropped from an encoding
-      is checked to be zero rather than ignored.
+      is checked to be zero rather than ignored. The same check applies to any
+      unused high bits, or the octet above `emLen`: if they should be zero and
+      are not, reject the encoding.
 - [ ] Point addition handles equal and opposite inputs, either through a
       complete formula or a constant-time select. Many Jacobian `add`
       routines are undefined for P = Q, and a peer can force that case.
@@ -61,6 +63,13 @@ explained in the PR.
       do. A copy forces an arbitrary length cap the RFC doesn't have.
 - [ ] The cost of rejecting bad input is bounded (no attacker-controlled loop
       counts or allocations).
+- [ ] A hash-to-curve or `expand_message` entry point refuses an empty
+      domain-separation tag, a requested length above the RFC's 65535-byte or
+      255-block limit, and a reduction wider than the bignum helper can read.
+      An oversize DST is replaced as the RFC requires, not truncated.
+- [ ] An error reserved for a wrong length is not used for a value that is
+      the right length but out of range. A signature of length `k` that is
+      `>= n` is `BadSignature`, not `WrongLength`.
 - [ ] Rejection sampling masks the candidate to the bound's bit length before
       comparing. Otherwise a fixed retry cap fails most of the time for sizes
       just past a byte boundary, such as 1025-bit moduli.
@@ -118,6 +127,9 @@ explained in the PR.
       `verify` as well as `derive`.
 - [ ] Wipe and leak canaries report through the same comparison path as the
       real checks, without relying on panics, so they run on every target.
+- [ ] Error paths wipe the same secret state the success path does. A failed
+      `blind`, `finalize`, `derive`, or handshake still drops the types that
+      hold the secret, and no early return skips a wipe of heap scratch.
 
 ## API
 
@@ -137,5 +149,5 @@ explained in the PR.
 ## Performance
 
 - [ ] Performance-sensitive changes include before/after numbers against
-      aws-lc-rs on the CPUs the author has.
+      aws-lc-rs on the CPUs the author has, with the host and the date.
 - [ ] Any gap over 10% has a quest or a reason in `benchmarks/gaps.toml`.

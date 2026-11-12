@@ -20,6 +20,9 @@ admin/bench-report render --from DIR     # regenerate BENCHMARKS.md and SVGs
 
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
 Every gap over 10% needs a quest or a reason in `benchmarks/gaps.toml`.
+Record the host (CPU and OS) and the date with every number. Re-measure on
+the head that will merge, or state that hardware and date of the earlier
+figures.
 
 ## Other architectures
 
@@ -29,6 +32,17 @@ just qemu <shell>         # portable backend: s390x, riscv64, loongarch64, power
 just miri                 # portable backend under Miri
 just miri s390x-unknown-linux-gnu   # big-endian under Miri
 ```
+
+`just qemu` lints and tests only the portable backend. To exercise a lower
+CPU tier on a capable host, set `RIND_CPU_DISABLE_<id>` (dots dropped, so
+`sse4.1` is `RIND_CPU_DISABLE_sse41`) in a debug build, or in a release
+build with `--cfg rind_cpu_disable`. The ids are the feature names
+TESTING.md's denied tiers and `rind/src/low/<arch>/cpu.rs` use, for example
+`avx512f`, `avx2`, `ssse3`, `aes`, and `neon`. Compare each forced
+backend's output with the scalar or portable path on the same vectors.
+
+A native SIMD path on another architecture (NEON on an x86_64 host, for
+example) needs qemu-user with that target, not `just qemu`.
 
 ## Wasm
 
