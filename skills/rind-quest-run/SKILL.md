@@ -15,6 +15,9 @@ stubs call the `quest` CLI, which carries the real instructions.
    the flake pins; don't use a GitHub release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
+   `quest skill run` (the repo's `quest-run` stub) works one session: it
+   starts ready quests and takes open PRs toward merge until only the
+   maintainer's decisions remain.
 4. Each quest: its own branch, the `rind-contribute` steps, the
    `rind-crypto-review` checklist, then a PR.
 
@@ -48,21 +51,25 @@ micro-optimizations.
 Before claiming a quest, whether you're a person or an agent, check every
 place work can be in flight. Syncing the fork does not show it. Open and
 draft PRs and branches on upstream and the fork both count, including
-`cursor/*` and other branches not named for the quest. Match them by the
-files and the quest path they touch, not by the branch name. Also check
-running cloud or coding agents on the backlog, and files an in-flight
-quest already touches (shared CI configs such as `mutants.yml` and
-`fuzz.yml`, `admin/prove`, and shared directories under `proofs/`).
-Prefer `quest unblocked --unclaimed` when a GitHub token is available.
-It skips a quest's own claim and does not replace the checks above. If
+`cursor/*` and other branches not named for the quest. Match them by
+the files and the quest path they touch, not by the branch name alone.
+Also search open and merged upstream PRs by the conventional head
+branch `quest/<milestone>/<area>/<name>` and by title. Re-check those
+searches immediately before pushing, because a claim can land while
+the work is in progress. Also check running cloud or coding agents on
+the backlog, and files an in-flight quest already touches (shared CI
+configs such as `mutants.yml` and `fuzz.yml`, `admin/prove`, and shared
+directories under `proofs/`). Prefer `quest unblocked --unclaimed` when
+a GitHub token is available. It skips a quest's own claim and does not
+replace the checks above. If
 unsure, ask whoever is coordinating instead of starting. Leave a claim
 marker early: a draft PR on the fork that names the quest path, so
 others can see it.
 
 Pick against current upstream `main`, not the fork's. A fork that lags
 upstream will still list quests the maintainer merged that day. Confirm
-the quest file still exists on upstream `main`, and search recently
-merged upstream PRs for it. Base a new quest branch on upstream `main`.
+the quest file still exists on upstream `main`. Base a new quest branch
+on upstream `main`.
 
 Before starting a follow-up a PR body still lists (a SIMD path, a missing
 backend), read the current branch and the later commits first. The work may
