@@ -359,3 +359,14 @@ Prefer quests whose files show no recent upstream activity.
    still running. rind `.github/workflows/check.yml` sets
    `cancel-in-progress: true` on `check-${{ github.ref }}`, so that push
    cancels the run and starts it over.
+
+On Nov 12, 2026, a bulk update merged the fork's `main` into
+`spake2plus-up-r7`, the head of open upstream
+[moq-dev/rind#685](https://github.com/moq-dev/rind/pull/685).
+The fork's `main` carried fork-only files, which then appeared on the
+upstream pull request. The merge was reverted, and the history was
+later rewritten with the fork owner's approval. Before any sweep,
+list the head branches of the fork owner's open upstream pull requests
+and exclude them. Those branches take updates from upstream `main`
+only, never the fork's `main`. The rule is in
+[Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch).
