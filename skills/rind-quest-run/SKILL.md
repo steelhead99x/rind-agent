@@ -12,7 +12,10 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 1. Install and pin `quest` per <https://github.com/moq-dev/quest/blob/main/SETUP.md>.
    Confirm `quest --version` and `quest check`. Without Nix, build the commit
-   the flake pins; don't use a GitHub release the setup guide says to skip.
+   the flake pins: `bun install --frozen-lockfile && bun run build` in that
+   checkout, then `bun <checkout>/dist/quest.js` from the target repo.
+   Running `src/cli/bin.ts` from another directory fails. Skip a GitHub
+   release the setup guide says to skip.
 2. `quest context` and follow it.
 3. `quest skill spawn` and follow its output to start quests in parallel.
    `quest skill run` (the repo's `quest-run` stub) works one session: it
@@ -182,6 +185,19 @@ then FROST and the OPRF) wait for their base to merge. Doing that from a
 fork is in [rind-quest-fleet](../rind-quest-fleet/SKILL.md).
 
 Change direction mid-run with a short steer, not a restart.
+
+After an agent finishes, send the `rind-crypto-review` findings as one
+follow-up. If upstream now covers that quest, stop the agent. A scheduled
+run can reply only to agents launched in that same conversation. Write
+other follow-ups into the conversation that launched them. Jobs that skip
+pull requests need a separate clone, one worktree per PR, an isolated
+`CARGO_HOME`, and `target/` removed afterward. Run them at the PR head and
+at the parent commit. `nix develop --profile <logs>/dev-profile --command bash --noprofile --norc -c '...'`
+keeps the tools from being garbage-collected and keeps a login `PATH` from
+shadowing the shell. On macOS, if `xcode-select` points at the Command Line
+Tools, set `DEVELOPER_DIR` to the Xcode app for `simctl` and `xcrun`. When
+nothing unclaimed remains, deepen open fork PRs or fix CI on upstream
+`main`.
 
 ## Salvaging a closed pull request
 
@@ -437,3 +453,17 @@ merge, re-read the quest file on current upstream `main`.
    requests also edit `uncovered-functions.md`. Newly added quests are
    often claimed immediately. Re-check open upstream pull requests and
    `quest/*` branches right before claiming.
+
+On Nov 12, 2026, two quest agents ended in an error state after pushing
+only their empty claim commit. Roughly an hour of work was lost, and the
+quests looked claimed but had no implementation:
+
+- OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50)
+- FROST, fork [steelhead99x/rind#51](https://github.com/steelhead99x/rind/pull/51)
+
+Push work in small, buildable commits as each Plan item lands, rather
+than at the end. The hourly loop treats a fork quest draft PR whose only
+commit is the claim, and whose agent is in error, as a resume item: reply
+to that agent, or launch a new one on the same branch. Upstream
+moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+files still override this skill.
