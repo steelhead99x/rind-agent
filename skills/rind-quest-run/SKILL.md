@@ -33,10 +33,13 @@ on moq-dev/rind, claim with `quest start` or the repo's `quest-spawn` /
 moq-dev/rind, the repo that holds `quest/README.md`. That PR locks the
 quest so other contributors and agents don't duplicate the work. When
 `quest start` returns 403 `Resource not accessible by integration`, the
-token cannot open that PR. Claim by opening a draft pull request on the
-fork right away. Its title and body name the quest path. That draft is
-the lock. The overlap check includes those fork drafts. The check can
-miss work that starts in the same hour, so run it again before handoff.
+token cannot open that PR. Open a draft pull request on the fork right
+away so the fork can see the work. Its title and body name the quest
+path. That draft does not reserve the quest on moq-dev/rind. If an
+upstream PR or `quest/*` branch takes it, stop and hold the fork PR
+with a comment. The overlap check includes those fork drafts. The check
+can miss work that starts in the same hour, so run it again before
+handoff, partway through, and again before marking ready.
 Implementation PRs can still target the fork's `main`. A cloud agent
 branch stays `cursor/<name>`; see [Known issues](#known-issues).
 
@@ -100,8 +103,9 @@ skips a quest's own claim and does not replace the checks above,
 and it ignores a quest's `## Waiting` section. Read that section
 before claiming. Once the check is clear, claim with `quest start`
 when the token can open pull requests on moq-dev/rind. That
-placeholder PR locks the quest. When `quest start` returns 403, the
-fork draft in [Working from a fork](#working-from-a-fork) is the claim.
+placeholder PR locks the quest. When `quest start` returns 403, open the
+fork draft in [Working from a fork](#working-from-a-fork). That draft
+does not reserve the quest upstream.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
 after the in-flight check above, run this feasibility check and skip the
@@ -187,7 +191,9 @@ Sync the fork with upstream first. Give the agent the outcome, not a script:
   (or the `quest-spawn` / `quest-start` stubs) before working it, when the
   token can open pull requests on moq-dev/rind. If `quest start` returns
   403, it opens a draft PR on the fork right away whose title and body name
-  the quest path. Implementation PRs can still target the fork's `main`;
+  the quest path. That draft does not reserve the quest upstream. If an
+  upstream PR takes it, stop. Implementation PRs can still target the
+  fork's `main`;
 - work only quests that already exist on upstream moq-dev/rind `quest/`,
   written by the maintainer; never invent, write, or add a quest file, and
   never make up requirements, vectors, test results, or benchmark numbers;
@@ -363,8 +369,9 @@ invent a quest, a requirement, or a result to get past one.
    `quest/README.md` (quest README, "Claim a quest",
    [`f3301ef`](https://github.com/moq-dev/quest/blob/f3301efd8c7831c7aa33ae2e6f13995170f3e205/README.md)).
    An agent token that cannot open pull requests on moq-dev/rind gets
-   403 `Resource not accessible by integration`. Use the fork draft in
-   [Working from a fork](#working-from-a-fork).
+   403 `Resource not accessible by integration`. Open the fork draft in
+   [Working from a fork](#working-from-a-fork) so the fork can see the
+   work. It does not reserve the quest on moq-dev/rind.
 2. `quest unblocked --unclaimed` drops a quest someone already holds, and
    it does not read `## Waiting`. Outside waits are `quest waiting`
    (quest README, "Prioritize ready work" and "Find what waits on you",
@@ -382,9 +389,9 @@ invent a quest, a requirement, or a result to get past one.
    exits 2. Report each of those steps as not run.
 5. [rind-git](../rind-git/SKILL.md) names a quest branch
    `quest/<milestone>/<area>/<name>`. A cloud agent checkout is
-   `cursor/<name>`. That name is not the claim. The claim is the
-   `quest start` PR or the fork draft. An upstream-bound rebuild still
-   follows `rind-git`.
+   `cursor/<name>`. Only a `quest start` pull request on moq-dev/rind
+   reserves the quest. A `cursor/<name>` branch and a fork draft do not.
+   An upstream-bound rebuild still follows `rind-git`.
 6. The ready backlog is often already held or waiting. FROST and the OPRF
    (`quest/m4/protocols/frost.md`, `quest/m4/protocols/oprf.md`) require
    hash-to-curve, open as
