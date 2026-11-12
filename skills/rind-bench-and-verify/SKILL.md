@@ -12,22 +12,59 @@ before `just check` or `just ci`, or the gate stops early.
 
 ## Benchmarks
 
+The published comparison is `admin/bench-report`.
+
 ```shell
-cargo bench                              # local criterion benches
-admin/bench-report collect               # report benches on each bench host over ssh
-admin/bench-report render --from DIR     # regenerate BENCHMARKS.md and SVGs
+cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing
+admin/bench-report run --host NAME --commit REV --jobs N --target-dir DIR --out FILE
+                                        # the report's operations, filter, and timing
+admin/bench-report summary DIR          # rind versus the fastest other library; HOSTS only
+admin/bench-report collect              # the six hosts in HOSTS, over ssh
+admin/bench-report render --from DIR    # rewrite this checkout's BENCHMARKS.md and SVGs
 ```
 
+`cargo bench` with no package and no filter builds every harness under
+`rind-bench/benches` and uses criterion's defaults, 3 s of warm-up and 5 s
+of measurement. `admin/bench-report` shortens that to
+`--warm-up-time 1 --measurement-time 3` so one host takes about half an
+hour, and it times only `OPERATIONS` (62 operations at the commit the
+README cites). Harnesses the report never asks for, such as `mldsa44`,
+`mldsa87`, `sha1`, `md5`, `pbkdf2`, and `rsa_gen`, still run under a bare
+`cargo bench`. Use `run` for the report's set.
+
+`collect` is the maintainer path. `HOSTS` is fixed: `nixos`, `desktop`,
+`nixos2`, `kixtop`, `ovh-iad`, `ovh-sea`. Any other `--host` fails with
+`unknown host`. For each name it archives the commit with `git archive`.
+When that name is the first label of this machine's hostname, the archive
+is unpacked locally; otherwise it is copied over ssh. On the host it runs
+`nix shell` of the quest revision pinned in `flake.lock`, then `quest gate`,
+then `nix develop --command python3 admin/bench-report run`. That host
+needs Nix with flakes, and network so Nix can fetch the pinned quest and
+the dev shell's inputs. `summary` considers only those six names.
+
+`render` writes this checkout's `BENCHMARKS.md` and `benchmarks/*.svg`, and
+it deletes a generated SVG the new report does not contain. `--from DIR`
+imports only `<host>.json` files named in `HOSTS`. Any other file is
+ignored. It then exits if a gap over 10% (`SLOWER` is 1.1) has no decision
+in `benchmarks/gaps.toml`, or a decision's `on` is not a `HOSTS` name or a
+nightly tier. Leave a host outside that list out of `render`.
+
+Measuring any other machine is
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md). A sheet for those hosts,
+and a results repository for the JSON, is
+[rind-bench-results](../rind-bench-results/SKILL.md). Both leave the repo's
+`BENCHMARKS.md` untouched.
+
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
-Every gap over 10% needs a quest or a reason in `benchmarks/gaps.toml`.
-Record the host (CPU and OS) and the date with every number. Re-measure on
-the head that will merge, or state that hardware and date of the earlier
-figures.
+Every gap over 10% in the published report needs a quest or a reason in
+`benchmarks/gaps.toml`. Record the host (CPU and OS) and the date with every
+number. Re-measure on the head that will merge, or state that hardware and
+date of the earlier figures.
 
 ## Other architectures
 
 ```shell
-just armv7                # 32-bit ARM build, lint, and qemu tests
+just armv7                # build, lint, and Linux gnueabihf qemu tests
 just qemu <shell>         # portable backend; shells are listed in CONTRIBUTING.md
 just wasm                 # portable backend on wasm32-wasip2 under wasmtime
 just miri                 # portable backend under Miri
@@ -50,6 +87,88 @@ backend's output with the scalar or portable path on the same vectors.
 
 A native SIMD path on another architecture (NEON on an x86_64 host, for
 example) needs qemu-user with that target, not `just qemu`.
+
+## Android under QEMU
+
+A pull request skips the `android` job in `.github/workflows/build.yml`
+(`if: github.event_name != 'pull_request'`). That job runs rind's Android
+tests. `just armv7` (`sh/armv7.sh`) builds and lints
+`armv7-linux-androideabi`, then runs qemu on
+`armv7-unknown-linux-gnueabihf`. ARM-mode gnueabihf misses the Thumb path.
+TESTING.md's armv7 rows are those `just armv7` tiers. Its portable rows
+name the `android` job for 32-bit x86 and for ARMv5TE
+(`arm-linux-androideabi`, ARM mode).
+
+Use NDK r27c at API 28. API 28 is Android 9, which `Cross.toml` records
+as the system the CI images hold. Unpack `android-ndk-r27c-linux.zip`.
+Both 32-bit targets link with `armv7a-linux-androideabi28-clang`, and
+aarch64 with `aarch64-linux-android28-clang`, under
+`toolchains/llvm/prebuilt/linux-x86_64/bin`. Build static bionic
+binaries with `-C target-feature=+crt-static`. Doctests need the same
+flag in `RUSTDOCFLAGS`: Cargo passes rustdoc that variable, which is
+why `flake.nix` sets it for the qemu shells.
+
+```shell
+NDK=/path/to/android-ndk-r27c
+BIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+rustup target add armv7-linux-androideabi thumbv7neon-linux-androideabi aarch64-linux-android
+export RUSTFLAGS="-C target-feature=+crt-static"
+export RUSTDOCFLAGS="-C target-feature=+crt-static"
+export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER="$BIN/armv7a-linux-androideabi28-clang"
+export CARGO_TARGET_THUMBV7NEON_LINUX_ANDROIDEABI_LINKER="$BIN/armv7a-linux-androideabi28-clang"
+export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$BIN/aarch64-linux-android28-clang"
+export CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_RUNNER="unshare --user --map-root-user --pid --fork qemu-arm"
+export CARGO_TARGET_THUMBV7NEON_LINUX_ANDROIDEABI_RUNNER="unshare --user --map-root-user --pid --fork qemu-arm"
+export CARGO_TARGET_AARCH64_LINUX_ANDROID_RUNNER=qemu-aarch64
+```
+
+Targets are `armv7-linux-androideabi` (rustc lowers it to Thumb),
+`thumbv7neon-linux-androideabi` (Thumb), and `aarch64-linux-android`.
+
+32-bit bionic accepts only a pid below 65536: `pthread_mutex_t` cannot
+hold a larger one. The 32-bit runner above is qemu-arm user mode inside
+`unshare --user --map-root-user --pid --fork`, which puts the process in
+a fresh pid namespace. The aarch64 runner is `qemu-aarch64`.
+
+`qemu-user` provides `qemu-arm` and `qemu-aarch64`. When `apt-get`
+cannot install it, download the `.deb` files with `curl` and extract
+each with `dpkg -x` into one prefix. Put that prefix's `usr/bin` on
+`PATH` and its libraries on `LD_LIBRARY_PATH`.
+
+Check out the vector submodules first. Then run the job's test step:
+the same `-p` list, `--locked --release`, and release checks
+(`CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true`,
+`CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS=true`). Pass the matrix `expect`
+values: `RIND_TEST_ARM_NEON=1 RIND_TEST_ARM_CRYPTO_EXT=1` for both
+32-bit targets, and `RIND_TEST_ARM_CRYPTO_EXT=1` for aarch64. qemu-user's
+default CPU is `any`, which it treats as `max`, so NEON and the crypto
+extension are present.
+
+```shell
+export CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true
+export CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS=true
+RIND_TEST_ARM_NEON=1 RIND_TEST_ARM_CRYPTO_EXT=1 \
+  cargo test -p rind -p rind-rustls -p rind-jsonwebtoken \
+  -p rind-object-store -p rind-rcgen -p rind-ring -p rind-aws-lc-rs \
+  -p rind-dimpl -p rind-str0m --locked --release \
+  --target armv7-linux-androideabi
+```
+
+Repeat that command for `thumbv7neon-linux-androideabi` with the same
+variables, and for `aarch64-linux-android` with only
+`RIND_TEST_ARM_CRYPTO_EXT=1`.
+
+Run it at the pull request head and at the commit before the fix. The
+pre-fix commit has to fail for the bug's reason. A pass at both commits
+shows nothing about whether the tests catch the bug. On the armv7 Thumb
+ABI fix, the pre-fix commit failed `low::abi` (3) and
+`cargo test -p rind --lib` (227), every failure `sp_after == 0`. At the
+head, the armv7 command above reported 746 passed, 0 failed.
+
+A run that stops in `apt-get install qemu-user-static` because
+`ubuntu-26.04` has no installation candidate never reached the tests.
+Treat that as an infrastructure failure. The job installs
+`qemu-user-binfmt` instead (`build.yml`, rind #600).
 
 ## Wasm
 
