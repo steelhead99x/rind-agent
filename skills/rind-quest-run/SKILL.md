@@ -42,11 +42,13 @@ handoff.
 Before picking quests or handing them to agents, merge upstream `main` into
 the fork's `main` with a merge commit (`gh repo sync <fork> --branch main`,
 GitHub's Sync fork, or a PR from `moq-dev:main` into the fork's `main`
-merged with a merge commit). Never force-push or reset: the fork's own
-commits (a review config, for example) must stay. Otherwise a lagging fork
-lists quests upstream already finished, and a fork PR's diff includes
-those unrelated upstream commits. Quest branches still base on upstream
-`main`, and fork-only commits still must not go upstream.
+merged with a merge commit). Write the upstream tip SHA in that merge
+subject as literal characters. A command substitution inside single quotes
+is stored unexpanded. See [Known issues](#known-issues). Never force-push
+or reset: the fork's own commits (a review config, for example) must stay.
+Otherwise a lagging fork lists quests upstream already finished, and a fork
+PR's diff includes those unrelated upstream commits. Quest branches still
+base on upstream `main`, and fork-only commits still must not go upstream.
 
 ## Picking a quest
 
@@ -453,6 +455,12 @@ merge, re-read the quest file on current upstream `main`.
    requests also edit `uncovered-functions.md`. Newly added quests are
    often claimed immediately. Re-check open upstream pull requests and
    `quest/*` branches right before claiming.
+8. A merge of upstream `main` into the fork's `main` names the upstream
+   tip in the merge subject. Write that SHA as literal characters. A
+   command substitution inside single quotes is stored unexpanded. On
+   2026-11-12 the fork commit `a8389b32` stored the subject
+   `Merge upstream moq-dev/rind main ($(git rev-parse --short upstream/main))`.
+   The next sync, `580c2bb0`, records `a7cf7eeb`.
 
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
