@@ -280,7 +280,14 @@ on the closed pull request does not carry over.
      public output, such as a verify `Result`. Then run full ctgrind and
      `nix develop --command just check` on the new head. The
      upstream-bound rebuild still squashes, as rind-git says.
-8. Open one upstream PR as a draft first, and send the rest after the
+8. Before opening the pull request, check `UPSTREAM.md`. It lists every
+   workaround for a bug or gap in a tool or dependency rind doesn't own.
+   A pull request that adds one adds its entry and names that entry, by
+   its heading, in the workaround's comment (`See UPSTREAM.md, "<heading>".`).
+   A pull request that drops one removes it from its entry, and deletes
+   the entry once it lists no workaround. The rule is rind's
+   `CONTRIBUTING.md`, under Upstream.
+9. Open one upstream PR as a draft first, and send the rest after the
    maintainer has responded to it. Several large drafts at once from a new
    contributor is a lot to review. Lead with a standalone change, and hold
    ones that overlap the maintainer's open work.
