@@ -16,13 +16,28 @@ explained in the PR.
 - [ ] Where aws-lc cannot build (wasm, for example), check verdicts against a
       file recorded from aws-lc, plus a host test that keeps the file equal
       to aws-lc. Never accept "either verdict" as a check.
+- [ ] Every test or helper that touches aws-lc is gated with
+      `#[cfg(not(any(miri, target_family = "wasm")))]`. A missing gate
+      breaks `just wasm` and the wasm nightly, not only Miri
+      (`rind/tests/heap_scratch.rs` after ML-DSA).
 - [ ] New arithmetic says where its correctness argument comes from (a proof,
       a cited paper, or the upstream it was taken from).
 - [ ] Code copied from another project keeps its copyright lines and an
       `SPDX-License-Identifier`, and `LICENSE` and `ALGORITHMS.md`'s Sources
       table both list the project.
+- [ ] A committed verdict or vector file has a drift check and a documented
+      way to regenerate it, such as an ignored test that re-records the file
+      from the reference implementation.
 - [ ] Behavior questions (accept, refuse, wipe) follow aws-lc-rs unless the PR
       says why not.
+- [ ] A known difference from upstream is documented in the README, pinned by
+      a test, and named in the PR as a maintainer decision. secp256k1 PKCS#8
+      returning `InvalidEncoding` where aws-lc-rs returns `WrongAlgorithm`
+      is one.
+- [ ] A comment or PR sentence that states what an upstream parser does cites
+      the upstream file and the lines it was checked against. "aws-lc checks
+      ML-KEM by length only" and "PSS default parameters" are that kind of
+      claim.
 - [ ] Every key encoding the RFC requires is accepted. RFC 9474, for example,
       needs id-RSASSA-PSS SPKIs as well as rsaEncryption.
 - [ ] When a modulus' bit length is 1 mod 8, the byte dropped from an encoding
@@ -73,6 +88,24 @@ explained in the PR.
 - [ ] When rejecting a key for the wrong algorithm or parameter set,
       check the OID or parameter set before any key expansion. Don't
       reparse the key under each alternative to decide.
+- [ ] An adapter's error variant matches the upstream parser. `WrongAlgorithm`
+      versus `InvalidEncoding` follows every type whose `priv_decode` is set.
+      aws-lc's `EVP_parse_private_key` (`crypto/evp_extra/evp_asn1.c`, methods
+      in `p_methods.c`) decodes RSA, RSA-PSS, EC, DSA, Ed25519, X25519,
+      ML-DSA, and ML-KEM. DH is in that table and has no `priv_decode`. Each
+      type rind does not recognize gets a differential test or a documented
+      difference.
+- [ ] That parity covers each encoding of an algorithm, not only its OID.
+      The upstream parser may treat the forms differently: an ML-KEM seed
+      versus an expanded private key; RSA-PSS with absent, empty, or
+      explicit-hash parameters; OAEP; id-ea-rsa. Give each form a
+      differential test. Where upstream accepts a form and rind cannot match
+      it (DSA, secp224r1, secp256k1, Brainpool, PSS with an explicit hash),
+      list it in the README and name it as a maintainer decision.
+- [ ] A new failure mode uses the error variant of the closest existing rind
+      or upstream case. Hash-to-curve exhaustion on verify, or a proof from
+      a different suite, is that kind of choice. When the closest case is
+      unclear, list it as a maintainer question and leave the PR a draft.
 - [ ] A hash-to-curve or `expand_message` entry point refuses an empty
       domain-separation tag, a requested length above the RFC's 65535-byte or
       255-block limit, and a reduction wider than the bignum helper can read.
@@ -103,6 +136,19 @@ explained in the PR.
 - [ ] Values marked secret and later handed out as public output (a random
       prefix or salt, say) are declassified at that point. Otherwise ctgrind
       reports false positives in the caller.
+- [ ] A ctgrind test's `secret` and `public` on a `Vec<u8>` take the bytes
+      (`&v[..]`), not the header. Declassify a secret-derived buffer with
+      `public` before comparing it (`assert_eq!`, `==`).
+- [ ] Marking that header also leaves the payload unmarked, so a passing
+      run can miss coverage. When a ctgrind failure is fixed, say whether
+      the change was the test's marking or the code, and confirm the same
+      bytes are still covered. A declassify before `assert_eq` covers only
+      a true public output or a test artifact, such as a verify `Result`.
+- [ ] A ctgrind test that leaves octets unmarked says why, against the parser
+      that reads them, and cites those lines in a comment. Leading octets of
+      an RSA private integer (`rind/src/high/asn1.rs`) and the low octet of a
+      prime (`rind/src/mid/rsa_priv.rs`) stay unmarked only when those lines
+      show the parser treats them as public.
 - [ ] Every new entry point is wrapped in `Entry::new_secret()` or
       `Entry::new_public()`.
       Inner helpers don't open their own nested `Entry`.
@@ -111,13 +157,30 @@ explained in the PR.
       (seed, expanded key, `generate`, PKCS#8 import and export, and
       signing). SIMD paths valgrind can't run (AVX-512) get a
       randomized comparison against the scalar version and an SDE run.
+- [ ] A secrets test covers every constructor that takes a secret.
+      `secrets_stay_secret` includes `VerifierRecord::from_record`, which
+      takes `w0`.
+- [ ] ctgrind and canonical-encoding tests run on every backend the crate
+      builds: native x86_64, `--cfg rind_portable` with
+      `curve25519_dalek_backend="serial"`, aarch64, and armv7. A new
+      primitive gets a `ct_binsec_*` test or says why not. A non-canonical
+      encoding is compared with an established implementation (`akd_core`
+      for ECVRF).
 - [ ] A comment that names a test names one that exists.
 - [ ] Comments and `AGENTS.md` don't claim ctgrind coverage that the test
       doesn't actually give.
 - [ ] Wasm test tiers do not check constant time: the engine recompiles and
       may branch. Docs that describe the tier say so.
 - [ ] Types holding secret-derived values don't derive `Debug` or
-      `PartialEq`: write a redacting `Debug` and a constant-time equality.
+      `PartialEq`. A tag or confirmation value gets a redacting `Debug` and
+      a hand-written `ct_equal` that declassifies only the boolean. Nothing
+      else compares them outside `cfg(test)`: `as_ref()` slices, `Hash`,
+      `Ord`, or serialization.
+- [ ] A value computed from a secret and meant to be published (a VRF
+      `Output`, for example) has a written decision on whether it is secret.
+      While it is secret, or that decision is still open, it does not derive
+      a variable-time `PartialEq` or a `Debug` that prints its bytes. An
+      open decision is a maintainer question.
 - [ ] Constants are stored in the form the code uses, not decoded lazily.
       A `OnceLock` init pulls std's panic path into the variable-time scan.
 - [ ] `admin/ct-vartime` still passes; any new division is listed in
@@ -131,6 +194,16 @@ explained in the PR.
 
 - [ ] Exactly one backend per target; no runtime fallback.
 - [ ] A CPU missing a required feature fails with an error naming it.
+- [ ] A claim about which platforms or targets are tested matches
+      `.github/workflows/build.yml`, `Cross.toml`, and `sh/dispatch.sh`.
+      A target that only compiles is not tested: `aarch64-apple-ios` is
+      `cargo test --no-run`, and `wasm32-unknown-unknown` is compile-only.
+- [ ] ABI or harness code that depends on instruction-set mode is checked
+      for every target triple in each mode. `pc_ahead` is 4 under Thumb
+      (`target_feature = "thumb-mode"`) and 8 under ARM, so both the Thumb
+      triples and `arm-linux-androideabi` are covered. When that cross test
+      cannot be run locally, the PR says so and waits for the CI job to be
+      green.
 
 ## Wiping
 
@@ -145,6 +218,11 @@ explained in the PR.
       `verify` as well as `derive`.
 - [ ] Wipe and leak canaries report through the same comparison path as the
       real checks, without relying on panics, so they run on every target.
+      A refactor that drops `should_panic` still proves, on native, that a
+      planted leak is caught.
+- [ ] A wipe test's needle is long enough that a chance match is not a pass,
+      and short enough to catch a partial wipe (16 bytes, for example).
+      The test comment says why that length.
 - [ ] Error paths wipe the same secret state the success path does. A failed
       `blind`, `finalize`, `derive`, or handshake still drops the types that
       hold the secret, and no early return skips a wipe of heap scratch.
@@ -161,12 +239,16 @@ explained in the PR.
       variant breaks the build instead of mapping silently.
 - [ ] One way to do each job. Borrowed ring/aws-lc-rs names are only used when
       they're as clear, and `MIGRATING.md` maps them.
-- [ ] Adapter crates expose exactly their upstream provider's API, nothing
-      added.
+- [ ] Adapter crates expose exactly their upstream provider's API and
+      behavior, nothing added.
 - [ ] A feature that is accepted but does nothing is a bug. If an adapter
       crate takes a feature name from its upstream (rind-ring's
       `wasm32_unknown_unknown_js`, for example), wire it to what that crate's
-      same-named feature does, and clippy-check it on every PR.
+      same-named feature does, and clippy-check it on every PR. Gate the
+      dependency on the same `cfg` upstream uses.
+      `wasm32_unknown_unknown_js` is
+      `all(target_arch = "wasm32", target_os = "unknown")`, so
+      wasm32-wasip2 (`target_os = "wasi"`) keeps its WASI source.
 
 ## Performance
 
