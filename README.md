@@ -17,6 +17,11 @@ checked against rind at
 
 This is an independent project, not maintained by or affiliated with moq-dev.
 
+The `just qemu` shell list in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) was checked
+against
+[`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
+
 ## Skills
 
 | Skill | Use it when |
