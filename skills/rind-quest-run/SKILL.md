@@ -174,9 +174,12 @@ Change direction mid-run with a short steer, not a restart.
    in a separate small commit, and name it in the Review section as "not
    part of the earlier rounds". Re-run the review on the final head if
    possible, so the table names exactly what gets merged.
-6. Run `just ci` and the ctgrind tests for new secret paths on the final head.
-   Re-measure benchmark numbers on the rebuilt head, or state the hardware
-   and date of the earlier figures.
+6. Run `just ci` and the ctgrind tests for new secret paths on the final head,
+   with the dev shell rooted as
+   [Gate locally](../rind-contribute/SKILL.md#gate-locally) describes
+   (`just check up/main` the same way). Do not collect Nix garbage while
+   it runs. Re-measure benchmark numbers on the rebuilt head, or state the
+   hardware and date of the earlier figures.
 7. Run `/quest-review` with the other vendor's model and put its `## Review`
    record, naming the head SHA, in the PR body. If it can't run, say so in
    that section rather than leaving it out.
