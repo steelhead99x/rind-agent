@@ -127,6 +127,8 @@ timing build. These are advisory, but fix a red one before merging.
 The list is in `CONTRIBUTING.md`. An instruction-set or cross job the
 author cannot run locally stays open until that job is green. The check
 is in [Platform rules](../rind-crypto-review/SKILL.md#platform-rules).
+A pull request skips the `android` job; run it with the QEMU recipe in
+[Android under QEMU](../rind-bench-and-verify/SKILL.md#android-under-qemu).
 
 ## Working from a fork
 
