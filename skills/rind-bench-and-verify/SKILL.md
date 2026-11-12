@@ -30,6 +30,27 @@ just miri                 # portable backend under Miri
 just miri s390x-unknown-linux-gnu   # big-endian under Miri
 ```
 
+## Wasm
+
+Tests under wasmtime do not inherit the host environment. Forward
+`SLOW_TESTS`, `PROPTEST_CASES` and `PROPTEST_RNG_SEED` into the guest
+explicitly, and set `SLOW_TESTS=1` the way the portable tier does.
+
+proptest does not read `PROPTEST_RNG_SEED` on wasm32; apply the printed
+seed in the wasm proptest config. wasm32-wasip2's standard library aborts
+on panic, so a failure can be replayed from that seed but cannot shrink,
+and `should_panic` or `catch_unwind` tests cannot run there.
+
+proptest's fork runner (`wait-timeout`) does not build for wasm. Drop the
+`fork` feature for the wasm dev-dependency only; leave it on for host
+builds.
+
+A Cargo target runner is a single config-array entry with no extra `--`,
+and it must fail when a harness ran zero tests.
+
+Wasm tiers do not check constant time: the engine recompiles the code and
+may turn a select into a branch. Say so in the docs for that tier.
+
 ## Constant time
 
 ```shell
