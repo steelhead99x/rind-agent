@@ -45,8 +45,11 @@ Run `quest unblocked`, then skip anything it marks held, anything with an
 open upstream PR or branch (`gh pr list --repo moq-dev/rind`), and anything
 waiting on an upstream release that hasn't shipped. Also skip work needing
 hardware or accounts you don't have, and proofs you can't check with
-`admin/prove`. Prefer missing functionality and correctness over
-micro-optimizations.
+`admin/prove`. Prefer quests the maintainer is less likely to be running
+in parallel (adapter and adoption work, and test-vector or coverage gaps)
+over core primitives, proofs, and CI. Prefer missing functionality and
+correctness over micro-optimizations. When unsure, ask which quests are
+open for help.
 
 Before claiming a quest, whether you're a person or an agent, check every
 place work can be in flight. Syncing the fork does not show it. Open and
@@ -54,17 +57,21 @@ draft PRs and branches on upstream and the fork both count, including
 `cursor/*` and other branches not named for the quest. Match them by
 the files and the quest path they touch, not by the branch name alone.
 Also search open and merged upstream PRs by the conventional head
-branch `quest/<milestone>/<area>/<name>` and by title. Re-check those
-searches immediately before pushing, because a claim can land while
-the work is in progress. Also check running cloud or coding agents on
-the backlog, and files an in-flight quest already touches (shared CI
-configs such as `mutants.yml` and `fuzz.yml`, `admin/prove`, and shared
-directories under `proofs/`). Prefer `quest unblocked --unclaimed` when
-a GitHub token is available. It skips a quest's own claim and does not
-replace the checks above. If
-unsure, ask whoever is coordinating instead of starting. Leave a claim
-marker early: a draft PR on the fork that names the quest path, so
-others can see it.
+branch `quest/<milestone>/<area>/<name>` and by title. List upstream
+quest branches with `git ls-remote up 'refs/heads/quest/*'` (`up` is
+the upstream remote; it may be named `upstream`). Maintainers often
+push a `quest/...` branch before opening a PR, so a search of PRs
+alone misses them. Run the same overlap check again immediately
+before pushing, right before a branch goes to review, and right
+before proposing anything upstream. If it overlaps, stop. A claim
+can land while the work is in progress. Also check running cloud or
+coding agents on the backlog, and files an in-flight quest already
+touches (shared CI configs such as `mutants.yml` and `fuzz.yml`,
+`admin/prove`, and shared directories under `proofs/`). Prefer
+`quest unblocked --unclaimed` when a GitHub token is available. It
+skips a quest's own claim and does not replace the checks above.
+Leave a claim marker early: a draft PR on the fork that names the
+quest path, so others can see it.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
 after the in-flight check above, run this feasibility check and skip the
@@ -139,9 +146,13 @@ Change direction mid-run with a short steer, not a restart.
 ## Before going upstream
 
 1. Review each fork PR against `rind-crypto-review`.
-2. Search upstream `main` and recently merged PRs for an equivalent change
-   (the same `just` recipe, test target, or title). If it already landed,
-   stop and say so rather than opening a duplicate.
+2. Repeat the overlap check from [Picking a quest](#picking-a-quest):
+   `git ls-remote up 'refs/heads/quest/*'`, and open and merged PRs
+   searched by `quest/<milestone>/<area>/<name>` and by title. Also
+   search upstream `main` and recently merged PRs for an equivalent
+   change (the same `just` recipe, test target, or title). If it
+   already landed or the work overlaps, stop and say so rather than
+   opening a duplicate.
 3. Rebuild the branch on current upstream `main`. If the fork's `main`
    carries files upstream does not (a review config, for example), the
    branch must not include them, even in history. Cherry-pick the quest's
