@@ -604,6 +604,18 @@ merge, re-read the quest file on current upstream `main`.
     work has to read open `quest-plan/*` pulls, not only `quest/*`
     branches.
 
+14. On 2026-11-13, pull-request runs of `.github/workflows/queue.yml` failed
+    in 0 seconds with no jobs, on the fork and on kixel-ai/rind. `gh run view`
+    reports a workflow file issue. At `c333c59e` the `build` job calls
+    `uses: moq-dev/rind/.github/workflows/queue-build.yml@main`.
+    [kixel-ai/rind#711](https://github.com/kixel-ai/rind/pull/711), merged as
+    `876a68d0`, changes that call to `kixel-ai/rind`. Pull-request runs on
+    that head completed as skipped, which is the success path the workflow
+    comment describes for a pull request. A merge-group run still starts
+    `Queue build / Build`. A red Queue check with zero jobs is not a test
+    failure in the pull request. Do not edit `queue.yml` on a feature branch
+    to diverge from upstream `main`; take the sync that contains `876a68d0`.
+
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
 quests looked claimed but had no implementation:
