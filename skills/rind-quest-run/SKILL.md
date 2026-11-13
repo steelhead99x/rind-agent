@@ -501,13 +501,31 @@ merge, re-read the quest file on current upstream `main`.
    2026-11-12 the fork commit `a8389b32` stored the subject
    `Merge upstream moq-dev/rind main ($(git rev-parse --short upstream/main))`.
    The next sync, `580c2bb0`, records `a7cf7eeb`.
-9. Upstream rind moved from moq-dev/rind to kixel-ai/rind. A request
-   for https://github.com/moq-dev/rind returns 301 to
-   https://github.com/kixel-ai/rind, and the GitHub API reports
-   `full_name` `kixel-ai/rind`. Use `kixel-ai/rind` in remotes,
-   `gh --repo` arguments, and new URLs. Historical `moq-dev/rind`
-   links still resolve through the redirect.
-10. The maintainer's work takes priority over fork drafts. On
+9. Upstream runs Pullfrog reviews, and its default branch requires one
+   approving review. [moq-dev/rind#684](https://github.com/moq-dev/rind/pull/684)
+   (merged 2026-11-12, `395465fd`) added the Pullfrog workflow. The
+   active ruleset "Pullfrog approval" sets
+   `required_approving_review_count` to 1 on the default branch, and a
+   push dismisses a stale review. First-time-contributor workflow runs
+   still need a maintainer's approval before any job starts. On
+   2026-11-12 the pull-request runs for
+   [moq-dev/rind#689](https://github.com/moq-dev/rind/pull/689) and
+   [#694](https://github.com/moq-dev/rind/pull/694) completed
+   `action_required` in 0 seconds. When an upstream pull request lands
+   for a quest a fork pull request covers, hold the fork pull request
+   and leave it a draft. [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677)
+   merged as `ef24d184` and deleted `quest/m4/fips/drbg.md`, so fork
+   [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24)
+   and the CI follow-up
+   [steelhead99x/rind#46](https://github.com/steelhead99x/rind/pull/46)
+   stay open drafts.
+10. Upstream rind moved from moq-dev/rind to kixel-ai/rind. A request
+    for https://github.com/moq-dev/rind returns 301 to
+    https://github.com/kixel-ai/rind, and the GitHub API reports
+    `full_name` `kixel-ai/rind`. Use `kixel-ai/rind` in remotes,
+    `gh --repo` arguments, and new URLs. Historical `moq-dev/rind`
+    links still resolve through the redirect.
+11. The maintainer's work takes priority over fork drafts. On
     2026-11-12 the maintainer opened a quest-plan pull request,
     [kixel-ai/rind#710](https://github.com/kixel-ai/rind/pull/710)
     (`quest-plan/pullfrog-learnings`), which adds quests. Treat that
@@ -520,7 +538,7 @@ merge, re-read the quest file on current upstream `main`.
     upstream pull requests or issues, and any other contact with the
     maintainer, still need the fork owner's approval of the exact
     text, as [Before going upstream](#before-going-upstream) says.
-11. When a fork change already has an open upstream pull request, it
+12. When a fork change already has an open upstream pull request, it
     may be rebuilt onto a new `-rN` branch and a new pull request
     may replace the old one. On 2026-11-12
     [kixel-ai/rind#694](https://github.com/kixel-ai/rind/pull/694)
