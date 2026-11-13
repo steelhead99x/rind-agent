@@ -59,11 +59,19 @@ subject in `git log`.
 - Types: `feat`, `fix`, `docs`, `chore`, `ci`, `test`, `refactor`, `revert`.
 - Scopes: a skill without its `rind-` prefix (`docs(crypto-review): ...`),
   `check` for the checker (`feat(check): ...`, `fix(check): ...`), or `ci`.
+- The author and the committer are the repository owner's GitHub login
+  and that account's `id+username@users.noreply.github.com` noreply
+  address, not a nickname, an organization, or a tool or model name. Set
+  `user.name` and `user.email` in the checkout, and override
+  `GIT_AUTHOR_*` / `GIT_COMMITTER_*` when they name a tool.
 - Co-author attribution goes in a `Co-Authored-By:` trailer, not the body.
+  Use exactly one `Co-Authored-By: Cursor Agent <cursoragent@cursor.com>`
+  trailer, and no other `Co-Authored-By` trailers.
 - When squash-merging, pass `--author-email` set to the account's GitHub
-  noreply address and a `--body` with exactly one `Co-Authored-By:`
-  trailer, then verify the resulting `main` commit's author, committer,
-  and trailer count.
+  noreply address (`id+username@users.noreply.github.com` when email
+  privacy is on) and a `--body` with exactly that one trailer, then
+  verify the resulting `main` commit's author, committer, and trailer
+  count. Do not rewrite pushed history to correct them.
 - Never commit binaries or build artifacts.
 
 ## Pull requests
