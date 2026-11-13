@@ -187,9 +187,8 @@ does not build for it; `just portable` runs the same Rust against aws-lc.
 Any test or helper that still touches aws-lc needs the gate in
 [Miri](#miri).
 
-Tests under wasmtime do not inherit the host environment. Forward
-`SLOW_TESTS`, `PROPTEST_CASES` and `PROPTEST_RNG_SEED` into the guest
-explicitly, and set `SLOW_TESTS=1` the way the portable tier does.
+Tests under wasmtime do not inherit the host environment. `sh/wasm.sh`
+forwards only `SLOW_TESTS`, and the release run sets `SLOW_TESTS=1`.
 
 proptest does not read `PROPTEST_RNG_SEED` on wasm32; apply the printed
 seed in the wasm proptest config. wasm32-wasip2's standard library aborts

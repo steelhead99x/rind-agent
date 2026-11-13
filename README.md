@@ -15,6 +15,9 @@ The skills condense rind's own
 Where they disagree, rind's repository is authoritative. They were last
 checked against rind at
 [`7ab9f85`](https://github.com/moq-dev/rind/commit/7ab9f8524e27d8a186d3eb35681d07cd2a5203d7).
+The wasm runner in `sh/wasm.sh`, `REVIEW.md`'s merge-bar list, and the
+ECVRF row in `TESTING.md` were checked against
+[`c333c59`](https://github.com/kixel-ai/rind/commit/c333c59ef7f5d2fd7846e11974f9d7301d7865df).
 Mutation testing in
 [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) and the
 platform-workflow sentence in

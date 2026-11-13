@@ -28,7 +28,9 @@ cpuid, timing and fuzz crates. Read `AGENTS.md`, `ARCHITECTURE.md`,
 3. Exactly one backend compiles per target. Never add a runtime fallback; a
    missing CPU feature is an error that names the feature.
 4. New primitive or new path: Wycheproof vectors where they exist, plus a
-   differential test against aws-lc-rs (a dev-dependency only).
+   differential test against aws-lc-rs where aws-lc-rs has the primitive
+   (a dev-dependency only). When `TESTING.md` or the quest Plan says
+   aws-lc-rs lacks it, use the reference named there.
 5. New secret-handling path: a ctgrind test (`admin/ctgrind`).
 6. Before starting a follow-up the branch's PR still lists (a SIMD path, a
    missing backend), read the later commits. The work may already be there.
@@ -96,7 +98,10 @@ Touching performance: a number that will be published follows
 `cargo xtask bench` at the pin, three runs, through `admin/bench-report`.
 A bare `cargo bench` is not that number. A filtered
 `cargo bench -p rind-bench` only checks one local harness, on criterion's
-own timing, and it is not published.
+own timing, and it is not published. Compare a published number with
+aws-lc-rs where aws-lc-rs has the primitive. When `TESTING.md` or the
+quest Plan says it does not, compare with the reference named there,
+and record the host and the date.
 
 ## Git, commits and pull requests
 
