@@ -73,7 +73,8 @@ then applies its own 25% check.
 
 `run` refuses a busy host and a rustc that is not the flake pin. See
 Refusals below. A published set does not patch those checks.
-[host-run.py](host-run.py) is a pointer and exits before measuring.
+The old `host-run.py` pointer is gone; a published host run is
+rind-results `cargo xtask bench`.
 rind-results `cargo xtask host-run` fakes the dev-shell check, times
 `HEAD`, and runs once. `--busy-share` changes the idle limit in memory
 and does not edit `admin/bench-report`. Neither form is a published
@@ -181,11 +182,11 @@ Save `dumpsys battery` as `battery-before.txt` and `battery-after.txt`,
 the criterion tree, `cpuid.json` from a same-target `rind-cpuid`, and
 ISO-8601 `started` and `finished`.
 
-[android-convert.py](android-convert.py) is a pointer and exits before
-converting. `cargo xtask bench` writes the published JSON from that
-capture, with the same operations, criterion arguments, and schema 1 as
-`run`. JSON already produced by the old converter has
-`load.system_busy_share_during_run` covering the benchmarks, so
+The old `android-convert.py` pointer is gone. `cargo xtask bench` writes
+the published JSON from that capture, with the same operations,
+criterion arguments, and schema 1 as `run`. JSON already produced by
+the old converter has `load.system_busy_share_during_run` covering the
+benchmarks, so
 `load.noisy` is null, and `build_cost.status` `failed` because the
 binaries were cross-compiled. `dumpsys` temperature is tenths of a
 degree; that converter stored Celsius. A new set does not copy those

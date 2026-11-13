@@ -31,8 +31,8 @@ kixel-ai/rind and not to this skills repository. Do not commit a target
 directory, `CARGO_HOME`, a source archive, a checkout, or `.tmp/`. Do
 not put a token in a remote URL.
 
-[render-side.py](render-side.py), [stage-repo.py](stage-repo.py), and
-[page-data.py](page-data.py) are pointers. Each exits before it writes.
+The old `render-side.py`, `stage-repo.py`, and `page-data.py` pointers
+are gone.
 `cargo xtask render` is the old side sheet. `cargo xtask stage`
 regenerates an older per-host tree. A new set uses `report --dir`.
 There is no `page-data` subcommand.
