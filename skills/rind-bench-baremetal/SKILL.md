@@ -93,7 +93,7 @@ turns.
 [build-matrix.sh](build-matrix.sh) release-builds each `crates/tv-*`
 member and retries with `getrandom_backend="custom"` when getrandom
 refuses the target. Copy it into a workspace of one `#![no_std]` rlib per
-library. The 2026-11-12 compile-only results are in
+library. The compile-only results are in
 [COMPETITOR-BUILDS.md](COMPETITOR-BUILDS.md). rind fails on every target
 there. RustCrypto and dalek crates pass. ring fails in its ARM x25519
 assembly, or for lack of a C compiler. aws-lc-rs fails on pthreads and

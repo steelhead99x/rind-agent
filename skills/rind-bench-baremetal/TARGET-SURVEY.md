@@ -1,6 +1,6 @@
 # Microcontroller targets that share the RP2040's constraints for rind
 
-Surveyed on 2026-11-12. The constraints rind's no_std quest has to handle:
+The constraints rind's no_std quest has to handle:
 
 - **No std / no OS:** every target here.
 - **No CAS:** no compare-and-swap, so `compare_exchange`/`fetch_max` are missing and so is `alloc::sync::Arc`.

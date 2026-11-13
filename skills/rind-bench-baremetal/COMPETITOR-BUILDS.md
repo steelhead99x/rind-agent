@@ -1,6 +1,6 @@
 # What builds for thumbv6m-none-eabi (RP2040) and nearby bare-metal targets
 
-Run on 2026-11-12, rustc 1.99.1 (stable), on an x86_64 Linux host, with no device involved. Each library is built as a `#![no_std]` rlib in its own crate (`crates/tv-*`) by [`build-matrix.sh`](build-matrix.sh):
+Built with rustc 1.99.1 (stable) on an x86_64 Linux host, with no device involved. Each library is built as a `#![no_std]` rlib in its own crate (`crates/tv-*`) by [`build-matrix.sh`](build-matrix.sh):
 
 ```
 cargo build --release --target <triple> -p <crate>
@@ -55,4 +55,4 @@ Versions are those `rind-bench` uses (`rind-bench/Cargo.toml` at a4759c48), with
 
 - The RustCrypto crates and the dalek crates need no randomness backend and no CAS at these features. Their RNG-using APIs take a caller-supplied `rand_core` RNG.
 - On thumbv6m, Rust's compiler-builtins lowers a 32×32→64 product to `__aeabi_lmul`. Disassembled on this toolchain, it's four 16×16 `muls` plus `adds`/`adcs`, with no branch. BearSSL's table notes that libgcc's routine of the same name branches; that matters for C code linked against libgcc. See [TARGET-SURVEY.md](TARGET-SURVEY.md).
-- **EFR32MG24 (thumbv8m.main-none-eabihf):** the column above is this chip's target. Re-checked against the kept workspace's `logs/thumbv8m.main-none-eabihf/` on 2026-11-12: same results. The M33 has CAS (`target_has_atomic` 8/16/32/ptr), so rustls with no provider and rustls-rustcrypto build where thumbv6m fails. rind still fails only on `std`; ring fails in its Armv7 x25519 assembly; aws-lc-sys fails on pthreads/`clock_gettime`. Nothing here was run on the chip: compile only.
+- **EFR32MG24 (thumbv8m.main-none-eabihf):** the column above is this chip's target. Re-checked against the kept workspace's `logs/thumbv8m.main-none-eabihf/`: same results. The M33 has CAS (`target_has_atomic` 8/16/32/ptr), so rustls with no provider and rustls-rustcrypto build where thumbv6m fails. rind still fails only on `std`; ring fails in its Armv7 x25519 assembly; aws-lc-sys fails on pthreads/`clock_gettime`. Nothing here was run on the chip: compile only.
