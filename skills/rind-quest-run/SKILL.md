@@ -595,6 +595,14 @@ merge, re-read the quest file on current upstream `main`.
     describes. Leave older `-rN` branches alone: do not merge the
     fork's `main` into them, include them in a sweep, or push to
     them.
+13. On Nov 12, 2026, [kixel-ai/rind#715](https://github.com/kixel-ai/rind/pull/715)
+    (`cbe8def8`), on branch `quest-plan/host-cost`, rewrote
+    `quest/m2/confidence/mutants-adapters.md` while fork
+    [steelhead99x/rind#23](https://github.com/steelhead99x/rind/pull/23)
+    was already implementing that quest. The rewrite is in an open
+    quest-plan pull request, not on a `quest/*` branch. Fork mutants
+    work has to read open `quest-plan/*` pulls, not only `quest/*`
+    branches.
 
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
