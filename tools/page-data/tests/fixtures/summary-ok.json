@@ -1,0 +1,48 @@
+{
+  "order": ["sha256", "aes_gcm", "missing"],
+  "columns": {"rind": "rind 0.3", "ring": "ring"},
+  "hosts": {
+    "pi5": {
+      "rows": {
+        "sha256": {"label": "SHA-256", "times": {"rind": 1.23456, "ring": 1.234e-5}},
+        "aes_gcm": {"label": "AES-GCM", "times": {"rind": 12.0}}
+      },
+      "cpu": {"model": "Cortex-A76", "arch": "aarch64"},
+      "os": "Debian GNU/Linux",
+      "rustc": "rustc 1.90.0 (88d9e12ae 2026-08-18)",
+      "commit": "abcdef1234567890deadbeef",
+      "started": "2026-11-12T10:00:00Z",
+      "load": {"noisy": false, "other_busy_cpus_during_run": 0.25},
+      "lead": "rind",
+      "timed": 3,
+      "source": "this run",
+      "build_cost": {
+        "status": "ok",
+        "builds": [
+          {
+            "name": "rind",
+            "median_seconds": 1.25,
+            "median_cpu_seconds": 2.5,
+            "stripped_bytes": 1234567,
+            "packages": ["rind", "rind-bench"]
+          }
+        ]
+      }
+    },
+    "m1pro": {
+      "rows": {
+        "sha256": {"label": "SHA-256", "times": {"rind": 0.5, "ring": 0.75}}
+      },
+      "cpu": {"model": "Apple M1 Pro", "arch": "aarch64"},
+      "os": "macOS",
+      "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+      "commit": "ffffffffffffffff",
+      "started": "2026-11-11T09:30:00Z",
+      "load": {"noisy": true},
+      "lead": "ring",
+      "timed": 2,
+      "source": "published",
+      "build_cost": {"status": "failed", "reason": "skipped by host-run (HOSTRUN_SKIP_BUILD_COST)"}
+    }
+  }
+}

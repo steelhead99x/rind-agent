@@ -38,8 +38,8 @@ Run the same checks CI runs before every push:
 
 ```shell
 cargo fmt --all --check
-cargo clippy --all-targets --locked -- --deny warnings
-cargo test --locked
+cargo clippy --workspace --all-targets --locked -- --deny warnings
+cargo test --workspace --locked
 cargo run --locked --quiet    # skills, links, privacy, action pins
 ```
 

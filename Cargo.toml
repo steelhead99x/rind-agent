@@ -13,3 +13,7 @@ name = "check"
 path = "src/main.rs"
 
 [dependencies]
+
+[workspace]
+members = [".", "tools/page-data"]
+default-members = ["."]

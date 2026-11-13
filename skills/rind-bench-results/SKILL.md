@@ -82,7 +82,8 @@ stdout into `build_cost` as
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md) describes, then render
 again.
 
-[page-data.py](page-data.py) prints a compact page from a summary object
-with `order`, `columns`, and per-host `rows`, `cpu`, `os`, `rustc`,
-`commit`, `started`, `load`, `lead`, `timed`, and `build_cost`.
-`render-side.py` does not write that object.
+`cargo run -p page-data --locked -- summary.json` prints a compact page
+from a summary object with `order`, `columns`, and per-host `rows`,
+`cpu`, `os`, `rustc`, `commit`, `started`, `load`, `lead`, `timed`, and
+`build_cost`. `render-side.py` does not write that object. The tool
+lives in `tools/page-data/` and replaces `page-data.py`.
