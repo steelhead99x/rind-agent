@@ -10,6 +10,7 @@ description = "Build three 128x64 1-bit frames for an EFR32MG24 SSD1306 demo."
 [dependencies]
 freetype-rs = "0.38"
 png = "0.17"
+rustybuzz = "0.20"
 
 [build-dependencies]
 pkg-config = "0.3"

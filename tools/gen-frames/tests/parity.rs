@@ -108,3 +108,33 @@ fn tempfile_demo() -> PathBuf {
     fs::create_dir_all(&base).unwrap();
     base
 }
+
+/// Pillow 11.3 RAQM `getlength` with the fixture fonts, times 64: totals
+/// that include GPOS kerning (`Xeon`, `M1 Pro`, `TLS 1.3 handshake`,
+/// `pure-Rust crypto`) and ones that do not.
+#[test]
+fn raqm_lengths_match_pillow() {
+    use gen_frames::font::FontKind::{Sans, SansBold};
+    let fonts = Fonts::new(&fixtures().join("fonts")).expect("load fonts");
+    for (text, kind, size, want) in [
+        ("moq.dev", SansBold, 13, 4053),
+        ("Media over", Sans, 10, 3553),
+        ("QUIC", SansBold, 10, 1772),
+        ("pure-Rust crypto", Sans, 9, 4804),
+        ("TLS 1.3 handshake", SansBold, 9, 6120),
+        ("X25519, full", Sans, 9, 3479),
+        ("aws-lc", SansBold, 9, 2041),
+        ("Xeon", Sans, 9, 1440),
+        ("M1 Pro", Sans, 9, 1959),
+        ("1.57ms", Sans, 9, 2142),
+    ] {
+        for mono in [false, true] {
+            let got = fonts.text_length(text, kind, size, mono).expect("length");
+            assert_eq!(
+                got * 64.0,
+                f64::from(want),
+                "{text} at {size} (mono {mono})"
+            );
+        }
+    }
+}

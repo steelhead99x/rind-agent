@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT-0
 
-//! Monochrome text matching Pillow's FreeType driver in BASIC layout
-//! (`_imagingft.c` in Pillow 11.3).
+//! Monochrome text matching Pillow's FreeType driver in RAQM layout
+//! (`_imagingft.c` in Pillow 11.3), the engine `ImageFont.truetype` picks
+//! whenever libraqm is installed. Glyphs and positions come from HarfBuzz
+//! shaping (rustybuzz, the default features, so GPOS kerning applies) at
+//! `size * 64` units per em, as raqm reports them in 26.6; FreeType renders
+//! each glyph with `FT_LOAD_TARGET_MONO`, as for `fontmode = "1"`.
 
 use std::path::{Path, PathBuf};
 
 use freetype::bitmap::{Bitmap, PixelMode};
-use freetype::face::{KerningMode, LoadFlag};
+use freetype::face::LoadFlag;
 use freetype::{Face, Library};
 
 /// Round a 26.6 pixel coordinate to the nearest integer (`PIXEL` in Pillow).
@@ -24,7 +28,8 @@ pub enum FontKind {
     SansBold,
 }
 
-/// `true` when ImageDraw.fontmode is `"1"` (`FT_LOAD_TARGET_MONO`).
+/// `true` when ImageDraw.fontmode is `"1"`. RAQM layout gives the same
+/// advances in both modes; only the rendering differs.
 pub type MonoMode = bool;
 
 struct GlyphInfo {
@@ -39,6 +44,8 @@ pub struct Fonts {
     lib: Library,
     sans: PathBuf,
     bold: PathBuf,
+    sans_data: Vec<u8>,
+    bold_data: Vec<u8>,
 }
 
 impl Fonts {
@@ -51,13 +58,29 @@ impl Fonts {
                 return Err(format!("missing font {}", path.display()));
             }
         }
-        Ok(Self { lib, sans, bold })
+        let read = |p: &Path| std::fs::read(p).map_err(|e| format!("{}: {e}", p.display()));
+        let sans_data = read(&sans)?;
+        let bold_data = read(&bold)?;
+        Ok(Self {
+            lib,
+            sans,
+            bold,
+            sans_data,
+            bold_data,
+        })
     }
 
     fn path(&self, kind: FontKind) -> &Path {
         match kind {
             FontKind::Sans => &self.sans,
             FontKind::SansBold => &self.bold,
+        }
+    }
+
+    fn data(&self, kind: FontKind) -> &[u8] {
+        match kind {
+            FontKind::Sans => &self.sans_data,
+            FontKind::SansBold => &self.bold_data,
         }
     }
 
@@ -85,16 +108,15 @@ impl Fonts {
         flags
     }
 
-    /// Pillow BASIC `getlength`, in pixels (sum of 26.6 advances / 64).
+    /// Pillow RAQM `getlength`, in pixels (sum of 26.6 advances / 64).
     pub fn text_length(
         &self,
         text: &str,
         kind: FontKind,
         size: i32,
-        mono: MonoMode,
+        _mono: MonoMode,
     ) -> Result<f64, String> {
-        let face = self.face(kind, size)?;
-        let glyphs = layout(&face, text, mono)?;
+        let glyphs = layout(self.data(kind), size, text)?;
         let length: i32 = glyphs.iter().map(|g| g.x_advance).sum();
         Ok(length as f64 / 64.0)
     }
@@ -118,7 +140,7 @@ impl Fonts {
     ) -> Result<(), String> {
         let mono = true;
         let face = self.face(kind, size)?;
-        let glyphs = layout(&face, text, mono)?;
+        let glyphs = layout(self.data(kind), size, text)?;
         if glyphs.is_empty() {
             return Ok(());
         }
@@ -151,39 +173,35 @@ impl Fonts {
     }
 }
 
-fn layout(face: &Face, text: &str, mono: MonoMode) -> Result<Vec<GlyphInfo>, String> {
-    let mut flags = LoadFlag::DEFAULT;
-    if mono {
-        flags |= LoadFlag::TARGET_MONO;
-    }
-    let kerning = face.has_kerning();
-    let mut last_index = 0u32;
-    let mut glyphs: Vec<GlyphInfo> = Vec::new();
-    for ch in text.chars() {
-        let index = face.get_char_index(ch as usize).unwrap_or(0);
-        face.load_glyph(index, flags)
-            .map_err(|e| format!("load_glyph: {e}"))?;
-        if kerning && last_index != 0 && index != 0 {
-            if let Ok(delta) = face.get_kerning(last_index, index, KerningMode::KerningDefault) {
-                if let Some(prev) = glyphs.last_mut() {
-                    // Pillow adds PIXEL(delta) (an integer pixel) to a 26.6
-                    // advance. Match that.
-                    prev.x_advance += pixel(delta.x as i32);
-                    prev.y_advance += pixel(delta.y as i32);
-                }
-            }
-        }
-        let metrics = face.glyph().metrics();
-        glyphs.push(GlyphInfo {
-            index,
-            x_offset: 0,
-            y_offset: 0,
-            x_advance: metrics.horiAdvance as i32,
-            y_advance: 0,
-        });
-        last_index = index;
-    }
-    Ok(glyphs)
+/// HarfBuzz's `em_scale`: `v * scale / upem`, rounded half away from zero.
+fn em_scale(v: i32, scale: i64, upem: i64) -> i32 {
+    let x = i64::from(v) * scale;
+    let x = if x >= 0 { x + upem / 2 } else { x - upem / 2 };
+    (x / upem) as i32
+}
+
+/// Pillow's `text_layout_raqm`: shaped glyphs with 26.6 offsets and
+/// advances. The direction, script and language are guessed from the text.
+fn layout(data: &[u8], size: i32, text: &str) -> Result<Vec<GlyphInfo>, String> {
+    let face = rustybuzz::Face::from_slice(data, 0).ok_or("rustybuzz: unreadable font")?;
+    let upem = i64::from(face.units_per_em());
+    let scale = i64::from(size) * 64;
+    let mut buffer = rustybuzz::UnicodeBuffer::new();
+    buffer.push_str(text);
+    buffer.guess_segment_properties();
+    let shaped = rustybuzz::shape(&face, &[], buffer);
+    Ok(shaped
+        .glyph_infos()
+        .iter()
+        .zip(shaped.glyph_positions())
+        .map(|(info, pos)| GlyphInfo {
+            index: info.glyph_id,
+            x_offset: em_scale(pos.x_offset, scale, upem),
+            y_offset: em_scale(pos.y_offset, scale, upem),
+            x_advance: em_scale(pos.x_advance, scale, upem),
+            y_advance: em_scale(pos.y_advance, scale, upem),
+        })
+        .collect())
 }
 
 fn bounds_la(face: &Face, glyphs: &[GlyphInfo], load: LoadFlag) -> Result<(i32, i32, i32), String> {
