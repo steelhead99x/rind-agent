@@ -40,7 +40,10 @@ history. The rind-results commands they name were checked against the
 [`2169f480`](https://github.com/steelhead99x/rind-results/commit/2169f4806794)
 (the board-runner stack, not yet on `main`). `admin/bench-report` at
 the pin still sets `--warm-up-time 1` and `--measurement-time 3`, and
-its `OPERATIONS` list has 68 entries.
+its `OPERATIONS` list has 68 entries. The `public_slice` guidance and
+the 30-minute `hol-light` and `cosim` limits in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) were
+checked against that same pin.
 
 ## Skills
 

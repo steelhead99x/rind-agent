@@ -49,6 +49,10 @@ or reset: the fork's own commits (a review config, for example) must stay.
 Otherwise a lagging fork lists quests upstream already finished, and a fork
 PR's diff includes those unrelated upstream commits. Quest branches still
 base on upstream `main`, and fork-only commits still must not go upstream.
+If upstream `main` moved and merges cleanly into the fork's `main`,
+merge it with a merge commit as above. If the merge conflicts, open a
+sync pull request instead of pushing a conflicted merge, and do not
+force-push.
 
 ## Picking a quest
 
@@ -357,6 +361,47 @@ the exact text. Collect questions for the maintainer until then.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Fork loop
+
+These rules are for a fork that works the upstream `quest/` backlog on a
+schedule. rind's own files still override them. A published benchmark
+set is not a quest pull request. It stays on a `steelhead99x`
+repository and follows
+[rind-bench-publish](../rind-bench-publish/SKILL.md): the pin in
+[rind-bench-pin](../rind-bench-pin/SKILL.md), and rind-results
+`cargo xtask bench` rather than a bare `cargo bench`.
+
+Fix items are unresolved reviews, failing CI or `just check`, merge
+conflicts, unanswered `rind-crypto-review` findings, and unmet Plan
+items. A different agent reviews and verifies, with severity marks. A
+medium or higher finding is a fix item.
+
+Only start a new quest agent when upstream has changed and the overlap
+check still leaves the quest free, preferring quests the maintainer is
+less likely to take, as [Picking a quest](#picking-a-quest) describes.
+Claim it with a fork draft pull request.
+
+Keep questions for the maintainer as a list with links and the exact
+wording to send. Check the quest file, `AGENTS.md`, `CONTRIBUTING.md`,
+`REVIEW.md`, and the code first, and drop any question those already
+answer. Do not send them unless the fork owner has approved the exact
+text, as [Before going upstream](#before-going-upstream) says.
+
+When an upstream pull request's CI is failing, put a minimal fix on a
+fork branch named `cursor/fix-upstream-<N>` (`<N>` is that pull
+request's number), open a draft pull request on the fork, and do not
+push to the upstream branch or comment on the upstream pull request
+unless the fork owner has approved the exact text.
+[steelhead99x/rind#60](https://github.com/steelhead99x/rind/pull/60),
+on `cursor/fix-upstream-679`, is one.
+
+A fork pull request is ready to merge only when CI and `just check` are
+green, an independent review has a verified verdict on that head (or an
+identical tree, as [Known issues](#known-issues) describes), no medium
+or higher findings remain, every Plan item is met, the work maps to a
+quest that already exists on upstream, and it does not overlap the
+maintainer's open work.
 
 ## Known issues
 
