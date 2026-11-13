@@ -12,7 +12,16 @@ before `just check` or `just ci`, or the gate stops early.
 
 ## Benchmarks
 
-The published comparison is `admin/bench-report`.
+The published comparison inside a rind checkout is `admin/bench-report`.
+A comparable set that leaves this checkout follows
+[rind-bench-pin](../rind-bench-pin/SKILL.md),
+[rind-bench-measure](../rind-bench-measure/SKILL.md),
+[rind-bench-schema](../rind-bench-schema/SKILL.md), and
+[rind-bench-publish](../rind-bench-publish/SKILL.md): the upstream SHA in
+`commit`, three runs, rind-results `cargo xtask bench`, and
+`cargo xtask verify --dir` before the tree is pushed. `OPERATIONS` at
+upstream `0b1f1469` has 68 entries. A bare `cargo bench` is not that
+set.
 
 ```shell
 cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing
@@ -27,10 +36,11 @@ admin/bench-report render --from DIR    # rewrite this checkout's BENCHMARKS.md 
 `rind-bench/benches` and uses criterion's defaults, 3 s of warm-up and 5 s
 of measurement. `admin/bench-report` shortens that to
 `--warm-up-time 1 --measurement-time 3` so one host takes about half an
-hour, and it times only `OPERATIONS` (62 operations at the commit the
-README cites). Harnesses the report never asks for, such as `mldsa44`,
-`mldsa87`, `sha1`, `md5`, `pbkdf2`, and `rsa_gen`, still run under a bare
-`cargo bench`. Use `run` for the report's set.
+hour, and it times only `OPERATIONS` (62 at `7ab9f85`, the commit the
+rest of this file was checked against). Harnesses the report never asks
+for, such as `mldsa44`, `mldsa87`, `sha1`, `md5`, `pbkdf2`, and
+`rsa_gen`, still run under a bare `cargo bench`. Use `run` for the
+report's set.
 
 `collect` is the maintainer path. `HOSTS` is fixed: `nixos`, `desktop`,
 `nixos2`, `kixtop`, `ovh-iad`, `ovh-sea`. Any other `--host` fails with
@@ -49,11 +59,12 @@ ignored. It then exits if a gap over 10% (`SLOWER` is 1.1) has no decision
 in `benchmarks/gaps.toml`, or a decision's `on` is not a `HOSTS` name or a
 nightly tier. Leave a host outside that list out of `render`.
 
-Measuring any other machine is
-[rind-bench-hosts](../rind-bench-hosts/SKILL.md). A sheet for those hosts,
-and a results repository for the JSON, is
-[rind-bench-results](../rind-bench-results/SKILL.md). Both leave the repo's
-`BENCHMARKS.md` untouched.
+Measuring any other machine for a published set is
+[rind-bench-measure](../rind-bench-measure/SKILL.md). Host notes are in
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md). The JSON layout is
+[rind-bench-schema](../rind-bench-schema/SKILL.md) and
+[rind-bench-results](../rind-bench-results/SKILL.md). Those leave this
+repo's `BENCHMARKS.md` untouched.
 
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
 Every gap over 10% in the published report needs a quest or a reason in

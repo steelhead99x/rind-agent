@@ -1,56 +1,46 @@
 ---
 name: rind-bench-results
-description: Use when rendering a side benchmark sheet for hosts outside admin/bench-report's HOSTS, or committing that sheet and the raw JSON to a results repository.
+description: Use when placing a published benchmark tree in rind-results, or reading an older side sheet that still uses the per-host layout.
 ---
 
-# A side sheet, and where the JSON goes
+# Where a published set goes
 
-How the host was measured is in
-[rind-bench-hosts](../rind-bench-hosts/SKILL.md). Why `render` cannot take
-a new host is in
-[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md).
+How the set was measured is
+[rind-bench-measure](../rind-bench-measure/SKILL.md). The directory and
+the JSON keys are
+[rind-bench-schema](../rind-bench-schema/SKILL.md). The verify step is
+[rind-bench-publish](../rind-bench-publish/SKILL.md). Host notes are in
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md).
 
-`report()` returns Markdown and SVGs. It does not write them. Point
-`HOSTS`, `REPORT`, and `REPORT_DIR` at the side hosts and a directory
-outside the checkout. Pass `tiers=None` and `gaps=None`. `load_verified()`
-still reads the checkout's `benchmarks/verified.toml` (`VERIFIED` is set at
-import). With `tiers=None` the CPU-tier section would say there are no
-nightly results. Replace that section, the generated-by comment, and the
-sentence that every host used the pinned toolchain and ran only when idle,
-unless that sentence is true of every host in the sheet.
-
-[render-side.py](render-side.py) does that and writes only under `--out`.
-`--out` inside the rind checkout is an error. A JSON whose `status` is not
-`ok` is an error. Host order on the command line is the sheet's order. A
-note is one paragraph, `--note <host> <file>` or `<stem>.note` beside the
-JSON. The script rejects a heading. It exits if `report()` no longer has
-the comment, the toolchain sentence, or the `## CPU tiers` and
-`## Verified code` headings.
+`admin/bench-report render` rewrites the rind checkout's `BENCHMARKS.md`
+and `benchmarks/*.svg`, and it only accepts the six `HOSTS` names. Why
+that refuses a new host is in
+[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md). A published
+set does not call `render`. rind-results `cargo xtask report --dir`
+writes `RESULTS.md` into the output directory and leaves the rind
+checkout's `BENCHMARKS.md` alone.
 
 ```shell
-python3 render-side.py \
-  --rind /path/to/rind \
-  --out /path/to/results/render \
-  --note <host> /path/to/<host>.note \
-  /path/to/<host>.json
+cargo xtask report --dir results/<host>/<upstream-sha>
+cargo xtask verify --dir results/<host>/<upstream-sha>
 ```
 
-The sheet is `<out>/BENCHMARKS.md`. SVGs are `<out>/benchmarks/`. Gaps come
-from `gaps_of` where rind is slower than `SLOWER` (1.1). They are
-measurements. `benchmarks/gaps.toml` stays the maintainers' file.
-`rind-dit-held` is excluded (`VARIANTS`).
+Commit that directory to
+[rind-results](https://github.com/steelhead99x/rind-results), not to
+kixel-ai/rind and not to this skills repository. Do not commit a target
+directory, `CARGO_HOME`, a source archive, a checkout, or `.tmp/`. Do
+not put a token in a remote URL.
 
-The host note adds what the JSON does not already show: a rustc other than
-the pin, or a run outside `nix develop`; a shared or in-use machine;
-OpenSSL headers unpacked locally; an aarch64 part with the crypto extension
-and without SHA-3; on Apple silicon, that short gaps need the DIT-held
-column; that ML-DSA-65 was timed here while the published sheet has dashes
-on those three rows.
+[render-side.py](render-side.py), [stage-repo.py](stage-repo.py), and
+[page-data.py](page-data.py) are pointers. Each exits before it writes.
+rind-results still has `scripts/render-ours.py`, the old side renderer.
+A new set does not run it. `page-data.py` used to print a compact page
+from a summary object with `order`, `columns`, and per-host `rows`.
+`cargo xtask report --dir` writes the page the published tree gets.
 
-## Results repository
+## Older trees
 
-Commit the JSON and the sheet to a repository other than rind and other
-than this skills repository. Layout:
+Trees already in rind-results keep their paths. That includes:
 
 ```text
 <host>/<host>.json
@@ -60,29 +50,27 @@ render/BENCHMARKS.md
 render/benchmarks/*.svg
 ```
 
-Do not commit a target directory, `CARGO_HOME`, a source archive, a
-checkout, or `.tmp/`. Do not put a token in a remote URL. Push from an
-account that can write the repository.
+and the board directories `results/esp32s3/`, `results/nrf52840/`, and
+`results/msi-001/`. When a new `<upstream-sha>` directory is the
+comparable set for that host, add a pointer in the old notes naming
+the new path. Do not rewrite the old numbers in place.
 
-[stage-repo.py](stage-repo.py) writes that per-host directory from the
-JSON, trims a `.log` to timing lines, and copies a rendered sheet from
-`--render` (`BENCHMARKS.md` or `STATS.md`, plus `benchmarks/`). It rewrites
-home-directory paths and private IPv4 addresses. Pass
-`--replace REGEX=TEXT` for a machine name or a board product name.
+`render()` in `admin/bench-report` returns Markdown and SVGs and does
+not write them. A historical side sheet pointed `HOSTS`, `REPORT`, and
+`REPORT_DIR` at the side hosts and a directory outside the rind
+checkout, with `tiers=None` and `gaps=None`. `load_verified()` still
+reads the checkout's `benchmarks/verified.toml`. With `tiers=None` the
+CPU-tier section would say there are no nightly results, so that sheet
+replaced the section, the generated-by comment, and the sentence that
+every host used the pinned toolchain and ran only when idle, unless
+that sentence was true of every host. Gaps in that sheet came from
+`gaps_of` where rind is slower than `SLOWER` (1.1). They are
+measurements. `benchmarks/gaps.toml` in the rind checkout stays the
+maintainers' file. `rind-dit-held` is excluded (`VARIANTS`).
 
-```shell
-python3 stage-repo.py --out /path/to/results-repo \
-  --json /path/to/<host>.json --rename <captured>=<published> \
-  --render /path/to/render --log <published>=/path/to/run.log
-```
-
-A JSON with `status` other than `ok` can sit beside the sheet. `render-side.py`
-accepts only `status` `ok`. After a clean `admin/build-cost`, merge that
-stdout into `build_cost` as
-[rind-bench-hosts](../rind-bench-hosts/SKILL.md) describes, then render
-again.
-
-[page-data.py](page-data.py) prints a compact page from a summary object
-with `order`, `columns`, and per-host `rows`, `cpu`, `os`, `rustc`,
-`commit`, `started`, `load`, `lead`, `timed`, and `build_cost`.
-`render-side.py` does not write that object.
+The host note adds what the JSON does not already show: a rustc other
+than the pin, or a run outside `nix develop`; a shared or in-use
+machine; OpenSSL headers unpacked locally; an aarch64 part with the
+crypto extension and without SHA-3; on Apple silicon, that short gaps
+need the DIT-held column; that ML-DSA-65 was timed here while the
+upstream sheet has dashes on those three rows.

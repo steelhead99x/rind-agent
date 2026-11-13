@@ -1,17 +1,34 @@
 ---
 name: rind-bench-baremetal
-description: Use when building or flashing rind for a microcontroller, or backing up an RP2040 or an EFR32MG24 before any write.
+description: Use when building rind for a microcontroller, backing up a board before a write, or checking whether a flash has been approved.
 ---
 
 # Microcontrollers
 
-rind has no `#![no_std]`. At `a4759c48` with rustc 1.99.1,
-`cargo build -p rind --release --target thumbv6m-none-eabi` needs
-`RUSTFLAGS='--cfg getrandom_backend="custom"'`, then fails with
+Upstream [kixel-ai/rind](https://github.com/kixel-ai/rind) at the
+comparable-set pin has no `#![no_std]` build. At `a4759c48` with rustc
+1.99.1, `cargo build -p rind --release --target thumbv6m-none-eabi`
+needs `RUSTFLAGS='--cfg getrandom_backend="custom"'`, then fails with
 `can't find crate for std` (1672 errors on that build).
-`std::thread_local!` is in `rind/src/low/cpu.rs` and `rind/src/low/entry.rs`.
-No `no_std` quest is in the tree. The portable-backend dependencies do
-compile for that target. Do not flash a rind binary.
+`std::thread_local!` is in `rind/src/low/cpu.rs` and
+`rind/src/low/entry.rs`. That failure is the upstream tree. It is not
+the firmware that has already been flashed.
+
+[rind-hardware](https://github.com/steelhead99x/rind-hardware) builds
+ESP32-S3, nRF52840, and RP2040 images from a fork of the pin plus
+committed patches (`patches/0003` is `no_std`, `patches/0005` is the
+cache without CAS). ESP32-S3 and nRF52840 run. RP2040 builds, and
+known-answer checks have passed on a Pico. rind-results has no
+published RP2040 timing tree yet. The compile-only matrix in
+[COMPETITOR-BUILDS.md](COMPETITOR-BUILDS.md) is upstream rind without
+those patches.
+
+Ask before any flash, erase, or unlock. The commit is
+[rind-bench-pin](../rind-bench-pin/SKILL.md), the run is
+[rind-bench-measure](../rind-bench-measure/SKILL.md), and the publish
+is [rind-bench-publish](../rind-bench-publish/SKILL.md). Do not add a
+separate board-port skill. The portable-backend dependencies do
+compile for the targets below.
 
 ## Back up first
 
@@ -33,16 +50,54 @@ demo write covers only the application region after that.
 does not erase or unlock. Set `CHIP` to the probe-rs part name. Set
 `PROBE` only when several probes are attached, and do not commit it.
 
+### EFR32MG24 bring-up
+
+- rind-hardware's `efr32mg24/` port runs at 78 MHz: HFXO (39 MHz),
+  DEVINFO's HFRCODPLL calibration for the 80 MHz band, DPLL0 at HFXO
+  times 2000 / 1000, one flash wait state, PCLK = HCLK / 2.
+- A debugger reset keeps the CMU as the last image left it. Switch
+  SYSCLK back to FSRCO and stop DPLL0 before reprogramming the clocks.
+- Series 2 interrupt flags clear only through the register's clear
+  alias (`+0x2000`). A plain write leaves them set, so a wait on the
+  flag passes at once and reads a stale result.
+- Writing `CMU_CALCTRL` while a calibration runs is a precise
+  BusFault. Wait for `CMU_STATUS.CALRDY` first. The up count must fit
+  CALCNT's 20 bits.
+- Check the clock against HFXO with the calibration counter (HCLK as
+  the down clock) and put the result in the start record.
+- Output over SEGGER RTT through the on-board CMSIS-DAP needs no UART
+  pins. Drain the buffer before each benchmark.
+- `probe-rs run` programs from `0x08000000`, over the bootloader.
+  Restore the full backup afterwards. Do not run it until a flash of
+  that image was approved.
+- ring's Thumb-2 patch for `thumbv7em` also builds for
+  `thumbv8m.main`.
+- After a restore, the original app can boot before the readback and
+  append NVM3 records to a page that was erased in the backup. A
+  readback that differs only there (backup bytes all `0xFF`) is a good
+  restore, provided `probe-rs download --verify` passed. Diff the two
+  images to confirm.
+
+### ESP32-S3 serial
+
+If esptool or espflash reports that no serial data arrived on the
+USB-Serial/JTAG port, run `probe-rs reset --chip esp32s3` on the same
+USB-JTAG probe first, and only after the flash itself was approved.
+On a fresh rind-hardware checkout, build `esp-idf-sys` before ring's C
+files, or the C build runs before the Xtensa GCC is installed. Format
+with the pinned rustfmt. `rustfmt +stable` will install a toolchain on
+its own.
+
 ## What compiles
 
 [build-matrix.sh](build-matrix.sh) release-builds each `crates/tv-*`
 member and retries with `getrandom_backend="custom"` when getrandom
 refuses the target. Copy it into a workspace of one `#![no_std]` rlib per
 library. The 2026-11-12 compile-only results are in
-[COMPETITOR-BUILDS.md](COMPETITOR-BUILDS.md). rind fails on every target
-there. RustCrypto and dalek crates pass. ring fails in its ARM x25519
-assembly, or for lack of a C compiler. aws-lc-rs fails on pthreads and
-`clock_gettime`.
+[COMPETITOR-BUILDS.md](COMPETITOR-BUILDS.md). Upstream rind, with no
+patches, fails on every target there. RustCrypto and dalek crates pass.
+ring fails in its ARM x25519 assembly, or for lack of a C compiler.
+aws-lc-rs fails on pthreads and `clock_gettime`.
 
 ## Constant time
 
@@ -73,9 +128,12 @@ custom cfg:
 4. `riscv32imc-unknown-none-elf` (ESP32-C3, no CAS).
 5. `riscv32imac-unknown-none-elf` (ESP32-C6, ESP32-H2, RP2350 Hazard3).
 
-Chips worth timing once rind builds: RP2040, RP2350 (both cores),
-ESP32-C3, a Cortex-M4F part, and EFR32MG24 (software against the secure
-engine). Nothing rind-related was flashed.
+The compile matrix did not flash anything. Firmware that has been
+flashed lives in rind-hardware: ESP32-S3 and nRF52840. RP2040, RP2350
+(both cores), ESP32-C3, a Cortex-M4F part, and EFR32MG24 (software
+against the secure engine) are still worth a timing run once the image
+builds. Ask before that flash. An EFR32MG24 image is not a license to
+erase the bootloader.
 
 ## Demo screen
 

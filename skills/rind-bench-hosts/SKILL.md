@@ -1,22 +1,35 @@
 ---
 name: rind-bench-hosts
-description: Use when measuring rind's benchmark report on a host outside admin/bench-report's six, including a shared machine, a Mac, a board reached through another machine, or an Android phone.
+description: Use when measuring rind on a host outside admin/bench-report's six, after rind-bench-measure, including a shared machine, a Mac, or an Android phone.
 ---
 
 # Measuring rind on your own hosts
 
-`admin/bench-report run` is the host side. `collect` accepts only the six
-names in `HOSTS`. For a side sheet, use
-[rind-bench-results](../rind-bench-results/SKILL.md). Command details are in
-[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md).
+A published set follows
+[rind-bench-pin](../rind-bench-pin/SKILL.md),
+[rind-bench-measure](../rind-bench-measure/SKILL.md),
+[rind-bench-schema](../rind-bench-schema/SKILL.md), and
+[rind-bench-publish](../rind-bench-publish/SKILL.md). The command is
+rind-results `cargo xtask bench`. The notes below are what
+`admin/bench-report run` does when that command calls it, and what the
+host note should add.
+
+`collect` accepts only the six names in `HOSTS`. Upstream's sheet for
+those six is
+[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md). A side tree
+does not rewrite rind's `BENCHMARKS.md`. Where that JSON goes is
+[rind-bench-results](../rind-bench-results/SKILL.md).
 
 One speed run per machine. `run` calls `admin/build-cost` after the
 benchmarks. Other heavy builds on that machine wait. Separate machines can
 run together.
 
-## Command
+## What `run` does
 
-`nix develop` sets `IN_RIND_DEV_SHELL=1`.
+`nix develop` sets `IN_RIND_DEV_SHELL=1`. A published set does not
+launch the next command by hand and does not edit the script first.
+`cargo xtask bench` runs it. Inside the measured checkout the
+invocation is:
 
 ```shell
 nix develop --command python3 admin/bench-report run \
@@ -29,7 +42,10 @@ jobs on its shared 15 GB host and 4 to 16 on the others. Cap jobs to what
 this machine can compile without swapping.
 
 `run` builds `rind-bench` with `--features __bench_openssl` and times
-`OPERATIONS` (62 at the commit the README cites) with `CRITERION_ARGS`.
+`OPERATIONS` from the measured commit with `CRITERION_ARGS`. That list
+has 68 entries at upstream `0b1f1469`. An older count of 62 belongs to
+the commit the README cites for
+[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md).
 Python must be 3.11 or newer (`tomllib`). The dev shell provides
 `pkg-config` and OpenSSL.
 
@@ -51,33 +67,19 @@ Submodule contents are omitted. Unpack into a directory you can delete.
 A failed `cargo` invocation raises and writes no file. `admin/build-cost`
 then applies its own 25% check.
 
-## Off the dev shell
+## Idle and the dev shell
 
-[host-run.py](host-run.py) replaces `toolchain()` and `check_idle()`, so it
-skips the dev-shell check and the pin check. Busy counts still land in
-`load`, and `run` still sets `load.noisy`. Stderr prints
-`host-run: N of M CPUs busy <when> (harness limit L); continuing`. A missing
-name exits before measuring.
+`run` refuses a busy host and a rustc that is not the flake pin. See
+Refusals below. A published set does not patch those checks.
+[host-run.py](host-run.py) is a pointer and exits before measuring.
+rind-results `cargo xtask host-run` fakes the dev-shell check, times
+`HEAD`, and runs once. Its `--busy-share` flag rewrites `BUSY_SHARE` in
+`admin/bench-report` and restores the file afterwards. Neither form is
+a published set. A host that `run` refuses is left out of the comparable
+set. A diagnostic run goes in a labelled directory, as
+[rind-bench-schema](../rind-bench-schema/SKILL.md) describes.
 
-Use it when the host will not go idle, or when the dev shell will not fit
-on the disk. Record `toolchain.rustc` in the host note when it is not the
-pin.
-
-```shell
-RIND_ROOT=/path/to/rind python3 host-run.py \
-  --host <name> --commit <full-sha> --jobs <n> \
-  --target-dir <work>/target --out <work>/<name>.json
-```
-
-Omit `RIND_ROOT` when the script is in the checkout root.
-`HOSTRUN_FREE_TARGET=1` deletes `CARGO_TARGET_DIR` before build-cost.
-`build_env` drops `CARGO_TARGET_*`, so build-cost uses
-`<checkout>/.tmp/build-cost`. `HOSTRUN_SKIP_BUILD_COST=1` stores
-`build_cost.status` `failed` with reason
-`skipped by host-run (HOSTRUN_SKIP_BUILD_COST)`.
-
-Copy the wrapper with the archive. Do not copy a target directory or a
-cargo registry back.
+Do not copy a target directory or a cargo registry to another machine.
 
 ## Disk
 
@@ -116,7 +118,9 @@ immediately can fail on an idle Mac. `run` stores a non-zero exit as
 `N of M CPUs busy`.
 
 The script does not check the dev shell or the pin. It records `rustc` and
-`cc` on `PATH`. Rerun when under the 25% line:
+`cc` on `PATH`. A published set keeps the `build_cost` object that `run`
+wrote. For an older JSON whose `build_cost.status` is `failed`, rerun
+when under the 25% line:
 
 ```shell
 nix develop --command python3 admin/build-cost
@@ -142,7 +146,8 @@ the CLI but no headers and no root:
    skips pkg-config when both are set.
 
 On Apple silicon, `openssl-sys` looks under `/opt/homebrew` before
-pkg-config. Record `rustc` when it is not the pin.
+pkg-config. A published set uses the flake's pinned rustc. A historical
+JSON that recorded another rustc says so in the host note.
 `rind-bench/benches/mldsa.rs` skips OpenSSL ML-DSA when the linked
 OpenSSL is older than 3.5.
 
@@ -154,30 +159,33 @@ failure, stop. Do not try a password. Some images have no default account.
 To identify a board you own, read `ip neigh` or `arp -a` and match the
 vendor MAC prefix.
 
-Copy the archive and `host-run.py`. One `nohup` job, log in the work
-directory, copy the JSON back, delete the target directory there. The hop
-machine can run its own suite.
+Copy a `git archive` of the measured commit. Run `cargo xtask bench`
+from a rind-results checkout on the machine that will measure. One job,
+log in the work directory, bring back the output directory, and delete
+the target directory there. The hop machine can run its own suite.
 
 ## Android
 
-Cross-compile `rind-bench` for `aarch64-linux-android` with the NDK. Push
-with `adb`, run under `/data/local/tmp`, then delete that directory.
+The phone does not run `admin/bench-report`. `cargo xtask bench` is still
+the command that publishes, with that script's operations and criterion
+arguments. The capture it consumes is a cross-compiled `rind-bench` for
+`aarch64-linux-android` (NDK), pushed with `adb`, run under
+`/data/local/tmp`, then deleted.
 
 Save `dumpsys battery` as `battery-before.txt` and `battery-after.txt`,
 `/proc/stat` as `stat-before` and `stat-after`, `getprop` as `getprop.txt`,
 the criterion tree, `cpuid.json` from a same-target `rind-cpuid`, and
 ISO-8601 `started` and `finished`.
 
-[android-convert.py](android-convert.py) imports `admin/bench-report` and
-parses criterion as `run()` does. Pass `--host`, `--commit`, the cross
-`rustc` and `cargo` lines, `--cpu-model`, `--logical-cpus`, and
-`--openssl-linked` (or `openssl-linked.txt`). One capture linked vendored
-static OpenSSL.
-
-`load.system_busy_share_during_run` includes the benchmarks, so
-`load.noisy` is null. `build_cost.status` is `failed` because the binaries
-were cross-compiled. `dumpsys` temperature is tenths of a degree; the
-converter stores Celsius.
+[android-convert.py](android-convert.py) is a pointer and exits before
+converting. `cargo xtask bench` writes the published JSON from that
+capture, with the same operations, criterion arguments, and schema 1 as
+`run`. JSON already produced by the old converter has
+`load.system_busy_share_during_run` covering the benchmarks, so
+`load.noisy` is null, and `build_cost.status` `failed` because the
+binaries were cross-compiled. `dumpsys` temperature is tenths of a
+degree; that converter stored Celsius. A new set does not copy those
+sentinels. One historical capture linked vendored static OpenSSL.
 
 ## Noisy
 
