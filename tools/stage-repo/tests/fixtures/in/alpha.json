@@ -1,0 +1,70 @@
+{
+ "schema": 1,
+ "host": "captured-alpha",
+ "commit": "abc1234",
+ "started": "2026-11-11T00:00:00Z",
+ "finished": "2026-11-11T01:00:00Z",
+ "cpu": {
+  "model": "Test CPU",
+  "arch": "aarch64",
+  "logical_cpus": 8
+ },
+ "os": "macOS 14",
+ "toolchain": {
+  "rustc": "rustc 1.84.0",
+  "cargo": "cargo 1.84.0"
+ },
+ "libraries": {
+  "openssl": {
+   "linked": true,
+   "openssl": "3.0.0"
+  }
+ },
+ "refused": {},
+ "status": "ok",
+ "load": {
+  "limit_cpus": 1.0,
+  "busy_cpus_before_build": 0.2,
+  "busy_cpus_before_run": 0.1,
+  "other_busy_cpus_during_run": 0.0,
+  "noisy": false
+ },
+ "results": [
+  {
+   "operation": "sha256",
+   "library": "rind",
+   "id": "1k",
+   "ns": 100.0,
+   "ns_low": 99.0,
+   "ns_high": 101.0,
+   "throughput": null
+  },
+  {
+   "operation": "sha256",
+   "library": "ring",
+   "id": "1k",
+   "ns": 110.5,
+   "ns_low": 110.0,
+   "ns_high": 111.0,
+   "throughput": null
+  },
+  {
+   "operation": "aes_gcm",
+   "library": "rind",
+   "id": "1k",
+   "ns": 200.0,
+   "ns_low": 199.0,
+   "ns_high": 201.0,
+   "throughput": null
+  }
+ ],
+ "build_cost": {
+  "status": "ok",
+  "host": {
+   "cc": "cc",
+   "jobs": 8
+  },
+  "started": "2026-11-11T00:00:00Z"
+ },
+ "note": "ran on 192.168.10.20 and 10.1.2.3 and 172.16.0.9"
+}

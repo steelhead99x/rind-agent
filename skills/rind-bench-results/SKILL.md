@@ -64,14 +64,15 @@ Do not commit a target directory, `CARGO_HOME`, a source archive, a
 checkout, or `.tmp/`. Do not put a token in a remote URL. Push from an
 account that can write the repository.
 
-[stage-repo.py](stage-repo.py) writes that per-host directory from the
-JSON, trims a `.log` to timing lines, and copies a rendered sheet from
+`cargo run -p stage-repo --locked --` writes that per-host directory from
+the JSON, trims a `.log` to timing lines, and copies a rendered sheet from
 `--render` (`BENCHMARKS.md` or `STATS.md`, plus `benchmarks/`). It rewrites
 home-directory paths and private IPv4 addresses. Pass
-`--replace REGEX=TEXT` for a machine name or a board product name.
+`--replace REGEX=TEXT` for a machine name or a board product name. The tool
+lives in `tools/stage-repo/` and replaces `stage-repo.py`.
 
 ```shell
-python3 stage-repo.py --out /path/to/results-repo \
+cargo run -p stage-repo --locked -- --out /path/to/results-repo \
   --json /path/to/<host>.json --rename <captured>=<published> \
   --render /path/to/render --log <published>=/path/to/run.log
 ```

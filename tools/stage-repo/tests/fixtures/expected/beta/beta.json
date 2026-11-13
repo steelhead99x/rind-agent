@@ -1,0 +1,46 @@
+{
+ "schema": 1,
+ "host": "beta",
+ "commit": "def5678",
+ "started": "2026-11-11T02:00:00Z",
+ "finished": "2026-11-11T03:00:00Z",
+ "cpu": {
+  "model": "Other CPU",
+  "arch": "x86_64",
+  "logical_cpus": 4
+ },
+ "os": "Debian",
+ "toolchain": {
+  "rustc": "rustc 1.84.0",
+  "cargo": "cargo 1.84.0"
+ },
+ "libraries": {
+  "openssl": {
+   "linked": false
+  }
+ },
+ "refused": {},
+ "status": "ok",
+ "load": {
+  "limit_cpus": 2.0,
+  "busy_cpus_before_build": 0.0,
+  "busy_cpus_before_run": 0.0,
+  "other_busy_cpus_during_run": 0.0,
+  "noisy": false
+ },
+ "results": [
+  {
+   "operation": "sha256",
+   "library": "rind",
+   "id": "1k",
+   "ns": 80,
+   "ns_low": 79,
+   "ns_high": 81
+  }
+ ],
+ "build_cost": {
+  "status": "skipped",
+  "reason": "no compiler",
+  "started": "2026-11-11T02:00:00Z"
+ }
+}

@@ -51,6 +51,8 @@ take dependencies. `gen-frames` needs FreeType and librsvg headers at build time
 (`libfreetype6-dev` and `librsvg2-dev` on Debian, or Homebrew `freetype`,
 `librsvg`, and `pkg-config`).
 
+Workspace tools under `tools/` may take crates; the checker stays dependency-free.
+
 ## Commits
 
 PRs land on `main` as squash commits, so the PR title becomes the commit

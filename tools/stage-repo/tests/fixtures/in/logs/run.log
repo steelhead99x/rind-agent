@@ -1,0 +1,18 @@
+start 2026-11-11
+unrelated noise that should drop
+Benchmarking sha256/rind
+Benchmarking sha256/ring
+  time:   [99.0 ns 100.0 ns 101.0 ns]
+  thrpt:  [9.9 GiB/s 10.0 GiB/s 10.1 GiB/s]
+host-run: wrote results
+Warning: something
+error: none
+bench-report ok
+end 2026-11-11
+Finished release
+something failed
+thread panicked at 'x'
+WATCHDOG fired
+ABORT
+libssl note
+KEEPME should drop

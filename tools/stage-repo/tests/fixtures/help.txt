@@ -1,0 +1,16 @@
+usage: stage-repo [-h] --out OUT --json JSON [--rename OLD=NEW]
+                  [--replace REGEX=TEXT] [--render RENDER] [--log NAME=FILE]
+                  [--note NAME=FILE]
+
+Stage a results repository from host JSON and an optional rendered sheet.
+
+options:
+  -h, --help            show this help message and exit
+  --out OUT
+  --json JSON
+  --rename OLD=NEW
+  --replace REGEX=TEXT
+  --render RENDER       directory with BENCHMARKS.md or STATS.md and
+                        benchmarks/
+  --log NAME=FILE
+  --note NAME=FILE
