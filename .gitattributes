@@ -3,3 +3,6 @@
 # Third-party SVGs and DejaVu fonts used only as gen-frames fixtures.
 tools/gen-frames/tests/fixtures/assets/** linguist-vendored
 tools/gen-frames/tests/fixtures/fonts/** linguist-vendored
+
+# gen-frames expected outputs (frames.h and preview PNGs), generated.
+tools/gen-frames/tests/fixtures/expected/** linguist-generated
