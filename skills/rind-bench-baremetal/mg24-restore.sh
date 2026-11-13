@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Restore an EFR32MG24 main-flash image and check it by readback.
 # Does not erase and does not unlock. Set LENGTH to the saved image's
 # size in bytes, the same span that was read before anything was written.
@@ -7,7 +7,7 @@
 #   BASE=0x08000000          default
 #   PROBE=<selector>         only when more than one probe is attached; do not commit it
 #   SHA256=<hex>             when set, the backup and the readback must both match it
-set -eu
+set -euo pipefail
 
 : "${CHIP:?set CHIP to the probe-rs part name for this EFR32MG24}"
 : "${BACKUP:?set BACKUP to the saved image}"
