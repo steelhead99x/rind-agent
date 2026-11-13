@@ -30,7 +30,7 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 `quest start` (and the `quest-spawn` / `quest-start` stubs) take a lock by
 opening a placeholder claim PR against the repo that holds
-`quest/README.md`, which for a fork is moq-dev/rind. That is the intended
+`quest/README.md`, which for a fork is kixel-ai/rind. That is the intended
 way to prevent duplicate work, and only that PR reserves the quest. A
 fork's `quest start` posts that PR upstream, so only run it once the work
 is meant to go upstream.
@@ -38,23 +38,27 @@ is meant to go upstream.
 Claim a quest before any work on it, after the overlap check in
 [Picking a quest](#picking-a-quest). A claim must not be taken on a quest
 already in flight. When the work is meant to go upstream and the token can
-open pull requests on moq-dev/rind, claim with `quest start`. When
+open pull requests on kixel-ai/rind, claim with `quest start`. When
 `quest start` returns 403 `Resource not accessible by integration`, or the
 work is not meant to go upstream yet, branch by hand off upstream `main`,
 treat the quest file as the spec, and open a draft pull request on the
 fork right away whose title and body name the quest path, so the fork can
-see the work. That draft does not reserve the quest on moq-dev/rind. If an
+see the work. That draft does not reserve the quest on kixel-ai/rind. If an
 upstream PR or `quest/*` branch takes it, stop and hold the fork PR with a
 comment. The overlap checks still miss work that starts in the same hour,
 so run them again before handoff, partway through, and before marking
 ready. Implementation PRs can still target the fork's `main`. A cloud
 agent branch stays `cursor/<name>`; see [Known issues](#known-issues).
 
+Upstream rind is `kixel-ai/rind`. `https://github.com/moq-dev/rind`
+redirects there. Use `kixel-ai/rind` in remotes, `gh` commands, and
+new URLs.
+
 ## Sync the fork first
 
 Before picking quests or handing them to agents, merge upstream `main` into
 the fork's `main` with a merge commit (`gh repo sync <fork> --branch main`,
-GitHub's Sync fork, or a PR from `moq-dev:main` into the fork's `main`
+GitHub's Sync fork, or a PR from `kixel-ai:main` into the fork's `main`
 merged with a merge commit). Write the upstream tip SHA in that merge
 subject as literal characters. A command substitution inside single quotes
 is stored unexpanded. See [Known issues](#known-issues). Never force-push
@@ -62,17 +66,31 @@ or reset: the fork's own commits (a review config, for example) must stay.
 Otherwise a lagging fork lists quests upstream already finished, and a fork
 PR's diff includes those unrelated upstream commits. Quest branches still
 base on upstream `main`, and fork-only commits still must not go upstream.
+If upstream `main` moved and merges cleanly into the fork's `main`,
+merge it with a merge commit as above. If the merge conflicts, open a
+sync pull request instead of pushing a conflicted merge, and do not
+force-push.
 
 ## Picking a quest
 
-An agent works only quests that already exist on upstream moq-dev/rind
+The maintainer's work takes priority. Treat the maintainer's claim pull
+requests, `quest/*` branches, quest-plan pull requests (for example
+[kixel-ai/rind#710](https://github.com/kixel-ai/rind/pull/710)), and
+the areas the maintainer is actively working as reserved. Re-scan those
+right before claiming and before each push, using the overlap check
+below. Hold any overlapping fork pull request with a comment. Close it
+as wontfix only when the fork owner says to. Do not compete with or
+block the maintainer's work. A fork draft pull request does not reserve
+a quest.
+
+An agent works only quests that already exist on upstream kixel-ai/rind
 `quest/`, written by the maintainer. Never invent, write, or add a quest
 file. Never make up requirements, vectors, test results, or benchmark
 numbers. When something is unclear or missing, record it as a question
 for the maintainer.
 
 Run `quest unblocked`, then skip anything it marks held, anything with an
-open upstream PR or branch (`gh pr list --repo moq-dev/rind`), and anything
+open upstream PR or branch (`gh pr list --repo kixel-ai/rind`), and anything
 waiting on an upstream release that hasn't shipped. Also skip work needing
 hardware or accounts you don't have, and proofs you can't check with
 `admin/prove`. Prefer quests the maintainer is less likely to be running
@@ -87,9 +105,10 @@ draft PRs and branches on upstream and the fork both count, including
 `cursor/*` and other branches not named for the quest. A draft on the
 fork whose title or body names a quest path is that quest's claim.
 Match them by the files and the quest path they touch, not by the
-branch name alone. A legacy branch is a claim too: `quest/oss-fuzz`
-holds `quest/m4/oss-fuzz.md`
-([moq-dev/rind#639](https://github.com/moq-dev/rind/pull/639)).
+branch name alone. A legacy branch name is a claim too.
+[kixel-ai/rind#639](https://github.com/kixel-ai/rind/pull/639) was
+`quest/oss-fuzz` for `quest/m4/oss-fuzz.md` until it merged on
+2026-11-13 (`9cd74ffe`).
 Also search open and merged upstream PRs by the conventional head
 branch `quest/<milestone>/<area>/<name>` and by title. That search
 misses the legacy name. List upstream
@@ -108,13 +127,16 @@ coding agents on the backlog, and files an in-flight quest already
 touches (shared CI configs such as `mutants.yml` and `fuzz.yml`,
 `admin/prove`, and shared directories under `proofs/`). Prefer
 `quest unblocked --unclaimed` when a GitHub token is available. It
-skips a quest's own claim and does not replace the checks above,
-and it ignores a quest's `## Waiting` section. Read that section
-before claiming. Once the check is clear, claim as in
+skips a quest's own claim and does not replace the checks above.
+It does not see a fork branch named `cursor/*`, and it ignores a
+quest's `## Waiting` section. Still list those branches, and read
+`## Waiting` before claiming. Outside waits are `quest waiting`.
+Leave a claim marker early: a draft PR on the fork that names the
+quest path, so others can see it. Once the check is clear, claim as in
 [Working from a fork](#working-from-a-fork): `quest start` when the work
 is meant to go upstream, which locks the quest, and otherwise, or on a
-403, a draft PR on the fork that names the quest path, so others can see
-it. That draft does not reserve the quest upstream.
+403, a draft PR on the fork that names the quest path. That draft does
+not reserve the quest upstream.
 
 Before picking or handing off a formal-proof quest (`quest/m4/verified/`),
 after the in-flight check above, run this feasibility check and skip the
@@ -177,7 +199,7 @@ already have landed on that branch.
 A feature PR must not edit sibling quest files or shared docs that an
 open upstream PR already touches. Before editing any file outside the
 quest's own scope, check open and draft upstream PRs for that path
-(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+(`gh pr list --repo kixel-ai/rind --state open` includes drafts; read
 each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
 `quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
 The same rule is in
@@ -224,12 +246,12 @@ Sync the fork with upstream first. Give the agent the outcome, not a script:
 - the repo (usually a fork). The agent claims each quest before working
   it, as in [Working from a fork](#working-from-a-fork): `quest start` (or
   the `quest-spawn` / `quest-start` stubs) when the work is meant to go
-  upstream and the token can open pull requests on moq-dev/rind. Otherwise,
+  upstream and the token can open pull requests on kixel-ai/rind. Otherwise,
   or if `quest start` returns 403, it opens a draft PR on the fork right
-  away whose title and body name the quest path. That draft does not reserve the quest upstream. If an
-  upstream PR takes it, stop. Implementation PRs can still target the
-  fork's `main`;
-- work only quests that already exist on upstream moq-dev/rind `quest/`,
+  away whose title and body name the quest path. That draft does not
+  reserve the quest upstream. If an upstream PR takes it, stop.
+  Implementation PRs can still target the fork's `main`;
+- work only quests that already exist on upstream kixel-ai/rind `quest/`,
   written by the maintainer; never invent, write, or add a quest file, and
   never make up requirements, vectors, test results, or benchmark numbers;
   when something is unclear or missing, record it as a question for the
@@ -281,7 +303,8 @@ on the closed pull request does not carry over.
 
 Do not open, comment on, or update an upstream pull request or issue,
 and do not contact the maintainer, unless the fork owner has approved
-the exact text. Collect questions for the maintainer until then.
+the exact text. That includes a comment that offers existing work.
+Collect questions for the maintainer until then.
 
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
@@ -404,6 +427,47 @@ the exact text. Collect questions for the maintainer until then.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
 
+## Fork loop
+
+These rules are for a fork that works the upstream `quest/` backlog on a
+schedule. rind's own files still override them. A published benchmark
+set is not a quest pull request. It stays on a `steelhead99x`
+repository and follows
+[rind-bench-publish](../rind-bench-publish/SKILL.md): the pin in
+[rind-bench-pin](../rind-bench-pin/SKILL.md), and rind-results
+`cargo xtask bench` rather than a bare `cargo bench`.
+
+Fix items are unresolved reviews, failing CI or `just check`, merge
+conflicts, unanswered `rind-crypto-review` findings, and unmet Plan
+items. A different agent reviews and verifies, with severity marks. A
+medium or higher finding is a fix item.
+
+Only start a new quest agent when upstream has changed and the overlap
+check still leaves the quest free, preferring quests the maintainer is
+less likely to take, as [Picking a quest](#picking-a-quest) describes.
+Claim it with a fork draft pull request.
+
+Keep questions for the maintainer as a list with links and the exact
+wording to send. Check the quest file, `AGENTS.md`, `CONTRIBUTING.md`,
+`REVIEW.md`, and the code first, and drop any question those already
+answer. Do not send them unless the fork owner has approved the exact
+text, as [Before going upstream](#before-going-upstream) says.
+
+When an upstream pull request's CI is failing, put a minimal fix on a
+fork branch named `cursor/fix-upstream-<N>` (`<N>` is that pull
+request's number), open a draft pull request on the fork, and do not
+push to the upstream branch or comment on the upstream pull request
+unless the fork owner has approved the exact text.
+[steelhead99x/rind#60](https://github.com/steelhead99x/rind/pull/60),
+on `cursor/fix-upstream-679`, is one.
+
+A fork pull request is ready to merge only when CI and `just check` are
+green, an independent review has a verified verdict on that head (or an
+identical tree, as [Known issues](#known-issues) describes), no medium
+or higher findings remain, every Plan item is met, the work maps to a
+quest that already exists on upstream, and it does not overlap the
+maintainer's open work.
+
 ## Known issues
 
 On Nov 12, 2026, within about an hour, the maintainer opened his own
@@ -420,6 +484,23 @@ Check upstream open PRs and `quest/*` branches, not just claim commits,
 before claiming, again partway through, and again before marking ready.
 When upstream takes a quest, stop and hold the fork PR with a comment.
 Prefer quests whose files show no recent upstream activity.
+
+On Nov 12, 2026, at about 3:14 PM PT, the maintainer opened twelve
+upstream quest pull requests at once,
+[moq-dev/rind#696](https://github.com/moq-dev/rind/pull/696) through
+[#707](https://github.com/moq-dev/rind/pull/707). Several were quests
+the fork had already worked in fork pull requests:
+
+- [#696](https://github.com/moq-dev/rind/pull/696) (cpu-check, fork [steelhead99x/rind#35](https://github.com/steelhead99x/rind/pull/35))
+- [#698](https://github.com/moq-dev/rind/pull/698) (adapter-api-diff, fork [steelhead99x/rind#22](https://github.com/steelhead99x/rind/pull/22))
+- [#700](https://github.com/moq-dev/rind/pull/700) (P-521 verify, fork [steelhead99x/rind#43](https://github.com/steelhead99x/rind/pull/43))
+- [#702](https://github.com/moq-dev/rind/pull/702) (Karatsuba, fork [steelhead99x/rind#41](https://github.com/steelhead99x/rind/pull/41))
+- [#705](https://github.com/moq-dev/rind/pull/705) (OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50))
+
+A fork draft pull request does not reserve a quest. Re-scan open
+upstream pull requests and `quest/*` branches right before claiming
+and before each push. Once the maintainer claims the quest, hold the
+fork pull request with a comment.
 
 1. Never add or invent a quest file. A follow-up a quest file mentions is
    left for the maintainer through `/quest-plan` (rind `CONTRIBUTING.md`,
@@ -532,6 +613,83 @@ merge, re-read the quest file on current upstream `main`.
    2026-11-12 the fork commit `a8389b32` stored the subject
    `Merge upstream moq-dev/rind main ($(git rev-parse --short upstream/main))`.
    The next sync, `580c2bb0`, records `a7cf7eeb`.
+9. Upstream runs Pullfrog reviews, and its default branch requires one
+   approving review. [moq-dev/rind#684](https://github.com/moq-dev/rind/pull/684)
+   (merged 2026-11-12, `395465fd`) added the Pullfrog workflow. The
+   active ruleset "Pullfrog approval" sets
+   `required_approving_review_count` to 1 on the default branch, and a
+   push dismisses a stale review. First-time-contributor workflow runs
+   still need a maintainer's approval before any job starts. On
+   2026-11-12 the pull-request runs for
+   [moq-dev/rind#689](https://github.com/moq-dev/rind/pull/689) and
+   [#694](https://github.com/moq-dev/rind/pull/694) completed
+   `action_required` in 0 seconds. When an upstream pull request lands
+   for a quest a fork pull request covers, hold the fork pull request
+   and leave it a draft. [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677)
+   merged as `ef24d184` and deleted `quest/m4/fips/drbg.md`, so fork
+   [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24)
+   and the CI follow-up
+   [steelhead99x/rind#46](https://github.com/steelhead99x/rind/pull/46)
+   stay open drafts.
+10. Upstream rind moved from moq-dev/rind to kixel-ai/rind. A request
+    for https://github.com/moq-dev/rind returns 301 to
+    https://github.com/kixel-ai/rind, and the GitHub API reports
+    `full_name` `kixel-ai/rind`. Use `kixel-ai/rind` in remotes,
+    `gh --repo` arguments, and new URLs. Historical `moq-dev/rind`
+    links still resolve through the redirect.
+11. The maintainer's work takes priority over fork drafts. On
+    2026-11-12 the maintainer opened a quest-plan pull request,
+    [kixel-ai/rind#710](https://github.com/kixel-ai/rind/pull/710)
+    (`quest-plan/pullfrog-learnings`), which adds quests. Treat that
+    plan, the maintainer's claim pull requests, `quest/*` branches,
+    and the areas those cover as reserved. Re-scan them right before
+    claiming and before each push. A fork draft does not reserve a
+    quest. Hold an overlapping fork pull request with a comment;
+    close it as wontfix only when the fork owner says to. Do not
+    compete with or block the maintainer's work. Comments on
+    upstream pull requests or issues, and any other contact with the
+    maintainer, still need the fork owner's approval of the exact
+    text, as [Before going upstream](#before-going-upstream) says.
+12. When a fork change already has an open upstream pull request, it
+    may be rebuilt onto a new `-rN` branch and a new pull request
+    may replace the old one. On 2026-11-12
+    [kixel-ai/rind#694](https://github.com/kixel-ai/rind/pull/694)
+    (`ed25519-cctv-wipe-canaries-r3`) was closed and replaced by
+    [#709](https://github.com/kixel-ai/rind/pull/709)
+    (`ed25519-cctv-wipe-canaries-r4`). Detect the current heads from
+    the fork owner's open upstream pull requests each time, as
+    [Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch)
+    describes. Leave older `-rN` branches alone: do not merge the
+    fork's `main` into them, include them in a sweep, or push to
+    them.
+13. On Nov 12, 2026, [kixel-ai/rind#715](https://github.com/kixel-ai/rind/pull/715)
+    (`cbe8def8`), on branch `quest-plan/host-cost`, rewrote
+    `quest/m2/confidence/mutants-adapters.md` while fork
+    [steelhead99x/rind#23](https://github.com/steelhead99x/rind/pull/23)
+    was already implementing that quest. The rewrite is in an open
+    quest-plan pull request, not on a `quest/*` branch. Fork mutants
+    work has to read open `quest-plan/*` pulls, not only `quest/*`
+    branches.
+
+14. On 2026-11-13, pull-request runs of `.github/workflows/queue.yml` failed
+    in 0 seconds with no jobs, on the fork and on kixel-ai/rind. `gh run view`
+    reports a workflow file issue. At `c333c59e` the `build` job calls
+    `uses: moq-dev/rind/.github/workflows/queue-build.yml@main`.
+    [kixel-ai/rind#711](https://github.com/kixel-ai/rind/pull/711), merged as
+    `876a68d0`, changes that call to `kixel-ai/rind`. Pull-request runs on
+    that head completed as skipped, which is the success path the workflow
+    comment describes for a pull request. A merge-group run still starts
+    `Queue build / Build`. A red Queue check with zero jobs is not a test
+    failure in the pull request. Do not edit `queue.yml` on a feature branch
+    to diverge from upstream `main`; take the sync that contains `876a68d0`.
+15. `quest unblocked --unclaimed` holds a quest only when the quest's own
+    branch (its path without `.md`) is on upstream, or an open PR is from
+    that branch, including from a fork (quest README at
+    [`93c9c2e`](https://github.com/moq-dev/quest/blob/93c9c2ef65f074e82094bf5272076db44ac19030/README.md),
+    lines 150-152 and 221, the `quest` revision rind's `flake.lock` pins
+    at `c333c59`). A fork branch named `cursor/<name>` is neither, so the
+    command does not show that claim. The overlap check still lists those
+    branches.
 
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
@@ -544,47 +702,45 @@ Push work in small, buildable commits as each Plan item lands, rather
 than at the end. The hourly loop treats a fork quest draft PR whose only
 commit is the claim, and whose agent is in error, as a resume item: reply
 to that agent, or launch a new one on the same branch. Upstream
-moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+kixel-ai/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
 files still override this skill.
 
 These limits are current. Report a step they block. An agent does not
 invent a quest, a requirement, or a result to get past one.
 
-9. `quest start` from a fork opens its claim PR on the upstream that holds
-   `quest/README.md` (quest README, "Claim a quest",
-   [`f3301ef`](https://github.com/moq-dev/quest/blob/f3301efd8c7831c7aa33ae2e6f13995170f3e205/README.md)).
-   An agent token that cannot open pull requests on moq-dev/rind gets
-   403 `Resource not accessible by integration`. Open the fork draft in
-   [Working from a fork](#working-from-a-fork) so the fork can see the
-   work. It does not reserve the quest on moq-dev/rind.
-10. `quest unblocked --unclaimed` drops a quest someone already holds, and
+16. `quest start` from a fork opens its claim PR on the upstream that holds
+    `quest/README.md` (quest README, "Claim a quest",
+    [`93c9c2e`](https://github.com/moq-dev/quest/blob/93c9c2ef65f074e82094bf5272076db44ac19030/README.md),
+    the `quest` revision rind's `flake.lock` pins at `c333c59`).
+    An agent token that cannot open pull requests on kixel-ai/rind gets
+    403 `Resource not accessible by integration`. Open the fork draft in
+    [Working from a fork](#working-from-a-fork) so the fork can see the
+    work. It does not reserve the quest on kixel-ai/rind.
+17. `quest unblocked --unclaimed` drops a quest someone already holds, and
     it does not read `## Waiting`. Outside waits are `quest waiting`
-    (quest README, "Prioritize ready work" and "Find what waits on you",
-    same commit). Read each candidate's `## Waiting` section before
-    claiming it.
-11. A claim on a legacy branch name is invisible to a search for
+    (quest README, "Prioritize ready work", "Neither form inspects
+    outside conditions", and "Find what waits on you", same commit).
+    Read each candidate's `## Waiting` section before claiming it.
+    Item 15 is the separate gap for a `cursor/<name>` branch.
+18. A claim on a legacy branch name is invisible to a search for
     `quest/<milestone>/<area>/<name>`.
-    [moq-dev/rind#639](https://github.com/moq-dev/rind/pull/639) is
-    `quest/oss-fuzz` for `quest/m4/oss-fuzz.md`. Match the files the
-    branch or PR touches.
-12. A cloud VM has no Nix, so it cannot run `nix develop .#ctgrind`,
+    [kixel-ai/rind#639](https://github.com/kixel-ai/rind/pull/639) was
+    `quest/oss-fuzz` for `quest/m4/oss-fuzz.md` until it merged on
+    2026-11-13 (`9cd74ffe`). Match the files the branch or PR touches.
+19. A cloud VM has no Nix, so it cannot run `nix develop .#ctgrind`,
     `admin/ctgrind`, `nix develop .#prove`, or `admin/prove` (rind
     `CONTRIBUTING.md`, "Building and testing", at the commit the README
     cites). It also lacks the `claude` and `codex` CLIs, so `quest review`
     exits 2. Report each of those steps as not run.
-13. [rind-git](../rind-git/SKILL.md) names a quest branch
-    `quest/<milestone>/<area>/<name>`. A cloud agent checkout is
-    `cursor/<name>`. Only a `quest start` pull request on moq-dev/rind
-    reserves the quest. A `cursor/<name>` branch and a fork draft do not.
-    An upstream-bound rebuild still follows `rind-git`.
-14. The ready backlog is often already held or waiting. FROST and the OPRF
-    (`quest/m4/protocols/frost.md`, `quest/m4/protocols/oprf.md`) waited on
-    hash-to-curve until
-    [moq-dev/rind#632](https://github.com/moq-dev/rind/pull/632) merged
-    (2026-11-12, `087ca24e`). OPAQUE
-    (`quest/m4/protocols/opaque.md`) requires the OPRF and Argon2id, open
-    as [moq-dev/rind#634](https://github.com/moq-dev/rind/pull/634).
-    HPKE's post-quantum KEM (`quest/m4/protocols/hpke-pq.md`) requires
-    ML-KEM, open as
-    [moq-dev/rind#606](https://github.com/moq-dev/rind/pull/606). When
+20. The ready backlog is often already held or waiting. FROST
+    (`quest/m4/protocols/frost.md`) and the OPRF waited on hash-to-curve
+    until
+    [kixel-ai/rind#632](https://github.com/kixel-ai/rind/pull/632) merged
+    (2026-11-12, `087ca24e`). The OPRF quest file is no longer on upstream
+    `main`; the module is `rind/src/high/oprf.rs`. OPAQUE
+    (`quest/m4/protocols/opaque.md`) requires Argon2id, open as
+    [kixel-ai/rind#634](https://github.com/kixel-ai/rind/pull/634)
+    (`quest/m4/protocols/argon2.md`). HPKE's post-quantum KEM
+    (`quest/m4/protocols/hpke-pq.md`) requires ML-KEM, open as
+    [kixel-ai/rind#606](https://github.com/kixel-ai/rind/pull/606). When
     every ready quest is held or waiting, report that and stop.

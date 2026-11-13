@@ -12,10 +12,10 @@ explained in the PR.
 
 - [ ] Every new or changed primitive is tested against Wycheproof where vectors
       exist, against NIST ACVP samples where `TESTING.md` lists them, and
-      differentially against aws-lc-rs.
-- [ ] Where aws-lc cannot build (wasm, for example), check verdicts against a
-      file recorded from aws-lc, plus a host test that keeps the file equal
-      to aws-lc. Never accept "either verdict" as a check.
+      differentially against aws-lc-rs where aws-lc-rs has the primitive.
+      When `TESTING.md` or the quest Plan says aws-lc-rs lacks it, use the
+      reference named there. ECVRF is checked against `akd_core` and
+      `vrf-rfc9381` because aws-lc-rs has no VRF.
 - [ ] Every test or helper that touches aws-lc is gated with
       `#[cfg(not(any(miri, target_family = "wasm")))]`. A missing gate
       breaks `just wasm` and the wasm nightly, not only Miri
@@ -235,12 +235,6 @@ explained in the PR.
       that's speed spent for nothing.
 - [ ] `heap_scratch` covers every heap buffer that holds a secret, in
       `verify` as well as `derive`.
-- [ ] Wipe and leak canaries report through the same comparison path as the
-      real checks, without relying on panics, so they run on every target.
-      A refactor that drops `should_panic` still proves, on native, that a
-      planted leak is caught.
-- [ ] Canaries that call the real `independent` and `zeroed` checks are
-      run on wasm32-wasip2 as well as native.
 - [ ] A wipe test's needle is long enough that a chance match is not a pass,
       and short enough to catch a partial wipe (16 bytes, for example).
       The test comment says why that length.
@@ -262,14 +256,6 @@ explained in the PR.
       they're as clear, and `MIGRATING.md` maps them.
 - [ ] Adapter crates expose exactly their upstream provider's API and
       behavior, nothing added.
-- [ ] A feature that is accepted but does nothing is a bug. If an adapter
-      crate takes a feature name from its upstream (rind-ring's
-      `wasm32_unknown_unknown_js`, for example), wire it to what that crate's
-      same-named feature does, and clippy-check it on every PR. Gate the
-      dependency on the same `cfg` upstream uses.
-      `wasm32_unknown_unknown_js` is
-      `all(target_arch = "wasm32", target_os = "unknown")`, so
-      wasm32-wasip2 (`target_os = "wasi"`) keeps its WASI source.
 - [ ] A new public item in the `rind` crate is the change itself. When a
       binding, an adapter, or a performance change only needs the item,
       keep it `pub(crate)`, or ask the maintainer and leave the PR a draft
@@ -289,5 +275,34 @@ explained in the PR.
 ## Performance
 
 - [ ] Performance-sensitive changes include before/after numbers against
-      aws-lc-rs on the CPUs the author has, with the host and the date.
+      aws-lc-rs, where aws-lc-rs has the primitive, on the CPUs the author
+      has, with the host and the date. When `TESTING.md` or the quest Plan
+      says aws-lc-rs lacks it, compare with the reference named there, or
+      say there is no aws-lc-rs number.
+- [ ] A number that will be published is `cargo xtask bench` at the pin,
+      three runs, through `admin/bench-report`, as
+      [rind-bench-measure](../rind-bench-measure/SKILL.md) describes. A
+      bare `cargo bench` is not that number.
 - [ ] Any gap over 10% has a quest or a reason in `benchmarks/gaps.toml`.
+
+## Advisory notes
+
+These are not a merge bar. `REVIEW.md` lines 12-17 are the checks that
+block, and they do not list these. A miss is a comment.
+
+- Where aws-lc cannot build (wasm, for example), verdicts recorded from
+  aws-lc and checked by a host test are one way to compare. Accepting
+  either verdict is a weak check.
+- Wipe and leak canaries that use the same comparison path as the real
+  checks, and do not panic, still run on every target. A refactor that
+  drops `should_panic` can still prove, on native, that a planted leak
+  is caught. Canaries that call the real `independent` and `zeroed`
+  checks are worth running on wasm32-wasip2 as well as native.
+- A feature that is accepted but does nothing is surprising. If an adapter
+  crate takes a feature name from its upstream (rind-ring's
+  `wasm32_unknown_unknown_js`, for example), wiring it to what that
+  crate's same-named feature does is the usual fix, and clippy-checking
+  it when you do. Gate the dependency on the same `cfg` upstream uses.
+  `wasm32_unknown_unknown_js` is
+  `all(target_arch = "wasm32", target_os = "unknown")`, so
+  wasm32-wasip2 (`target_os = "wasi"`) keeps its WASI source.
