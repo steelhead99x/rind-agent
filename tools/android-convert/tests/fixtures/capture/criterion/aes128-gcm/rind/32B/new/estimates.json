@@ -1,0 +1,10 @@
+{
+  "mean": {
+    "point_estimate": 999999.0,
+    "confidence_interval": {"lower_bound": 1.0, "upper_bound": 2.0}
+  },
+  "slope": {
+    "point_estimate": 123.5,
+    "confidence_interval": {"lower_bound": 120.0, "upper_bound": 130.0}
+  }
+}

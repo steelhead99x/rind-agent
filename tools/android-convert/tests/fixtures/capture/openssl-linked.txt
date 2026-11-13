@@ -1,0 +1,1 @@
+vendored openssl-src 300.4.2 (static, built by openssl-sys's vendored feature)

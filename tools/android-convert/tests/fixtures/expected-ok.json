@@ -1,0 +1,142 @@
+{
+ "schema": 1,
+ "host": "pixel9pro",
+ "commit": "abcdef1234567890abcdef1234567890abcdef12",
+ "started": "2026-11-12T10:00:00-08:00",
+ "cpu": {
+  "model": "Google Tensor G4 (Pixel 9 Pro)",
+  "arch": "aarch64",
+  "logical_cpus": 8
+ },
+ "os": "Android 15 (API 35, build AP4A.250205.002)",
+ "toolchain": {
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "target": "aarch64-linux-android (API 31), Android NDK r28c, cross-compiled on arm64"
+ },
+ "libraries": {
+  "rind": {
+   "rind": "0.1.0",
+   "rind-rustls": "0.1.0"
+  },
+  "aws-lc-rs": {
+   "aws-lc-rs": "1.2.3",
+   "aws-lc-sys": "0.4.0"
+  },
+  "openssl": {
+   "openssl": "0.10.82",
+   "openssl-sys": "0.9.118",
+   "rustls-openssl": "0.4.2",
+   "linked": "vendored openssl-src 300.4.2 (static, built by openssl-sys's vendored feature)"
+  }
+ },
+ "rind_cpu": {
+  "cpuid": {
+   "neon": true,
+   "aes": true,
+   "pmull": true,
+   "sha2": false
+  }
+ },
+ "status": "ok",
+ "finished": "2026-11-12T10:45:00-08:00",
+ "criterion_args": [
+  "--noplot",
+  "--warm-up-time",
+  "1",
+  "--measurement-time",
+  "3",
+  "^(aes128\\-gcm/[^/]+/32B|x25519\\-ecdh/[^/]+|ed25519\\-sign/[^/]+)$"
+ ],
+ "load": {
+  "limit_cpus": 1.0,
+  "system_busy_share_during_run": 0.577,
+  "note": "whole-system busy share across the run, benchmarks included; not the harness's other-work count",
+  "noisy": null
+ },
+ "battery": {
+  "before": {
+   "AC powered": "false",
+   "USB powered": "true",
+   "status": "Charging",
+   "level": "80",
+   "scale": "100",
+   "temperature": "247",
+   "voltage": "4000"
+  },
+  "after": {
+   "AC powered": "false",
+   "USB powered": "true",
+   "status": "Charging",
+   "level": "78",
+   "scale": "100",
+   "temperature": "377",
+   "voltage": "3980"
+  },
+  "temperature_c": {
+   "before": 24.7,
+   "after": 37.7
+  }
+ },
+ "results": [
+  {
+   "operation": "aes128-gcm/{lib}/32B",
+   "library": "aws-lc-rs",
+   "id": "aes128-gcm/aws-lc-rs/32B",
+   "ns": 100.25,
+   "ns_low": 99.0,
+   "ns_high": 101.5,
+   "throughput": {
+    "Bytes": 32
+   }
+  },
+  {
+   "operation": "aes128-gcm/{lib}/32B",
+   "library": "rind",
+   "id": "aes128-gcm/rind/32B",
+   "ns": 123.5,
+   "ns_low": 120.0,
+   "ns_high": 130.0,
+   "throughput": {
+    "Bytes": 32
+   }
+  },
+  {
+   "operation": "x25519-ecdh/{lib}",
+   "library": "openssl",
+   "id": "x25519-ecdh/openssl",
+   "ns": 48000.125,
+   "ns_low": 47900.0,
+   "ns_high": 48100.0,
+   "throughput": null
+  },
+  {
+   "operation": "x25519-ecdh/{lib}",
+   "library": "rind",
+   "id": "x25519-ecdh/rind",
+   "ns": 50000.0,
+   "ns_low": 49900.0,
+   "ns_high": 50100.0,
+   "throughput": null
+  },
+  {
+   "operation": "ed25519-sign/{lib}",
+   "library": "rind",
+   "id": "ed25519-sign/rind",
+   "ns": 12345.6789,
+   "ns_low": 12300.0,
+   "ns_high": 12400.0,
+   "throughput": null
+  }
+ ],
+ "build_cost": {
+  "status": "failed",
+  "started": "",
+  "reason": "not measured: the binaries were cross-compiled on another host"
+ },
+ "refused": {
+  "graviola": [
+   "sha2"
+  ]
+ }
+}

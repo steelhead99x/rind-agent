@@ -15,5 +15,5 @@ path = "src/main.rs"
 [dependencies]
 
 [workspace]
-members = [".", "tools/page-data", "tools/gen-frames", "tools/stage-repo", "tools/render-side"]
+members = [".", "tools/page-data", "tools/gen-frames", "tools/stage-repo", "tools/render-side", "tools/android-convert"]
 default-members = ["."]

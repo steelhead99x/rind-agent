@@ -1,0 +1,6 @@
+{
+  "mean": {
+    "point_estimate": 50000.0,
+    "confidence_interval": {"lower_bound": 49900.0, "upper_bound": 50100.0}
+  }
+}

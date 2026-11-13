@@ -1,0 +1,5 @@
+[ro.build.version.release]: [15]
+[ro.build.version.sdk]: [35]
+[ro.build.id]: [AP4A.250205.002]
+[ro.product.model]: [Pixel 9 Pro]
+[unrelated]: without brackets is ignored

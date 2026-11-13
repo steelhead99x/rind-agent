@@ -168,11 +168,26 @@ Save `dumpsys battery` as `battery-before.txt` and `battery-after.txt`,
 the criterion tree, `cpuid.json` from a same-target `rind-cpuid`, and
 ISO-8601 `started` and `finished`.
 
-[android-convert.py](android-convert.py) imports `admin/bench-report` and
-parses criterion as `run()` does. Pass `--host`, `--commit`, the cross
-`rustc` and `cargo` lines, `--cpu-model`, `--logical-cpus`, and
-`--openssl-linked` (or `openssl-linked.txt`). One capture linked vendored
-static OpenSSL.
+`cargo run -p android-convert --locked --` imports `admin/bench-report`
+from `--rind` (via `python3`) and parses criterion as `run()` does. Pass
+`--host`, `--commit`, the cross `rustc` and `cargo` lines, `--cpu-model`,
+`--logical-cpus`, and `--openssl-linked` (or `openssl-linked.txt`). One
+capture linked vendored static OpenSSL. The tool lives in
+`tools/android-convert/` and replaces `android-convert.py`.
+
+```shell
+cargo run -p android-convert --locked -- \
+  --rind /path/to/rind \
+  --capture /path/to/capture \
+  --out /path/to/host.json \
+  --host <host> \
+  --commit <sha> \
+  --rustc "<rustc -vV first line>" \
+  --cargo "<cargo -V>" \
+  --target "<triple, API, NDK>" \
+  --cpu-model "<model>" \
+  --logical-cpus <n>
+```
 
 `load.system_busy_share_during_run` includes the benchmarks, so
 `load.noisy` is null. `build_cost.status` is `failed` because the binaries

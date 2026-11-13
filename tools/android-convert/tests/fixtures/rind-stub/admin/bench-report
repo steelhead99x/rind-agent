@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Minimal admin/bench-report stub for android-convert parity tests."""
+import os
+import re
+
+CRITERION_ARGS = ["--noplot", "--warm-up-time", "1", "--measurement-time", "3"]
+OPERATIONS = [
+    "aes128-gcm/{lib}/32B",
+    "x25519-ecdh/{lib}",
+    "ed25519-sign/{lib}",
+]
+LIBRARIES = {
+    "rind": "rind",
+    "aws-lc-rs": "aws-lc-rs",
+    "openssl": "openssl",
+}
+REQUIRED = {
+    "graviola": {
+        "x86_64": ["aes", "pclmulqdq", "bmi1", "adx", "avx", "avx2"],
+        "aarch64": ["neon", "aes", "pmull", "sha2"],
+    }
+}
+CRATES = {
+    "rind": ["rind", "rind-rustls"],
+    "aws-lc-rs": ["aws-lc-rs", "aws-lc-sys"],
+    "openssl": ["openssl", "openssl-sys", "rustls-openssl"],
+}
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def operation_regex(refused=()):
+    lib = "[^/]+"
+    if refused:
+        lib = "(" + "|".join(re.escape(row) for row, name in LIBRARIES.items() if name not in refused) + ")"
+    ops = "|".join(re.escape(op).replace(re.escape("{lib}"), lib) for op in OPERATIONS)
+    return f"^({ops})$"
+
+
+def operation_of(full_id):
+    for op in OPERATIONS:
+        pattern = "^" + re.escape(op).replace(re.escape("{lib}"), "([^/]+)") + "$"
+        m = re.match(pattern, full_id)
+        if m:
+            return op, m.group(1)
+    return None
+
+
+def locked_versions():
+    versions = {}
+    with open(os.path.join(ROOT, "Cargo.lock")) as f:
+        for name, version in re.findall(
+            r'\[\[package\]\]\nname = "([^"]+)"\nversion = "([^"]+)"', f.read()
+        ):
+            versions.setdefault(name, []).append(version)
+    return versions
+
+
+def host_arch(host):
+    arch = host["cpu"]["arch"]
+    return {"arm64": "aarch64", "amd64": "x86_64"}.get(arch, arch)
