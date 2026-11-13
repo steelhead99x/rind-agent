@@ -11,7 +11,9 @@ rind has no `#![no_std]`. At `a4759c48` with rustc 1.99.1,
 `can't find crate for std` (1672 errors on that build).
 `std::thread_local!` is in `rind/src/low/cpu.rs` and `rind/src/low/entry.rs`.
 No `no_std` quest is in the tree. The portable-backend dependencies do
-compile for that target. Do not flash a rind binary.
+compile for that target. Do not flash a failed or partial library build.
+A separate RP2040 bench harness can be flashed only after the backup
+below; timing it is [rind-bench-rp2040](../rind-bench-rp2040/SKILL.md).
 
 ## Back up first
 
@@ -21,7 +23,20 @@ image out of git. Do not erase. Do not unlock debug.
 RP2040 (Cortex-M0+, 2 MiB at `0x10000000` through `0x10200000`, 264 KiB
 RAM): open the USB serial at 1200 baud to enter the bootrom, then
 `picotool save -r 0x10000000 0x10200000 backup.bin`. Save a second read.
-Restore by writing that image back and checking the readback sha256.
+The sha256 values must match. When several boards are attached, select
+the board by USB VID:PID and USB location, then pass `picotool --ser
+<board-serial>`. A CDC path alone is not enough: paths move, and they
+can belong to a different device. If 1200 baud does not enter the
+bootrom, stop and use the BOOTSEL button; do not keep writing.
+
+Restore from BOOTSEL, then confirm the readback sha256:
+
+```shell
+picotool load backup.bin -t bin -o 0x10000000 -v -x
+```
+
+Add `--ser <board-serial>` when more than one board is attached. Do not
+commit a serial, a USB location, or a host path.
 
 EFR32MG24 (Cortex-M33, CMSIS-DAP, probe-rs): the part that was read has
 1536 KiB of main flash at `0x08000000` through `0x08180000`. Read it three
@@ -50,7 +65,12 @@ The table and sources are in [TARGET-SURVEY.md](TARGET-SURVEY.md).
 
 - M0, M0+, and M23: `muls` is fixed-time. A 32×32→64 product goes through
   compiler-builtins `__aeabi_lmul`, branch-free on rustc 1.99.1. libgcc's
-  routine of the same name branches.
+  routine of the same name branches. In rustc 1.98.1 RP2040 bench images
+  the helper was measured at 74 bytes, 37 Thumb instructions, and 6
+  `muls`: a general 64×64→64 (low half) routine, not a 32×32
+  specialization, so a hot path should still replace it. See
+  [rind-armv6m-perf](../rind-armv6m-perf/SKILL.md) and
+  [rind-armv6m-constant-time](../rind-armv6m-constant-time/SKILL.md).
 - M3: `umull` and `umlal` finish early. Not constant time.
 - M4 and M7: `umull` is single-cycle and fixed.
 - M33, including EFR32MG24: rustc 1.99.1 emits one `umull` for a
@@ -75,7 +95,8 @@ custom cfg:
 
 Chips worth timing once rind builds: RP2040, RP2350 (both cores),
 ESP32-C3, a Cortex-M4F part, and EFR32MG24 (software against the secure
-engine). Nothing rind-related was flashed.
+engine). Timing the RP2040 harness is
+[rind-bench-rp2040](../rind-bench-rp2040/SKILL.md).
 
 ## Demo screen
 

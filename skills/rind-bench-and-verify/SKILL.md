@@ -53,7 +53,9 @@ Measuring any other machine is
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md). A sheet for those hosts,
 and a results repository for the JSON, is
 [rind-bench-results](../rind-bench-results/SKILL.md). Both leave the repo's
-`BENCHMARKS.md` untouched.
+`BENCHMARKS.md` untouched. Timing a microcontroller is
+[rind-bench-rp2040](../rind-bench-rp2040/SKILL.md) for the RP2040 harness,
+after the backup in [rind-bench-baremetal](../rind-bench-baremetal/SKILL.md).
 
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
 Every gap over 10% in the published report needs a quest or a reason in
@@ -263,6 +265,10 @@ does.
 
 dudect and Marvin need quiet hardware; don't trust numbers from
 a shared box.
+
+ctgrind, SDE, and `admin/ct-qemu` do not cover thumbv6m. Checking
+constant time on ARMv6-M is
+[rind-armv6m-constant-time](../rind-armv6m-constant-time/SKILL.md).
 
 ## Mutation testing
 

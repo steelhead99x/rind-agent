@@ -27,6 +27,9 @@ The `just qemu` shell list in
 against
 [`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
 
+The RP2040 and ARMv6-M skills were written against work on moq-dev/rind
+[`c333c59e`](https://github.com/moq-dev/rind/commit/c333c59ef7f5d2fd7846e11974f9d7301d7865df).
+
 ## Skills
 
 | Skill | Use it when |
@@ -39,6 +42,9 @@ against
 | [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Measuring the report on a host outside `admin/bench-report`'s six. |
 | [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | A side sheet for those hosts, and a results repository for the JSON. |
 | [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks before flashing an RP2040 or an EFR32MG24. |
+| [`rind-bench-rp2040`](skills/rind-bench-rp2040/SKILL.md) | Timing the RP2040 harness on one or more boards, including the shared lock and SysTick. |
+| [`rind-armv6m-perf`](skills/rind-armv6m-perf/SKILL.md) | Optimizing rind or a dependency for ARMv6-M: multiplies, XIP layout, and codegen gates. |
+| [`rind-armv6m-constant-time`](skills/rind-armv6m-constant-time/SKILL.md) | Checking that thumbv6m code stays constant-time, including carry compares and traces. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
 | [`rind-quest-fleet`](skills/rind-quest-fleet/SKILL.md) | Running more than one rind quest from a fork. |
 
