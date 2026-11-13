@@ -15,5 +15,5 @@ path = "src/main.rs"
 [dependencies]
 
 [workspace]
-members = [".", "tools/page-data"]
+members = [".", "tools/page-data", "tools/gen-frames"]
 default-members = ["."]

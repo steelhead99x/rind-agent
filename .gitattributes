@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# Third-party SVGs and DejaVu fonts used only as gen-frames fixtures.
+tools/gen-frames/tests/fixtures/assets/** linguist-vendored
+tools/gen-frames/tests/fixtures/fonts/** linguist-vendored

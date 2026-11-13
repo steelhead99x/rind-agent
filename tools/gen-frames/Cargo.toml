@@ -1,0 +1,15 @@
+[package]
+name = "gen-frames"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+license = "Apache-2.0 OR ISC OR MIT-0"
+publish = false
+description = "Build three 128x64 1-bit frames for an EFR32MG24 SSD1306 demo."
+
+[dependencies]
+freetype-rs = "0.38"
+png = "0.17"
+
+[build-dependencies]
+pkg-config = "0.3"

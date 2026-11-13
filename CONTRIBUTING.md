@@ -46,7 +46,10 @@ cargo run --locked --quiet    # skills, links, privacy, action pins
 `cargo run -- pr` checks a PR's title and body from the `PR_TITLE` and
 `PR_BODY` environment variables, as the `PR format` job does. The checker
 must build with the `rust-version` in `Cargo.toml` (the `MSRV` job) and has
-no dependencies; adding one needs a reason in the PR.
+no dependencies; adding one needs a reason in the PR. Workspace tools may
+take dependencies. `gen-frames` needs FreeType and librsvg headers at build time
+(`libfreetype6-dev` and `librsvg2-dev` on Debian, or Homebrew `freetype`,
+`librsvg`, and `pkg-config`).
 
 ## Commits
 
