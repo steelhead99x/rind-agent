@@ -100,7 +100,9 @@ Run the overlap check again before each push, and again before
 [Going upstream](#going-upstream). When moq-dev/rind already has the
 quest, on an open pull request, a `quest/*` branch, or a
 `chore(quest): claim` commit, stop work on the fork pull request and
-leave its branch in place.
+leave its branch in place. Before each push to a fork pull request,
+claim it as [Claim before you write](../rind-git/SKILL.md#claim-before-you-write)
+describes.
 
 Keep commits that are already on the branch. Update the branch as
 [Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch)

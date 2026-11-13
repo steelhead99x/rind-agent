@@ -318,7 +318,8 @@ Collect questions for the maintainer until then.
      settle before a review round. Fetch the fork and upstream before
      every step and immediately before every push, and merge anything
      that moved, as [rind-git](../rind-git/SKILL.md#updating-a-pushed-branch)
-     describes.
+     describes. Claim a fork pull request before pushing to it, as
+     [rind-git](../rind-git/SKILL.md#claim-before-you-write) describes.
    - A low-effort round finds obvious bugs, but it skips the constant-time,
      vector and wiping depth that `REVIEW.md` asks for. Ask the reviewer for
      that depth explicitly, or follow the round with a `rind-crypto-review`
