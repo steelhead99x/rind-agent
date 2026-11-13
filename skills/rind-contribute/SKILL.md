@@ -91,11 +91,12 @@ Things that trip `just check` on new code:
   silently ignored. Check the status explicitly, and add a self-test for
   that failure path.
 
-Touching performance: run the relevant `cargo bench` before and after, and
-compare against aws-lc-rs. Put the numbers in the PR, with the host and the
-date. For the published report's operations and timing, follow
-[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md): that run is
-`admin/bench-report`, and an unfiltered `cargo bench` times a different set.
+Touching performance: a number that will be published follows
+[rind-bench-measure](../rind-bench-measure/SKILL.md). That is
+`cargo xtask bench` at the pin, three runs, through `admin/bench-report`.
+A bare `cargo bench` is not that number. A filtered
+`cargo bench -p rind-bench` only checks one local harness, on criterion's
+own timing, and it is not published.
 
 ## Git, commits and pull requests
 

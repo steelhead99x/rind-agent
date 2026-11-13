@@ -5,9 +5,13 @@
 # Prints one TSV line per crate: crate, result, getrandom-cfg, first error.
 set -u
 T=${1:-thumbv6m-none-eabi}; shift || true
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit
+if [ ! -d crates ]; then
+  echo "build-matrix: crates/ is missing" >&2
+  exit 1
+fi
 CRATES=${*:-$(ls crates)}
-mkdir -p logs/$T
+mkdir -p "logs/$T"
 for c in $CRATES; do
   log=logs/$T/$c.log; cfg=no
   cargo build --release --target "$T" -p "$c" >"$log" 2>&1; rc=$?

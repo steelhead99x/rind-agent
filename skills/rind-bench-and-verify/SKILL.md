@@ -12,7 +12,14 @@ before `just check` or `just ci`, or the gate stops early.
 
 ## Benchmarks
 
-The published comparison is `admin/bench-report`.
+The published comparison inside a rind checkout is `admin/bench-report`.
+A comparable set that leaves this checkout follows
+[rind-bench-pin](../rind-bench-pin/SKILL.md),
+[rind-bench-measure](../rind-bench-measure/SKILL.md),
+[rind-bench-schema](../rind-bench-schema/SKILL.md), and
+[rind-bench-publish](../rind-bench-publish/SKILL.md). The pin, the three
+runs, and `cargo xtask bench` live in those skills. A bare `cargo bench`
+is not that set.
 
 ```shell
 cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing
@@ -27,10 +34,11 @@ admin/bench-report render --from DIR    # rewrite this checkout's BENCHMARKS.md 
 `rind-bench/benches` and uses criterion's defaults, 3 s of warm-up and 5 s
 of measurement. `admin/bench-report` shortens that to
 `--warm-up-time 1 --measurement-time 3` so one host takes about half an
-hour, and it times only `OPERATIONS` (62 operations at the commit the
-README cites). Harnesses the report never asks for, such as `mldsa44`,
-`mldsa87`, `sha1`, `md5`, `pbkdf2`, and `rsa_gen`, still run under a bare
-`cargo bench`. Use `run` for the report's set.
+hour, and it times only `OPERATIONS` (62 at `7ab9f85`, the commit the
+rest of this file was checked against). Harnesses the report never asks
+for, such as `mldsa44`, `mldsa87`, `sha1`, `md5`, `pbkdf2`, and
+`rsa_gen`, still run under a bare `cargo bench`. Use `run` for the
+report's set.
 
 `collect` is the maintainer path. `HOSTS` is fixed: `nixos`, `desktop`,
 `nixos2`, `kixtop`, `ovh-iad`, `ovh-sea`. Any other `--host` fails with
@@ -49,11 +57,12 @@ ignored. It then exits if a gap over 10% (`SLOWER` is 1.1) has no decision
 in `benchmarks/gaps.toml`, or a decision's `on` is not a `HOSTS` name or a
 nightly tier. Leave a host outside that list out of `render`.
 
-Measuring any other machine is
-[rind-bench-hosts](../rind-bench-hosts/SKILL.md). A sheet for those hosts,
-and a results repository for the JSON, is
-[rind-bench-results](../rind-bench-results/SKILL.md). Both leave the repo's
-`BENCHMARKS.md` untouched.
+Measuring any other machine for a published set is
+[rind-bench-measure](../rind-bench-measure/SKILL.md). Host notes are in
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md). The JSON layout is
+[rind-bench-schema](../rind-bench-schema/SKILL.md) and
+[rind-bench-results](../rind-bench-results/SKILL.md). Those leave this
+repo's `BENCHMARKS.md` untouched.
 
 Shared hosts are noisy; the nightly `bench` workflow gives the clean numbers.
 Every gap over 10% in the published report needs a quest or a reason in
@@ -230,6 +239,22 @@ coverage. When a failure is fixed in the test's marking, confirm the
 same bytes are still covered. A declassify before `assert_eq` covers
 only a true public output or a test artifact, such as a verify `Result`.
 
+Library tests mark secrets with `low::ct::secret_slice` and declassify
+with `low::ct::public_slice` or `low::ct::into_public` before
+`assert_eq!` on those bytes (`rind/src/low/ct.rs`).
+`rind/src/high/agreement.rs` copies a shared secret, calls
+`public_slice`, then compares. A loader can mark its input secret for
+the rest of the process (that file's "Loading marks the input's scalar
+secret"), so a later assertion or a later test that reuses the same
+buffer inherits that taint. Copy the bytes into an owned buffer per
+test, then `public_slice` that copy.
+
+CI's `ctgrind` workflow runs `admin/ctgrind` with no test-path filter.
+On a pull request the build argument is `--release`
+(`.github/workflows/ctgrind.yml` at the pin in
+[rind-bench-pin](../rind-bench-pin/SKILL.md)). A passing filtered local
+run is not a substitute.
+
 ctgrind under valgrind needs Linux x86. It does not run on Apple Silicon.
 A cloud VM can run it when that VM is Linux x86. The run is for that head;
 repeat it when the head moves.
@@ -307,6 +332,13 @@ Checks the HOL Light proofs of the assembly, then translates the Rust under
 proof to Lean with Aeneas and checks `proofs/`. `benchmarks/verified.toml`
 records what is proven end to end; only mark a row proven when every line of
 code on that path, glue included, is machine-checked.
+
+The `hol-light` and `cosim` jobs in `.github/workflows/prove.yml` set
+`timeout-minutes: 30` at the pin. A proof that runs longer is
+cancelled, which is a CI failure, not a failed proof. A first-time
+contributor's workflow runs still need a maintainer's approval before
+they start, as [Known issues](../rind-quest-run/SKILL.md#known-issues)
+records.
 
 ## Slow tests
 
