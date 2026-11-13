@@ -12,7 +12,9 @@ and finishing a quest is in [rind-quest-run](../rind-quest-run/SKILL.md).
 ## Remotes and base
 
 Keep an upstream remote, usually `up` (sometimes `upstream`), pointing at
-`moq-dev/rind`. When working from a fork, `origin` is the fork.
+`kixel-ai/rind`. `https://github.com/moq-dev/rind` redirects there; use
+`kixel-ai/rind` in remotes, `gh` commands, and new URLs. When working
+from a fork, `origin` is the fork.
 
 Base every new branch on current upstream `main` (`up/main`), not the
 fork's `main`. Before starting, and again before handoff, run the overlap
@@ -32,7 +34,7 @@ without the `.md`). Do not reuse a name that already exists on upstream.
 A feature PR must not edit sibling quest files or shared docs that an
 open upstream PR already touches. Before editing any file outside the
 quest's own scope, check open and draft upstream PRs for that path
-(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+(`gh pr list --repo kixel-ai/rind --state open` includes drafts; read
 each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
 `quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
 
@@ -57,14 +59,22 @@ update of fork branches. Before any such sweep, list those heads and
 exclude them:
 
 ```shell
-gh pr list --repo moq-dev/rind --author <fork-owner> --state open --json headRefName
+gh pr list --repo kixel-ai/rind --author <fork-owner> --state open --json headRefName
 ```
 
 `<fork-owner>` is the account that opened the fork's upstream pull
 requests (`gh api user --jq .login` when that account is logged in).
 Branches meant to go upstream take updates from upstream `main` only.
 
-Before every push, confirm the target branch is not one of those heads.
+List those heads from the fork owner's open upstream pull requests
+each time, immediately before a sweep or a push. The names change:
+when a change is rebuilt onto a new `-rN` branch and a new pull
+request replaces the old one, protect only the current head. Leave
+older `-rN` branches alone: do not merge the fork's `main` into
+them, include them in a sweep, or push to them.
+
+Before every push, confirm the target branch is not one of those
+current heads.
 
 When merging `up/main` into a feature branch, resolve a conflict in a
 shared list (the README's algorithm table, for example) by keeping both
