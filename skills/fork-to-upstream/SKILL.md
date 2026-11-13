@@ -25,22 +25,32 @@ one.
 - Always run git with an explicit repo path (`git -C <repo>`),
   especially from a routine, which starts in a different directory.
 - Before every step that writes (commit, push, opening or editing a
-  pull request, or closing one), fetch the fork and upstream remotes.
-  Other writers may be on the same branches. If a matching branch or
-  pull request already exists, stop and report it; never duplicate or
-  overwrite it. If another writer has already pushed fixes you were
+  pull request, or closing one), fetch the fork and upstream remotes,
+  and fetch again immediately before the commit and immediately before
+  the push. Other writers may be on the same branches. If a matching
+  branch or pull request already exists, stop and report it; never
+  duplicate or overwrite it. If the branch moved while you worked,
+  save your change as a patch, apply it on the new tip, and re-run
+  the gates. If another writer has already pushed fixes you were
   about to add, leave their branch alone. Don't open a competing fix
   branch and don't force-push over their work. If your local work
   found a problem their fix missed, report it to the user, and with
   the user's approval comment on the pull request so that writer can
-  take the fix.
+  take the fix. If another writer has made a commit or a reply on
+  the pull request in the last half hour, wait until that work is
+  quiet or they hand off before you push.
 - Never print tokens or credentialed remote URLs. Refer to remotes by
   name only.
 - Follow [rind-git](../rind-git/SKILL.md) for history that is already
   pushed: no rebase, amend, or force-push. Rebuild an upstream-bound
   change on a fresh branch name, as
   [Upstream-bound branches](../rind-git/SKILL.md#upstream-bound-branches)
-  describes, and push it normally.
+  describes, and push it normally. Force-updating a base branch
+  closes pull requests that target it, and a pull request whose
+  branch was force-updated cannot be reopened, so plan replacements.
+  If the user has explicitly approved a force-update, back up first,
+  use `--force-with-lease`, and restore any branch protection you
+  changed.
 - Don't open, close, comment on, or mark ready any pull request,
   upstream or on the fork, until the user has approved the list of
   changes and the text of any comment. After that, do only what they
@@ -49,6 +59,9 @@ one.
   pull request before it is marked ready. Don't defer that kind of fix
   to a follow-up. Refactors and extra tests may go in a follow-up after
   the pull request lands.
+- Check free disk space before builds. Parallel builds of a large
+  project can fill a disk. Clear build caches only in superseded
+  worktrees.
 
 ## Remotes and identity
 
@@ -149,12 +162,14 @@ blocking: it has to land in this pull request, with a regression test,
 not in a later follow-up.
 
 If another writer claims to have fixed review findings but has not
-run the local gates the change needs, including constant-time checks,
-run those gates on the current head before treating the findings as
-closed.
+run the local gates the change needs, including constant-time and
+variable-time checks, run those gates on the current head before
+treating the findings as closed, even when the writer says they are
+already fixed. Library helpers such as sort can hide division that
+those checks reject.
 
 Parallelize by splitting worktrees between workers. Each worker owns
-its own branches.
+its own fresh worktree and branches.
 
 ## Rebuild cleanly (only if the user approves)
 
@@ -216,6 +231,34 @@ contributing guide ask.
 Check what the review process posts. If its template leaks a personal
 name or other identifying detail, tell the user.
 
+Keep a scheduled check, about every half hour and offset from the
+review process, that looks at each open fork pull request: what is
+the newest review, and does it cover the current head? Skip pull
+requests another writer owns, ones that already have a fix in
+progress, and ones a maintainer has taken over.
+
+Correctness issues, medium-or-higher findings, and small clear lows
+get fixed in new commits, each on a fresh worktree. Fetch right
+before the commit and again before the push, run the full local
+gates, and push a fast-forward only. Do not force-push. With the
+user's approval of the text, post one short reply on the fork pull
+request naming what was fixed and which commit has the fix; a reply
+or a new commit is what triggers a re-review.
+
+Check the review's claims before acting on them (for example, re-read
+a cited CI job). If the review, or earlier text on the pull request,
+cited the wrong evidence, correct that record in the reply instead
+of "fixing" something that was already right.
+
+Findings that need a design decision, or that conflict with a
+maintainer's request, go to the user with a recommendation, not into
+a commit. A no-op commit already in reviewed history stays; note that
+it drops out when the work is squashed for upstream.
+
+When a fix lands on a fork pull request that backs an upstream pull
+request, the upstream head branch needs the same change, and other-OS
+gates must run again on the new head.
+
 ## Mark ready
 
 Mark a pull request ready only when all of these hold: no known
@@ -247,6 +290,9 @@ as a draft.
 Do this while waiting on reviews or other-OS gates, and only in the
 local checkout. It must not change any open pull request branch.
 
+Before removing anything, save uncommitted work as a patch and
+untracked files as an archive.
+
 For each local branch that still has unpushed work, create a local
 tag named `backup/<branch>`. After the identity checks in
 [Remotes and identity](#remotes-and-identity) pass, push those
@@ -266,8 +312,18 @@ Delete a local branch only after
 `git -C <repo> branch -r --contains <tip>` shows the tip is on a
 remote. Never delete a remote branch.
 
-Scan logs and build caches for tokens before deleting them. Then run
-`git -C <repo> gc --prune=now`.
+Scan logs and build caches for tokens before deleting them. After
+that scan, build caches in superseded worktrees may be deleted.
+Then run `git -C <repo> gc --prune=now`.
+
+## Publishing skill updates
+
+When these skills themselves change, land the update through a pull
+request as the publishing identity, with the usual identity scrub:
+no personal names, local paths, host names, machine or session IDs,
+or tokens. Add a new commit to an open pull request for the same
+skill when its branch is unchanged; otherwise open a fresh branch
+from `main`. Don't merge it; the owner squash-merges.
 
 ## Report
 
