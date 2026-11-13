@@ -29,7 +29,7 @@ stubs call the `quest` CLI, which carries the real instructions.
 
 `quest start` (and the `quest-spawn` / `quest-start` stubs) take a lock by
 opening a placeholder claim PR against the repo that holds
-`quest/README.md`, which for a fork is moq-dev/rind. That is the intended
+`quest/README.md`, which for a fork is kixel-ai/rind. That is the intended
 way to prevent duplicate work. A fork's `quest start` posts that PR
 upstream, so only run it once the work is meant to go upstream. Until
 then, branch by hand off upstream `main`, treat the quest file as the
@@ -37,11 +37,15 @@ spec, and rely on the branch and PR overlap checks. Those checks still
 miss work that starts in the same hour, so run them again before
 handoff.
 
+Upstream rind is `kixel-ai/rind`. `https://github.com/moq-dev/rind`
+redirects there. Use `kixel-ai/rind` in remotes, `gh` commands, and
+new URLs.
+
 ## Sync the fork first
 
 Before picking quests or handing them to agents, merge upstream `main` into
 the fork's `main` with a merge commit (`gh repo sync <fork> --branch main`,
-GitHub's Sync fork, or a PR from `moq-dev:main` into the fork's `main`
+GitHub's Sync fork, or a PR from `kixel-ai:main` into the fork's `main`
 merged with a merge commit). Write the upstream tip SHA in that merge
 subject as literal characters. A command substitution inside single quotes
 is stored unexpanded. See [Known issues](#known-issues). Never force-push
@@ -49,11 +53,25 @@ or reset: the fork's own commits (a review config, for example) must stay.
 Otherwise a lagging fork lists quests upstream already finished, and a fork
 PR's diff includes those unrelated upstream commits. Quest branches still
 base on upstream `main`, and fork-only commits still must not go upstream.
+If upstream `main` moved and merges cleanly into the fork's `main`,
+merge it with a merge commit as above. If the merge conflicts, open a
+sync pull request instead of pushing a conflicted merge, and do not
+force-push.
 
 ## Picking a quest
 
+The maintainer's work takes priority. Treat the maintainer's claim pull
+requests, `quest/*` branches, quest-plan pull requests (for example
+[kixel-ai/rind#710](https://github.com/kixel-ai/rind/pull/710)), and
+the areas the maintainer is actively working as reserved. Re-scan those
+right before claiming and before each push, using the overlap check
+below. Hold any overlapping fork pull request with a comment. Close it
+as wontfix only when the fork owner says to. Do not compete with or
+block the maintainer's work. A fork draft pull request does not reserve
+a quest.
+
 Run `quest unblocked`, then skip anything it marks held, anything with an
-open upstream PR or branch (`gh pr list --repo moq-dev/rind`), and anything
+open upstream PR or branch (`gh pr list --repo kixel-ai/rind`), and anything
 waiting on an upstream release that hasn't shipped. Also skip work needing
 hardware or accounts you don't have, and proofs you can't check with
 `admin/prove`. Prefer quests the maintainer is less likely to be running
@@ -148,7 +166,7 @@ already have landed on that branch.
 A feature PR must not edit sibling quest files or shared docs that an
 open upstream PR already touches. Before editing any file outside the
 quest's own scope, check open and draft upstream PRs for that path
-(`gh pr list --repo moq-dev/rind --state open` includes drafts; read
+(`gh pr list --repo kixel-ai/rind --state open` includes drafts; read
 each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
 `quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
 The same rule is in
@@ -235,7 +253,8 @@ on the closed pull request does not carry over.
 
 Do not open, comment on, or update an upstream pull request or issue,
 and do not contact the maintainer, unless the fork owner has approved
-the exact text. Collect questions for the maintainer until then.
+the exact text. That includes a comment that offers existing work.
+Collect questions for the maintainer until then.
 
 1. Review each fork PR against `rind-crypto-review`.
 2. Repeat the overlap check from [Picking a quest](#picking-a-quest),
@@ -357,6 +376,47 @@ the exact text. Collect questions for the maintainer until then.
      files.
    - Before publishing, check that the body has no tooling markers or
      footers (HTML comment markers, "open in" badges).
+
+## Fork loop
+
+These rules are for a fork that works the upstream `quest/` backlog on a
+schedule. rind's own files still override them. A published benchmark
+set is not a quest pull request. It stays on a `steelhead99x`
+repository and follows
+[rind-bench-publish](../rind-bench-publish/SKILL.md): the pin in
+[rind-bench-pin](../rind-bench-pin/SKILL.md), and rind-results
+`cargo xtask bench` rather than a bare `cargo bench`.
+
+Fix items are unresolved reviews, failing CI or `just check`, merge
+conflicts, unanswered `rind-crypto-review` findings, and unmet Plan
+items. A different agent reviews and verifies, with severity marks. A
+medium or higher finding is a fix item.
+
+Only start a new quest agent when upstream has changed and the overlap
+check still leaves the quest free, preferring quests the maintainer is
+less likely to take, as [Picking a quest](#picking-a-quest) describes.
+Claim it with a fork draft pull request.
+
+Keep questions for the maintainer as a list with links and the exact
+wording to send. Check the quest file, `AGENTS.md`, `CONTRIBUTING.md`,
+`REVIEW.md`, and the code first, and drop any question those already
+answer. Do not send them unless the fork owner has approved the exact
+text, as [Before going upstream](#before-going-upstream) says.
+
+When an upstream pull request's CI is failing, put a minimal fix on a
+fork branch named `cursor/fix-upstream-<N>` (`<N>` is that pull
+request's number), open a draft pull request on the fork, and do not
+push to the upstream branch or comment on the upstream pull request
+unless the fork owner has approved the exact text.
+[steelhead99x/rind#60](https://github.com/steelhead99x/rind/pull/60),
+on `cursor/fix-upstream-679`, is one.
+
+A fork pull request is ready to merge only when CI and `just check` are
+green, an independent review has a verified verdict on that head (or an
+identical tree, as [Known issues](#known-issues) describes), no medium
+or higher findings remain, every Plan item is met, the work maps to a
+quest that already exists on upstream, and it does not overlap the
+maintainer's open work.
 
 ## Known issues
 
@@ -486,6 +546,55 @@ merge, re-read the quest file on current upstream `main`.
    2026-11-12 the fork commit `a8389b32` stored the subject
    `Merge upstream moq-dev/rind main ($(git rev-parse --short upstream/main))`.
    The next sync, `580c2bb0`, records `a7cf7eeb`.
+9. Upstream runs Pullfrog reviews, and its default branch requires one
+   approving review. [moq-dev/rind#684](https://github.com/moq-dev/rind/pull/684)
+   (merged 2026-11-12, `395465fd`) added the Pullfrog workflow. The
+   active ruleset "Pullfrog approval" sets
+   `required_approving_review_count` to 1 on the default branch, and a
+   push dismisses a stale review. First-time-contributor workflow runs
+   still need a maintainer's approval before any job starts. On
+   2026-11-12 the pull-request runs for
+   [moq-dev/rind#689](https://github.com/moq-dev/rind/pull/689) and
+   [#694](https://github.com/moq-dev/rind/pull/694) completed
+   `action_required` in 0 seconds. When an upstream pull request lands
+   for a quest a fork pull request covers, hold the fork pull request
+   and leave it a draft. [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677)
+   merged as `ef24d184` and deleted `quest/m4/fips/drbg.md`, so fork
+   [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24)
+   and the CI follow-up
+   [steelhead99x/rind#46](https://github.com/steelhead99x/rind/pull/46)
+   stay open drafts.
+10. Upstream rind moved from moq-dev/rind to kixel-ai/rind. A request
+    for https://github.com/moq-dev/rind returns 301 to
+    https://github.com/kixel-ai/rind, and the GitHub API reports
+    `full_name` `kixel-ai/rind`. Use `kixel-ai/rind` in remotes,
+    `gh --repo` arguments, and new URLs. Historical `moq-dev/rind`
+    links still resolve through the redirect.
+11. The maintainer's work takes priority over fork drafts. On
+    2026-11-12 the maintainer opened a quest-plan pull request,
+    [kixel-ai/rind#710](https://github.com/kixel-ai/rind/pull/710)
+    (`quest-plan/pullfrog-learnings`), which adds quests. Treat that
+    plan, the maintainer's claim pull requests, `quest/*` branches,
+    and the areas those cover as reserved. Re-scan them right before
+    claiming and before each push. A fork draft does not reserve a
+    quest. Hold an overlapping fork pull request with a comment;
+    close it as wontfix only when the fork owner says to. Do not
+    compete with or block the maintainer's work. Comments on
+    upstream pull requests or issues, and any other contact with the
+    maintainer, still need the fork owner's approval of the exact
+    text, as [Before going upstream](#before-going-upstream) says.
+12. When a fork change already has an open upstream pull request, it
+    may be rebuilt onto a new `-rN` branch and a new pull request
+    may replace the old one. On 2026-11-12
+    [kixel-ai/rind#694](https://github.com/kixel-ai/rind/pull/694)
+    (`ed25519-cctv-wipe-canaries-r3`) was closed and replaced by
+    [#709](https://github.com/kixel-ai/rind/pull/709)
+    (`ed25519-cctv-wipe-canaries-r4`). Detect the current heads from
+    the fork owner's open upstream pull requests each time, as
+    [Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch)
+    describes. Leave older `-rN` branches alone: do not merge the
+    fork's `main` into them, include them in a sweep, or push to
+    them.
 
 On Nov 12, 2026, two quest agents ended in an error state after pushing
 only their empty claim commit. Roughly an hour of work was lost, and the
@@ -498,5 +607,5 @@ Push work in small, buildable commits as each Plan item lands, rather
 than at the end. The hourly loop treats a fork quest draft PR whose only
 commit is the claim, and whose agent is in error, as a resume item: reply
 to that agent, or launch a new one on the same branch. Upstream
-moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
+kixel-ai/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
 files still override this skill.
