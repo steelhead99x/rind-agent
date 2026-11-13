@@ -35,10 +35,10 @@ The published-benchmark skills
 [`rind-bench-publish`](skills/rind-bench-publish/SKILL.md)) use upstream
 [`d6ca9a75`](https://github.com/kixel-ai/rind/commit/d6ca9a756d3d1e71489e61e44c04f33c3c893589)
 as the comparable-set pin. `0b1f1469` is the previous set and stays
-history. The rind-results commands they name were checked against the
-`cargo xtask bench` entry point on
-[`2169f480`](https://github.com/steelhead99x/rind-results/commit/2169f4806794)
-(the board-runner stack, not yet on `main`). `admin/bench-report` at
+history. The rind-results commands they name were checked against
+[`d4a1d803`](https://github.com/steelhead99x/rind-results/commit/d4a1d803519e8c393f908d9342c8961cf0f8c4d6)
+on `main`, which has `cargo xtask bench` and the host runners.
+`admin/bench-report` at
 the pin still sets `--warm-up-time 1` and `--measurement-time 3`, and
 its `OPERATIONS` list has 68 entries. The `public_slice` guidance and
 the 30-minute `hol-light` and `cosim` limits in

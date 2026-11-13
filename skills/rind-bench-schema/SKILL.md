@@ -50,8 +50,9 @@ cycle-counter median.
 When `ns_low` and `ns_high` are the minimum and maximum of those run
 estimates, set `spread_is` to `runs`. Host JSON that still carries
 criterion's confidence interval in those two fields does not set
-`spread_is`. rind-results `cargo xtask report` at `8ab4c317` stores the
-run minimum and maximum in `ns_low` and `ns_high` for a board, so a
+`spread_is`. rind-results `cargo xtask report` on `main` at
+`d4a1d803` stores the run minimum and maximum in `ns_low` and
+`ns_high` for a board, so a
 published file of that shape includes `spread_is`.
 
 `meta.json` repeats the provenance so a reader does not have to mine
