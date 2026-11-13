@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Pointer. The compact results page moved to steelhead99x/rind-results.
-
-A published page is produced with the report, from a checkout of it:
+"""Pointer. The published page is RESULTS.md from rind-results.
 
     cargo xtask report --dir <dir>
 
-This file does not read a summary. See skills/rind-bench-publish/SKILL.md.
+There is no page-data subcommand. This file does not read a summary.
+See skills/rind-bench-publish/SKILL.md.
 """
 
 import sys

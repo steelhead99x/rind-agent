@@ -12,10 +12,13 @@ that name before the next API call. Old `moq-dev/rind` links still
 redirect in a browser.
 
 The comparable set is upstream commit
-[`0b1f1469c8e17e361e3353432bc7fceee9e04214`](https://github.com/kixel-ai/rind/commit/0b1f1469c8e17e361e3353432bc7fceee9e04214)
-(`0b1f1469`). Every published result's `commit` is that full upstream
-SHA, or a newer upstream SHA you were told to measure. It is never a
-fork SHA.
+[`d6ca9a756d3d1e71489e61e44c04f33c3c893589`](https://github.com/kixel-ai/rind/commit/d6ca9a756d3d1e71489e61e44c04f33c3c893589)
+(`d6ca9a75`, OPRF). Every new result's `commit` is that full upstream
+SHA. It is never a fork SHA.
+
+`0b1f1469c8e17e361e3353432bc7fceee9e04214` is the previous comparable
+set. Directories named with that SHA stay as history. Do not overwrite
+them, delete them, or mix their numbers into `d6ca9a75` tables.
 
 How to run that commit is
 [rind-bench-measure](../rind-bench-measure/SKILL.md). The JSON shape
@@ -48,7 +51,7 @@ kixel-ai/rind. Publishing is
 
 ## What this pin builds
 
-At `0b1f1469`, `admin/bench-report` sets
+At `d6ca9a75`, `admin/bench-report` sets
 
 ```text
 CRITERION_ARGS = ["--noplot", "--warm-up-time", "1", "--measurement-time", "3"]
@@ -78,5 +81,7 @@ with `--rind` pointing at the clean measured checkout:
 cargo xtask bench-tables --rind /path/to/rind
 ```
 
-A `tools/bench-tables.json` left over from another SHA is the wrong
-table. `cargo xtask bench` must use the measured commit's operations.
+`cargo xtask bench` reads operations from the `--rind` checkout it was
+given. `bench-tables` only refreshes the snapshot for review. A
+`tools/bench-tables.json` left over from another SHA is the wrong
+table.

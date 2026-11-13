@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Pointer. Side-sheet rendering moved to steelhead99x/rind-results.
-
-rind-results names the old renderer scripts/render-ours.py. A published
-set does not run that script. From a rind-results checkout:
+"""Pointer. A published sheet is rind-results `cargo xtask report --dir`.
 
     cargo xtask report --dir <dir>
     cargo xtask verify --dir <dir>
 
-This file does not render. See skills/rind-bench-publish/SKILL.md.
+`cargo xtask render` is the old side sheet (the former render-ours.py).
+A new comparable set does not use it. This file does not render.
+See skills/rind-bench-publish/SKILL.md.
 """
 
 import sys

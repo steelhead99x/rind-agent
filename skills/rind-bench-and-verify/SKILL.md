@@ -17,11 +17,9 @@ A comparable set that leaves this checkout follows
 [rind-bench-pin](../rind-bench-pin/SKILL.md),
 [rind-bench-measure](../rind-bench-measure/SKILL.md),
 [rind-bench-schema](../rind-bench-schema/SKILL.md), and
-[rind-bench-publish](../rind-bench-publish/SKILL.md): the upstream SHA in
-`commit`, three runs, rind-results `cargo xtask bench`, and
-`cargo xtask verify --dir` before the tree is pushed. `OPERATIONS` at
-upstream `0b1f1469` has 68 entries. A bare `cargo bench` is not that
-set.
+[rind-bench-publish](../rind-bench-publish/SKILL.md). The pin, the three
+runs, and `cargo xtask bench` live in those skills. A bare `cargo bench`
+is not that set.
 
 ```shell
 cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing

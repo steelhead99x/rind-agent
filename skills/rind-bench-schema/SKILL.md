@@ -14,7 +14,7 @@ here is published until
 ## Schema 1
 
 `<host>.json` is bench-report schema 1, the object `admin/bench-report
-run` writes with `"schema": 1`. At upstream `0b1f1469` that object
+run` writes with `"schema": 1`. At the pin in rind-bench-pin that object
 holds `host`, `commit`, `started`, `finished`, `cpu`, `os`, `status`,
 `toolchain`, `libraries`, `rind_cpu`, `refused`, `criterion_args`,
 `load`, `results`, and `build_cost`. Each `results` row holds
@@ -89,8 +89,10 @@ column. Those host facts are in
 Leave a tree that is already published where it is. That includes
 `results/<host>/<host>.json` with no upstream SHA in the path,
 `results/esp32s3/` and `results/nrf52840/` at the repository root of
-`results/`, `results/msi-001/`, and the ESP32-S3 set whose flash clock
-was 40 MHz. When a new tree replaces one of them as the comparable set,
+`results/`, `results/msi-001/`, the ESP32-S3 set whose flash clock was
+40 MHz, and any directory whose SHA is the previous comparable set
+`0b1f1469c8e17e361e3353432bc7fceee9e04214`. `cargo xtask bench` refuses
+to write that previous SHA. When a new tree replaces one of them as the comparable set,
 add a short pointer in the old `NOTES.md` naming the new directory. Do
 not rewrite the old numbers into the new shape in place.
 

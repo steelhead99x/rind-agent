@@ -42,10 +42,12 @@ jobs on its shared 15 GB host and 4 to 16 on the others. Cap jobs to what
 this machine can compile without swapping.
 
 `run` builds `rind-bench` with `--features __bench_openssl` and times
-`OPERATIONS` from the measured commit with `CRITERION_ARGS`. That list
-has 68 entries at upstream `0b1f1469`. An older count of 62 belongs to
-the commit the README cites for
-[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md).
+`OPERATIONS` from the measured commit with `CRITERION_ARGS`. The count
+at the comparable-set pin is in
+[rind-bench-pin](../rind-bench-pin/SKILL.md). An older count of 62
+belongs to `7ab9f85`, the commit the rest of
+[rind-bench-and-verify](../rind-bench-and-verify/SKILL.md) was checked
+against.
 Python must be 3.11 or newer (`tomllib`). The dev shell provides
 `pkg-config` and OpenSSL.
 
@@ -73,9 +75,10 @@ then applies its own 25% check.
 Refusals below. A published set does not patch those checks.
 [host-run.py](host-run.py) is a pointer and exits before measuring.
 rind-results `cargo xtask host-run` fakes the dev-shell check, times
-`HEAD`, and runs once. Its `--busy-share` flag rewrites `BUSY_SHARE` in
-`admin/bench-report` and restores the file afterwards. Neither form is
-a published set. A host that `run` refuses is left out of the comparable
+`HEAD`, and runs once. `--busy-share` changes the idle limit in memory
+and does not edit `admin/bench-report`. Neither form is a published
+set. The machine commands are in
+[rind-bench-measure](../rind-bench-measure/SKILL.md). A host that `run` refuses is left out of the comparable
 set. A diagnostic run goes in a labelled directory, as
 [rind-bench-schema](../rind-bench-schema/SKILL.md) describes.
 
@@ -166,11 +169,12 @@ the target directory there. The hop machine can run its own suite.
 
 ## Android
 
-The phone does not run `admin/bench-report`. `cargo xtask bench` is still
-the command that publishes, with that script's operations and criterion
-arguments. The capture it consumes is a cross-compiled `rind-bench` for
-`aarch64-linux-android` (NDK), pushed with `adb`, run under
-`/data/local/tmp`, then deleted.
+The phone does not run `admin/bench-report`. Collect with
+`cargo xtask pixel-run --serial <id>` (`--serial` is required), then
+publish with `cargo xtask bench --board pixel9pro --capture <dir>`, as
+[rind-bench-measure](../rind-bench-measure/SKILL.md) specifies. The
+capture is a cross-compiled `rind-bench` for `aarch64-linux-android`,
+run under `/data/local/tmp`, then deleted.
 
 Save `dumpsys battery` as `battery-before.txt` and `battery-after.txt`,
 `/proc/stat` as `stat-before` and `stat-after`, `getprop` as `getprop.txt`,

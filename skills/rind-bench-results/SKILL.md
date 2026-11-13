@@ -33,10 +33,9 @@ not put a token in a remote URL.
 
 [render-side.py](render-side.py), [stage-repo.py](stage-repo.py), and
 [page-data.py](page-data.py) are pointers. Each exits before it writes.
-rind-results still has `scripts/render-ours.py`, the old side renderer.
-A new set does not run it. `page-data.py` used to print a compact page
-from a summary object with `order`, `columns`, and per-host `rows`.
-`cargo xtask report --dir` writes the page the published tree gets.
+`cargo xtask render` is the old side sheet. `cargo xtask stage`
+regenerates an older per-host tree. A new set uses `report --dir`.
+There is no `page-data` subcommand.
 
 ## Older trees
 

@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Pointer. Android capture conversion moved to steelhead99x/rind-results.
+"""Pointer. Pixel captures are collected, then published, in rind-results.
 
-A published set runs that repo's cargo xtask, from a checkout of it:
+    cargo xtask pixel-run --serial <id>
+    cargo xtask bench --board pixel9pro --rind <path> --commit <pin> --capture <dir> --runs 3
 
-    cargo xtask bench --board <id> --rind <path> --commit <pin> --out <dir> --runs 3
-
-This file does not convert a capture. See skills/rind-bench-measure/SKILL.md.
+--serial is required. This file does not convert a capture.
+See skills/rind-bench-measure/SKILL.md.
 """
 
 import sys
 
 sys.exit(
-    "moved to steelhead99x/rind-results: cargo xtask bench "
+    "moved to steelhead99x/rind-results: cargo xtask pixel-run --serial "
+    "then cargo xtask bench --board pixel9pro "
     "(skills/rind-bench-measure/SKILL.md)"
 )
