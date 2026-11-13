@@ -112,18 +112,36 @@ it; never rebase or force-push it.
 
 - Conventional-commit subjects: `feat(rustls): ...`, `fix: ...`, `perf: ...`,
   `docs: ...`, `chore: ...`. Breaking change: `feat!: ...`.
+- The author and the committer are the fork owner's GitHub login and that
+  account's noreply address. Use the
+  `id+username@users.noreply.github.com` form when email privacy is on, not
+  the bare `username@users.noreply.github.com` form, a nickname, an
+  organization name, or a tool or model name. Set this in the checkout
+  before the first commit:
+
+  ```shell
+  git config user.name '<github-login>'
+  git config user.email '<id>+<login>@users.noreply.github.com'
+  ```
+
+  If `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, or
+  `GIT_COMMITTER_EMAIL` name a tool or model, unset or override them.
+  `git -c user.name=...` is not enough when those variables are set.
 - Attribution goes in a `Co-Authored-By:` trailer only, never in the
-  subject, body, or pull request text. The commit author is the fork
-  owner's GitHub account, using that account's noreply address (the
-  `id+username@users.noreply.github.com` form when email privacy is on).
-  Do not set the author or committer to another organization.
-- Exactly one `Co-Authored-By: Cursor Agent <cursoragent@cursor.com>`
-  trailer, and no other `Co-Authored-By` trailers. Check with
-  `git log -1 --format=%B`. Some environments append their own trailer
-  on `git commit`. Before the first push, rewrite the message with
+  subject, body, or pull request text. Exactly one
+  `Co-Authored-By: Cursor Agent <cursoragent@cursor.com>` trailer, and no
+  other `Co-Authored-By` trailers: no model names, and do not list the
+  fork owner as a co-author. Check with `git log -1 --format=%B`. Some
+  environments append their own trailer on `git commit`. Before the first
+  push, rewrite the message with
   `git -c core.hooksPath=/dev/null commit --amend` or build it with
   `git commit-tree`. After the branch has been pushed, do not amend;
   add a new commit instead.
+- Hosted cloud agents author and commit as
+  `Cursor Agent <cursoragent@cursor.com>` and may add the person who
+  started the run as a `Co-Authored-By` trailer. That platform identity
+  cannot be changed in git config. Do not rewrite those commits. Correct
+  the author and trailer list when squash-merging, as below.
 - No binaries or build artifacts.
 - On a fork branch still in review, a fix for a review finding is its own
   small commit, and the subject names the fix. Leave the earlier commits
@@ -167,7 +185,9 @@ gh pr merge --squash --author-email <github-noreply> \
 
 `--author-email` must be the account's GitHub noreply address. When email
 privacy is on, use the `id+username@users.noreply.github.com` form; the
-bare `username@users.noreply.github.com` form may be rejected.
+bare `username@users.noreply.github.com` form may be rejected. Merge as
+the fork owner's GitHub account so the squash commit's author name is
+that login, not a tool, bot, or organization.
 
 If a commit was authored under a tool's own name, or has extra
 `Co-Authored-By` trailers, fix the author and trailer list in the
