@@ -121,18 +121,10 @@ so in the PR as a question for the maintainer, and leave the PR a draft
 until the item lands. `quest unblocked` on upstream `main` omits a quest
 whose file has a `## Required` section, which is a quick signal.
 
-[moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669) (`ad43e51a`,
-2026-11-12, "chore(quest): plan test coverage of the published code") added
-to `quest/m2/confidence/mutants-adapters.md` the Required item
-"rind-aws-lc-rs passes aws-lc-rs's own test suite"
-(`quest/m2/confidence/aws-lc-rs-upstream-tests.md`): upstream's tests kill
-rind-aws-lc-rs's mutants first, so none gets a hand-written test. A fork
-branch for that quest was already open. It merged upstream `main` only
-through `aee2586a`, the parent of `ad43e51a`, so the copy on the branch
-did not gain the item, and it still added hand-written tests for
-rind-aws-lc-rs mutants in `rind-aws-lc-rs/tests/surfaces.rs`. That quest's
-other Required item, `quest/m0/adapters/README.md`, was still unmerged as
-[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652).
+A Required item can appear on upstream `main` after the branch is cut.
+Merging an older parent does not pick it up. Re-merge onto current
+upstream `main` and re-read `## Required` before adding work the new
+item assigns elsewhere.
 
 Search upstream issues for the quest path and the title, as well as
 pull requests. An issue that names the quest is taken even when no
@@ -149,9 +141,9 @@ A feature PR must not edit sibling quest files or shared docs that an
 open upstream PR already touches. Before editing any file outside the
 quest's own scope, check open and draft upstream PRs for that path
 (`gh pr list --repo moq-dev/rind --state open` includes drafts; read
-each PR's files). The development fork's PR #1 (SPAKE2+) rewrote
-`quest/m4/protocols/hash-to-curve.md`, which collided with upstream #632.
-The same rule is in
+each PR's files). A fork pull request that rewrites a sibling
+quest file can collide with an open upstream pull request on that
+path. The same rule is in
 [rind-git](../rind-git/SKILL.md#files-outside-the-change).
 
 ## Done means the Plan is met
@@ -360,15 +352,6 @@ the exact text. Collect questions for the maintainer until then.
 
 ## Known issues
 
-On Nov 12, 2026, within about an hour, the maintainer opened his own
-upstream PRs for four quests the fork had already claimed with fork draft
-PRs:
-
-- [moq-dev/rind#674](https://github.com/moq-dev/rind/pull/674) (ecvrf, fork [steelhead99x/rind#19](https://github.com/steelhead99x/rind/pull/19))
-- [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677) (fips/drbg, fork [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24))
-- [moq-dev/rind#671](https://github.com/moq-dev/rind/pull/671) (rind-dart-cryptography, fork [steelhead99x/rind#36](https://github.com/steelhead99x/rind/pull/36))
-- [moq-dev/rind#670](https://github.com/moq-dev/rind/pull/670) (android-armv7-abi, fork [steelhead99x/rind#21](https://github.com/steelhead99x/rind/pull/21))
-
 Fork draft-PR claims are not visible upstream and don't reserve a quest.
 Check upstream open PRs and `quest/*` branches, not just claim commits,
 before claiming, again partway through, and again before marking ready.
@@ -391,9 +374,7 @@ Prefer quests whose files show no recent upstream activity.
 3. A verdict pins a head SHA. rind `CONTRIBUTING.md` ("Reviews") counts
    the `## Review` record as the required review when it names the head
    being merged. The branch can be rewritten after that verdict, so the
-   tip is a new SHA. [steelhead99x/rind#1](https://github.com/steelhead99x/rind/pull/1)
-   went from verified head `26ee84ec` to `64eb50db` with identical tree
-   `4f96b4ef`. Before relying on the verdict, compare
+   tip is a new SHA. Before relying on the verdict, compare
    `git rev-parse <sha>^{tree}`. An identical tree means the verdict
    still covers the content. A different tree needs re-verification.
 4. GitHub Actions on the fork can sit queued for a long time: dozens of
@@ -406,111 +387,58 @@ Prefer quests whose files show no recent upstream activity.
    `cancel-in-progress: true` on `check-${{ github.ref }}`, so that push
    cancels the run and starts it over.
 
-On Nov 12, 2026, a bulk update merged the fork's `main` into
-`spake2plus-up-r7`, the head of open upstream
-[moq-dev/rind#685](https://github.com/moq-dev/rind/pull/685).
-The fork's `main` carried fork-only files, which then appeared on the
-upstream pull request. The merge was reverted, and the history was
-later rewritten with the fork owner's approval. Before any sweep,
+Before any sweep that merges the fork's `main` into other branches,
 list the head branches of the fork owner's open upstream pull requests
 and exclude them. Those branches take updates from upstream `main`
 only, never the fork's `main`. The rule is in
 [Updating a pushed branch](../rind-git/SKILL.md#updating-a-pushed-branch).
 
-[moq-dev/rind#652](https://github.com/moq-dev/rind/pull/652)
-(merged 2026-11-12, `98568332`) deleted the adapters epic
-(`quest/m0/adapters/README.md`) and rewrote several open quest
-files. Before resuming work on a quest that was open before that
-merge, re-read the quest file on current upstream `main`.
+Quest files can be rewritten or deleted by merges on upstream `main`.
+Before resuming work on a quest opened against an older tip, re-read
+the quest file on current upstream `main`. Goal and Plan text and
+Required items may have changed, and a new sibling quest may now own
+part of the work. Do not claim a quest the maintainer opened from
+their own work.
 
-- `quest/m2/api/cpu-check.md` still names pyrind, rind-dart, and
-  rind-cpuid in its Goal, but the Plan now says this quest removes
-  only rind's own check. Adapter `check()` and `MissingFeature`
-  removals ship with rind 0.4 in `quest/m2/api/release-0.4.md`.
-- `quest/m2/confidence/mutants-adapters.md` no longer requires the
-  adapters epic. It still requires
-  `quest/m2/confidence/aws-lc-rs-upstream-tests.md`
-  ([moq-dev/rind#679](https://github.com/moq-dev/rind/pull/679)).
-- `quest/m2/confidence/adapter-api-diff.md` no longer requires the
-  epic.
-- `quest/m2/confidence/mutants-pins.md` was added by
-  [moq-dev/rind#687](https://github.com/moq-dev/rind/pull/687)
-  (merged 2026-11-12, `0f4e45f0`), planned from
-  [moq-dev/rind#655](https://github.com/moq-dev/rind/pull/655).
-  It shares the adapter `exclude_re` pins with `mutants-adapters`.
-  Do not claim it; the maintainer opened it from his own work.
-
-5. [moq-dev/rind#668](https://github.com/moq-dev/rind/pull/668)
-   (merged 2026-11-12, `aee2586a`) makes `mutants.yml` run nightly and
-   on `workflow_dispatch` only, not on pull requests. The workflow
-   header says it never runs on pull requests, like fuzzing. A mutants
-   failure or timeout on an upstream pull request is no longer a
-   pull-request CI failure to fix on a fork branch. A run started
-   before that merge can still fail or hit `timeout-minutes: 300`.
-   [moq-dev/rind#663](https://github.com/moq-dev/rind/pull/663) still
-   had armv7 shards in progress after the merge
-   ([run 43190491966](https://github.com/moq-dev/rind/actions/runs/43190491966)).
-   A surviving mutant found that way is a coverage gap to note, not a
-   pull-request blocker. `mutants.yml` says a mutant no architecture's
-   tests catch fails the nightly run, which `alert.yml` reports: kill
-   it with a test, or list it under `exclude_re` in `.cargo/mutants.toml`
-   with why no test can. `quest/m2/confidence/portable-fuzz-mutants.md`
-   runs that campaign nightly, in `mutants.yml`, not in `just ci`.
-   rind `CONTRIBUTING.md` still lists "a mutation run over the PR's
-   diff" among advisory runs to fix when red. After #668, `mutants.yml`
-   does not start that run on a pull request.
-6. A fork Actions queue that looks frozen can be a backlog. On
-   Nov 12, 2026, about 100 runs were queued while others were in
-   progress, including long `mutants (armv7, ...)` jobs that already
-   had a `runner_name`. A queued job can show an empty `runner_name`
-   at the same time. Before calling a stall, list in-progress runs
+5. `mutants.yml` runs nightly and on `workflow_dispatch` only, not on
+   pull requests. The workflow header says it never runs on pull
+   requests, like fuzzing. A mutants failure or timeout on an upstream
+   pull request is not a pull-request CI failure to fix on a fork
+   branch. A run started under an older workflow can still fail or hit
+   `timeout-minutes: 300`. A surviving mutant found that way is a
+   coverage gap to note, not a pull-request blocker. `mutants.yml` says
+   a mutant no architecture's tests catch fails the nightly run, which
+   `alert.yml` reports: kill it with a test, or list it under
+   `exclude_re` in `.cargo/mutants.toml` with why no test can.
+   `quest/m2/confidence/portable-fuzz-mutants.md` runs that campaign
+   nightly, in `mutants.yml`, not in `just ci`. rind `CONTRIBUTING.md`
+   still lists "a mutation run over the PR's diff" among advisory runs
+   to fix when red. After the workflow change that dropped
+   pull-request runs, `mutants.yml` does not start that run on a pull
+   request.
+6. A fork Actions queue that looks frozen can be a backlog. Before
+   calling a stall, list in-progress runs
    (`gh run list --repo <owner>/<repo> --status in_progress`) and
    read each job's `runner_name`
-   (`gh api repos/<owner>/<repo>/actions/runs/<id>/jobs`). A backlog
-   is waiting. It is not a billing or owner blocker. Do not re-queue
-   the runs.
-7. [moq-dev/rind#669](https://github.com/moq-dev/rind/pull/669)
-   (merged 2026-11-12, `ad43e51a`) added
-   `quest/m2/confidence/coverage-report.md`,
-   `aws-lc-rs-upstream-tests.md`, and `uncovered-functions.md`. The
-   maintainer opened upstream pull requests for the first two within
-   minutes: [#678](https://github.com/moq-dev/rind/pull/678) and
-   [#679](https://github.com/moq-dev/rind/pull/679). Each branch's
-   first commit is `chore(quest): claim quest/...md`. Both pull
-   requests also edit `uncovered-functions.md`. Newly added quests are
-   often claimed immediately. Re-check open upstream pull requests and
-   `quest/*` branches right before claiming.
+   (`gh api repos/<owner>/<repo>/actions/runs/<id>/jobs`). A queued job
+   can show an empty `runner_name` at the same time an in-progress job
+   already has one. A backlog is waiting. It is not a billing or owner
+   blocker. Do not re-queue the runs.
+7. Newly added quests are often claimed immediately. Re-check open
+   upstream pull requests and `quest/*` branches right before claiming.
 8. A merge of upstream `main` into the fork's `main` names the upstream
    tip in the merge subject. Write that SHA as literal characters. A
-   command substitution inside single quotes is stored unexpanded. On
-   2026-11-12 the fork commit `a8389b32` stored the subject
-   `Merge upstream moq-dev/rind main ($(git rev-parse --short upstream/main))`.
-   The next sync, `580c2bb0`, records `a7cf7eeb`.
+   command substitution inside single quotes is stored unexpanded, so
+   a subject that contains `$(git rev-parse --short upstream/main)`
+   inside single quotes is wrong.
 9. Upstream runs Pullfrog reviews, and its default branch requires one
-   approving review. [moq-dev/rind#684](https://github.com/moq-dev/rind/pull/684)
-   (merged 2026-11-12, `395465fd`) added the Pullfrog workflow. The
-   active ruleset "Pullfrog approval" sets
+   approving review. The active ruleset "Pullfrog approval" sets
    `required_approving_review_count` to 1 on the default branch, and a
    push dismisses a stale review. First-time-contributor workflow runs
-   still need a maintainer's approval before any job starts. On
-   2026-11-12 the pull-request runs for
-   [moq-dev/rind#689](https://github.com/moq-dev/rind/pull/689) and
-   [#694](https://github.com/moq-dev/rind/pull/694) completed
-   `action_required` in 0 seconds. When an upstream pull request lands
-   for a quest a fork pull request covers, hold the fork pull request
-   and leave it a draft. [moq-dev/rind#677](https://github.com/moq-dev/rind/pull/677)
-   merged as `ef24d184` and deleted `quest/m4/fips/drbg.md`, so fork
-   [steelhead99x/rind#24](https://github.com/steelhead99x/rind/pull/24)
-   and the CI follow-up
-   [steelhead99x/rind#46](https://github.com/steelhead99x/rind/pull/46)
-   stay open drafts.
-
-On Nov 12, 2026, two quest agents ended in an error state after pushing
-only their empty claim commit. Roughly an hour of work was lost, and the
-quests looked claimed but had no implementation:
-
-- OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50)
-- FROST, fork [steelhead99x/rind#51](https://github.com/steelhead99x/rind/pull/51)
+   still need a maintainer's approval before any job starts; until
+   then they complete `action_required` in 0 seconds. When an upstream
+   pull request lands for a quest a fork pull request covers, hold the
+   fork pull request and leave it a draft.
 
 Push work in small, buildable commits as each Plan item lands, rather
 than at the end. The hourly loop treats a fork quest draft PR whose only
