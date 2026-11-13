@@ -27,6 +27,11 @@ The `just qemu` shell list in
 against
 [`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
 
+The `public_slice` guidance and the hol-light job limit in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) were checked
+against
+[`876a68d0`](https://github.com/kixel-ai/rind/commit/876a68d0b73da0f14d4735bb47782eda42404b90).
+
 ## Skills
 
 | Skill | Use it when |
@@ -39,6 +44,7 @@ against
 | [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Measuring the report on a host outside `admin/bench-report`'s six. |
 | [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | A side sheet for those hosts, and a results repository for the JSON. |
 | [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks before flashing an RP2040 or an EFR32MG24. |
+| [`rind-bench-port`](skills/rind-bench-port/SKILL.md) | Porting a bench suite to a microcontroller and publishing firmware and results. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
 | [`rind-quest-fleet`](skills/rind-quest-fleet/SKILL.md) | Running more than one rind quest from a fork. |
 

@@ -230,6 +230,20 @@ coverage. When a failure is fixed in the test's marking, confirm the
 same bytes are still covered. A declassify before `assert_eq` covers
 only a true public output or a test artifact, such as a verify `Result`.
 
+Library tests mark secrets with `low::ct::secret_slice` and declassify
+with `low::ct::public_slice` or `low::ct::into_public` before
+`assert_eq!` on those bytes (`rind/src/low/ct.rs`).
+`rind/src/high/agreement.rs` copies a shared secret, calls
+`public_slice`, then compares. A loader can mark its input secret for
+the rest of the process (that file's "Loading marks the input's scalar
+secret"), so a later assertion or a later test that reuses the same
+buffer inherits that taint. Copy the bytes into an owned buffer per
+test, then `public_slice` that copy.
+
+CI's `ctgrind` workflow runs `admin/ctgrind` with no test-path filter
+(`.github/workflows/ctgrind.yml`). A passing filtered local run is not
+a substitute.
+
 ctgrind under valgrind needs Linux x86. It does not run on Apple Silicon.
 A cloud VM can run it when that VM is Linux x86. The run is for that head;
 repeat it when the head moves.
@@ -307,6 +321,12 @@ Checks the HOL Light proofs of the assembly, then translates the Rust under
 proof to Lean with Aeneas and checks `proofs/`. `benchmarks/verified.toml`
 records what is proven end to end; only mark a row proven when every line of
 code on that path, glue included, is machine-checked.
+
+The `hol-light` and `cosim` jobs in `.github/workflows/prove.yml` set
+`timeout-minutes: 30`. A proof that runs longer is cancelled, which is
+a CI failure, not a failed proof. First-time-contributor workflow runs
+still need a maintainer's approval before they start, as
+[Known issues](../rind-quest-run/SKILL.md#known-issues) records.
 
 ## Slow tests
 

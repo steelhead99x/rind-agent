@@ -13,6 +13,9 @@ rind has no `#![no_std]`. At `a4759c48` with rustc 1.99.1,
 No `no_std` quest is in the tree. The portable-backend dependencies do
 compile for that target. Do not flash a rind binary.
 
+Porting a bench suite to a board and publishing firmware and results
+is in [rind-bench-port](../rind-bench-port/SKILL.md).
+
 ## Back up first
 
 Read the flash at least twice. The sha256 values must match. Keep the
