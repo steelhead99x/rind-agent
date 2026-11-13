@@ -17,9 +17,11 @@ all Rust. Run it there and pass this directory as an absolute path:
 cargo xtask gen-frames --dir <absolute path to this oled-demo directory>
 ```
 
-It fetches the two SVGs, unmodified, into `assets/` on first run, then writes
+The rind wordmark is vendored in rind-results and checked against its pinned
+SHA-256. The moq.dev favicon is downloaded into `assets/` on first run and kept
+only when it matches its pinned SHA-256. Then the command writes
 `oled_demo/frames.h` and preview PNGs. Do not commit those outputs or the
-SVGs.
+favicon.
 
 `oled_demo/oled_demo.ino` probes `0x3C` then `0x3D` and prints one JSON line
 at 115200 baud. Compile with the core you use for this chip. Flash only the
