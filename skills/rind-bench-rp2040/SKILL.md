@@ -1,6 +1,6 @@
 ---
 name: rind-bench-rp2040
-description: Use when timing the rind RP2040 harness on one or more boards, including backup, the shared bench lock, SysTick, and interleaved A/B runs.
+description: Use when timing the rind RP2040 harness on one or more boards, including backup, the shared bench lock, SysTick, interleaved A/B runs, and a fork-branch sign-off checklist.
 ---
 
 # Timing rind on RP2040 boards
@@ -25,10 +25,29 @@ mkdir <workdir>/.bench.lock
 ```
 
 `mkdir` fails if the lock exists; wait. Write an owner file inside the
-directory. Hold the lock only while flashing, collecting USB serial
-output, or timing. Release it between rounds so other work can proceed.
-Do not take the lock just to compile. If the lock is held by someone
+directory that names the process and the work. Hold the lock only while
+flashing, collecting USB serial output, or timing. Release it between
+rounds so other work can proceed. Do not take the lock just to compile.
+Install a `trap` that releases the lock on EXIT, INT, and TERM so a
+killed session does not leave it held. If the lock is held by someone
 else, wait and keep `--jobs` modest (about 4).
+
+A host reboot leaves a stale lock directory. Before clearing it, read
+the owner file and check whether that process is still alive. Only
+ever clear a lock you own. If the owner is another process, wait or
+ask; do not delete it.
+
+## Long runs and tools
+
+Put a multi-round timing job under `nohup` (or an equivalent detached
+session) with a log file and a short STATUS note that says which images
+are queued, which rounds have finished, and how to resume. An
+interrupted agent session can then pick the work up from the log
+instead of starting over.
+
+Never take bench tools or helper scripts from a shared checkout that
+other agents switch branches on. Use a lane-local copy or a dedicated
+worktree, and keep that copy on a fixed revision for the run.
 
 ## Identify the board
 
@@ -36,9 +55,17 @@ Match a board by USB VID:PID and USB location, then confirm the CDC
 port belongs to that same device. A CDC path alone is not enough:
 paths move, and they can belong to a different VID:PID.
 
+When two boards report the same USB serial string, the serial is not a
+selector. Pick each board by USB location, and run them one at a time.
+Timing two such boards in parallel has lost a port.
+
 Pass `picotool --ser <board-serial>` whenever more than one RP2040 is
-attached. Do not commit a serial, a USB location, a hostname, or a host
-path.
+attached and the serials are unique. Do not commit a serial, a USB
+location, a hostname, or a host path.
+
+Check that every board under test is still enumerated before each
+round. A board can drop off USB between flashes; stop and ask for it
+to be replugged rather than recording a partial round.
 
 If opening the USB serial at 1200 baud does not enter the bootrom, stop
 and use the BOOTSEL button. Do not keep writing.
@@ -128,10 +155,43 @@ percent from XIP conflicts alone. Treat a change in those rows as a
 layout effect until the miss counts say otherwise. See
 [rind-armv6m-perf](../rind-armv6m-perf/SKILL.md).
 
+## Sign-off checklist for fork branches
+
+Before calling an RP2040 (or thumbv6m) fork branch ready, all of the
+following must pass. A missing item is a "not yet," not a sign-off.
+
+- Release, dev, and clippy builds for `thumbv6m-none-eabi`. The dev
+  profile is required: a `std`-only debug helper can fail `cargo build`
+  even when `--release` is clean. See
+  [rind-bench-baremetal](../rind-bench-baremetal/SKILL.md).
+- Host tests.
+- Board known-answer tests (KATs) on every board under test. A KAT
+  checks correctness only, not timing or constant time.
+- Interleaved rounds against the agreed base, with medians labelled
+  **measured** or, if fewer than five rounds finished, **1-round**
+  (or the actual round count). Do not treat a 1-round figure as a
+  sign-off median.
+- Identity: every new commit's author and committer are the fork
+  owner's GitHub login and noreply address, with exactly one
+  `Co-Authored-By: Cursor Agent <cursoragent@cursor.com>` trailer.
+  Check with `git var GIT_AUTHOR_IDENT` and `git log -1 --format=%B`.
+  The rules are in [rind-git](../rind-git/SKILL.md).
+- A constant-time disassembly scan of the image, as in
+  [rind-armv6m-constant-time](../rind-armv6m-constant-time/SKILL.md).
+- Claim comments on a fork pull request before pushing to its branch:
+  read recent comments first; if someone else holds an unexpired
+  claim, do not push. Post
+  `In progress: <what> (claim expires in 60 min)`, then
+  `Done: <what>. New head: <sha>`, or `Released` if you stop.
+  Claim comments go on fork pull requests only, never upstream.
+  If the branch has no fork pull request, do not invent one just to
+  claim; still do not push over someone else's unexpired work.
+
 ## After the run
 
-Release the lock. Leave the board in a known state, or restore the
-backup. Do not commit backups, serials, or host paths.
+Release the lock (the `trap` should already have done this). Leave the
+board in a known state, or restore the backup. Do not commit backups,
+serials, or host paths.
 
 On a development fork, keep the work on a feature branch. Do not open a
 pull request, comment on GitHub, or merge to `main` unless the fork

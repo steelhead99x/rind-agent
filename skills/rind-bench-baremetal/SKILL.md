@@ -32,6 +32,15 @@ RP2040 harness, including the shared lock and SysTick, is
 separate skill for another board port. The portable-backend
 dependencies do compile for the targets below.
 
+## Dev-profile no_std builds
+
+Gate any std-only debug helper, including `thread_local`, to
+`cfg(feature = "std")` or `cfg(not(target_os = "none"))`. A debug-only
+counter that uses `std` will fail
+`cargo build --target thumbv6m-none-eabi` (the dev profile) even when
+the release image links. Include that dev build, not only `--release`,
+when verifying a no_std or thumbv6m branch. The sign-off list in
+[rind-bench-rp2040](../rind-bench-rp2040/SKILL.md) requires it.
 
 ## Back up first
 

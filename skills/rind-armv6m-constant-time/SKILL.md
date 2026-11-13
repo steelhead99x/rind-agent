@@ -84,10 +84,25 @@ Emulator cycle counts are **estimates**, not board timings, especially
 when the model ignores XIP misses. They are valid evidence for
 instruction-trace equality.
 
+## Code size and the cache
+
+A branch-free rewrite can grow the hot path past the 16 KiB XIP cache
+and regress board timings even when the traces stay constant-time. One
+P-256 follow-up grew the hot code from about 9.3 KiB to 15.3 KiB, and
+ECDH went 1.52× slower until the hot functions were packed or placed
+in SRAM. After a constant-time fix, time the image on the board and
+follow [rind-armv6m-perf](../rind-armv6m-perf/SKILL.md). Emulator cycle
+counts cannot predict that regression.
+
+Board KATs confirm the new path matches the known answers. They do not
+prove constant time or a performance win. The sign-off list in
+[rind-bench-rp2040](../rind-bench-rp2040/SKILL.md) requires a
+disassembly scan as well as the KATs.
+
 ## What is not enough
 
 A green ctgrind run on x86 or aarch64 does not prove thumbv6m is
 constant time: the carry compare only became a branch on this target.
-Host tests, Wycheproof, and "zero `__aeabi_lmul`" are necessary and
-not sufficient. Re-run the thumbv6m scan when the compiler, LTO
-settings, or the surrounding crate change.
+Host tests, Wycheproof, board KATs, and "zero `__aeabi_lmul`" are
+necessary and not sufficient. Re-run the thumbv6m scan when the
+compiler, LTO settings, or the surrounding crate change.

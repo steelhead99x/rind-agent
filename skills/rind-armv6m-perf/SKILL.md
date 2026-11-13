@@ -1,6 +1,6 @@
 ---
 name: rind-armv6m-perf
-description: Use when optimizing rind or a dependency for ARMv6-M (thumbv6m): widening multiplies, XIP layout, SRAM placement, or checking that aarch64 and x86 codegen is unchanged.
+description: Use when optimizing rind or a dependency for ARMv6-M (thumbv6m): widening multiplies, XIP layout, contiguous packing or SRAM placement, or checking that aarch64 and x86 codegen is unchanged.
 ---
 
 # ARMv6-M performance work in rind
@@ -81,9 +81,26 @@ Where the 64-bit product lives:
 ## The XIP cache
 
 The RP2040 XIP cache is 16 KiB, 2-way, with 8-byte lines. That is
-1024 sets, `set = addr[12:3]`, and an alias every 8 KiB. A refill was
-measured at about 68–91 cycles per line in earlier board rounds (the
-model often uses 80).
+1024 sets, `set = addr[12:3]`, and an alias every 8 KiB. A miss costs
+roughly 70–110 cycles: earlier board rounds measured about 68–91
+cycles per line when the working set fit, and about 110 cycles
+back-to-back when it did not (the model often uses 80).
+
+Any code change can move the flash layout and cause large regressions
+in unrelated functions. Treat a swing in a layout-sensitive row
+(short SHA-256, HMAC, HKDF, or a field operation that used to fit)
+as a cache effect until the miss counts say otherwise.
+
+Measured examples, all against the same base on the board:
+
+- A SHA-512 / GHASH change made short SHA-256 1.39× slower, HMAC
+  1.57×, and HKDF 1.44×, with no change to those functions' source.
+- Packing SHA-256's short-message path into one contiguous section
+  (`.text.rind_sha256_hot`) turned those same rows into 0.737×,
+  0.876×, and 0.814× against the base.
+- A P-256 constant-time rewrite grew the hot code from about 9.3 KiB
+  to 15.3 KiB, past one cache way and close to the whole 16 KiB, and
+  ECDH went 1.52× slower.
 
 A function larger than one 8 KiB way (unrolled SHA-512 compress is
 about 27 KiB in HACL and RustCrypto, measured) fights itself in the
@@ -92,19 +109,31 @@ cache. Even a function that fits can lose both ways when a caller,
 (`RIND_BENCH_PAD` or similar) cannot fix or reproduce that; only a
 change in relative layout does.
 
-On ARMv6-M, place hot loops in SRAM with
-`#[unsafe(link_section = ".data.rind_hot.*")]` and `inline(never)`.
-cortex-m-rt already copies `.data` and `.data.*` into SRAM at reset,
-so no linker-script fork is required. Confirm with `llvm-nm` that the
-symbols landed at `0x200xxxxx`, and that thunks into SRAM sit in
-flash. The SRAM cost is real (several kilobytes; more when P-256
-moves too). Forking `link.x` to steal `.text` sections is a last
-resort. A linker `--symbol-ordering-file` depends on mangled names
-and can make one bench better and another worse; do not rely on it.
+Two fixes, in preferred order:
+
+1. Pack the hot path into one contiguous flash section, for example
+   `#[unsafe(link_section = ".text.rind_sha256_hot")]` or
+   `.text.rind_p256_hot`, so it does not alias itself or its caller.
+   Confirm with `llvm-nm` or a map file that the symbols sit next to
+   each other.
+2. Place hot loops in SRAM with
+   `#[unsafe(link_section = ".data.rind_hot.*")]` and `inline(never)`.
+   cortex-m-rt already copies `.data` and `.data.*` into SRAM at
+   reset, so no linker-script fork is required. Confirm with
+   `llvm-nm` that the symbols landed at `0x200xxxxx`, and that thunks
+   into SRAM sit in flash. The SRAM cost is real (several kilobytes;
+   more when P-256 moves too).
+
+Forking `link.x` to steal `.text` sections is a last resort. A linker
+`--symbol-ordering-file` depends on mangled names and can make one
+bench better and another worse; do not rely on it.
 
 A rolled SHA-512 compress for this cfg (1,724 bytes in a measured
 image) is the size fix when the unrolled form will not fit in cache
 and cannot be relocated because it lives in a dependency.
+
+An emulator or model that ignores XIP misses cannot predict these
+layout effects. Always time the image on the board.
 
 ## Keep only a measured win
 
