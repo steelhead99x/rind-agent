@@ -1,7 +1,8 @@
 # rind-agent
 
-Agent skills for contributing to [rind](https://github.com/moq-dev/rind), the
+Agent skills for contributing to [rind](https://github.com/kixel-ai/rind), the
 pure-Rust cryptography library behind [MoQ](https://moq.dev).
+`moq-dev/rind` redirects there.
 
 Each skill is a `SKILL.md` file: YAML frontmatter (`name`, `description`)
 followed by Markdown instructions. Claude Code, Cursor, and other agents that
@@ -9,11 +10,14 @@ load skills in this format can use them directly, and they work as plain
 checklists for people too.
 
 The skills condense rind's own
-[`AGENTS.md`](https://github.com/moq-dev/rind/blob/main/AGENTS.md) and
-[`CONTRIBUTING.md`](https://github.com/moq-dev/rind/blob/main/CONTRIBUTING.md).
+[`AGENTS.md`](https://github.com/kixel-ai/rind/blob/main/AGENTS.md) and
+[`CONTRIBUTING.md`](https://github.com/kixel-ai/rind/blob/main/CONTRIBUTING.md).
 Where they disagree, rind's repository is authoritative. They were last
 checked against rind at
 [`7ab9f85`](https://github.com/moq-dev/rind/commit/7ab9f8524e27d8a186d3eb35681d07cd2a5203d7).
+The wasm runner in `sh/wasm.sh`, `REVIEW.md`'s merge-bar list, and the
+ECVRF row in `TESTING.md` were checked against
+[`c333c59`](https://github.com/kixel-ai/rind/commit/c333c59ef7f5d2fd7846e11974f9d7301d7865df).
 Mutation testing in
 [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) and the
 platform-workflow sentence in
@@ -27,8 +31,25 @@ The `just qemu` shell list in
 against
 [`aee2586a`](https://github.com/moq-dev/rind/commit/aee2586a75ed4ef6838f9c0b09f13070d9661486).
 
-The RP2040 and ARMv6-M skills were written against work on moq-dev/rind
-[`c333c59e`](https://github.com/moq-dev/rind/commit/c333c59ef7f5d2fd7846e11974f9d7301d7865df).
+The RP2040 and ARMv6-M skills were written against work on
+[`c333c59e`](https://github.com/kixel-ai/rind/commit/c333c59ef7f5d2fd7846e11974f9d7301d7865df).
+
+The published-benchmark skills
+([`rind-bench-pin`](skills/rind-bench-pin/SKILL.md),
+[`rind-bench-measure`](skills/rind-bench-measure/SKILL.md),
+[`rind-bench-schema`](skills/rind-bench-schema/SKILL.md),
+[`rind-bench-publish`](skills/rind-bench-publish/SKILL.md)) use upstream
+[`d6ca9a75`](https://github.com/kixel-ai/rind/commit/d6ca9a756d3d1e71489e61e44c04f33c3c893589)
+as the comparable-set pin. `0b1f1469` is the previous set and stays
+history. The rind-results commands they name were checked against
+[`d4a1d803`](https://github.com/steelhead99x/rind-results/commit/d4a1d803519e8c393f908d9342c8961cf0f8c4d6)
+on `main`, which has `cargo xtask bench` and the host runners.
+`admin/bench-report` at
+the pin still sets `--warm-up-time 1` and `--measurement-time 3`, and
+its `OPERATIONS` list has 68 entries. The `public_slice` guidance and
+the 30-minute `hol-light` and `cosim` limits in
+[`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) were
+checked against that same pin.
 
 ## Skills
 
@@ -39,9 +60,13 @@ The RP2040 and ARMv6-M skills were written against work on moq-dev/rind
 | [`fork-to-upstream`](skills/fork-to-upstream/SKILL.md) | Reviewing, cleaning up, and sending ready fork branches upstream as pull requests. |
 | [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
-| [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Measuring the report on a host outside `admin/bench-report`'s six. |
-| [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | A side sheet for those hosts, and a results repository for the JSON. |
-| [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks before flashing an RP2040 or an EFR32MG24. |
+| [`rind-bench-pin`](skills/rind-bench-pin/SKILL.md) | Choosing the upstream commit a published set measures, and recording fork patches. |
+| [`rind-bench-measure`](skills/rind-bench-measure/SKILL.md) | Running that set with rind-results `cargo xtask bench`, including a board you were allowed to flash. |
+| [`rind-bench-schema`](skills/rind-bench-schema/SKILL.md) | Schema 1 plus the optional fields, and `results/<host>/<upstream-sha>/`. |
+| [`rind-bench-publish`](skills/rind-bench-publish/SKILL.md) | `cargo xtask verify --dir` before publishing, and fork-only benchmark pull requests. |
+| [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Host notes outside `admin/bench-report`'s six. Published sets use `rind-bench-measure`. |
+| [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | Where a published JSON tree goes, and which older trees stay as history. |
+| [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks. Flashing waits for an explicit yes. |
 | [`rind-bench-rp2040`](skills/rind-bench-rp2040/SKILL.md) | Timing the RP2040 harness on one or more boards, including the shared lock and SysTick. |
 | [`rind-armv6m-perf`](skills/rind-armv6m-perf/SKILL.md) | Optimizing rind or a dependency for ARMv6-M: multiplies, XIP layout, and codegen gates. |
 | [`rind-armv6m-constant-time`](skills/rind-armv6m-constant-time/SKILL.md) | Checking that thumbv6m code stays constant-time, including carry compares and traces. |
