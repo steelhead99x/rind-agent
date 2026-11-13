@@ -177,8 +177,10 @@ capture is a cross-compiled `rind-bench` for `aarch64-linux-android`,
 run under `/data/local/tmp`, then deleted.
 
 Save `dumpsys battery` as `battery-before.txt` and `battery-after.txt`,
-`/proc/stat` as `stat-before` and `stat-after`, `getprop` as `getprop.txt`,
-the criterion tree, `cpuid.json` from a same-target `rind-cpuid`, and
+`/proc/stat` as `stat-before` and `stat-after`, and `getprop.txt` with
+only `ro.product.model`, `ro.build.version.release`, and
+`ro.build.version.sdk`. Never commit a full `getprop` dump. Save the
+criterion tree, `cpuid.json` from a same-target `rind-cpuid`, and
 ISO-8601 `started` and `finished`.
 
 [android-convert.py](android-convert.py) is a pointer and exits before
