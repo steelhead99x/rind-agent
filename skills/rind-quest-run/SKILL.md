@@ -435,6 +435,23 @@ before claiming, again partway through, and again before marking ready.
 When upstream takes a quest, stop and hold the fork PR with a comment.
 Prefer quests whose files show no recent upstream activity.
 
+On Nov 12, 2026, at about 3:14 PM PT, the maintainer opened twelve
+upstream quest pull requests at once,
+[moq-dev/rind#696](https://github.com/moq-dev/rind/pull/696) through
+[#707](https://github.com/moq-dev/rind/pull/707). Several were quests
+the fork had already worked in fork pull requests:
+
+- [#696](https://github.com/moq-dev/rind/pull/696) (cpu-check, fork [steelhead99x/rind#35](https://github.com/steelhead99x/rind/pull/35))
+- [#698](https://github.com/moq-dev/rind/pull/698) (adapter-api-diff, fork [steelhead99x/rind#22](https://github.com/steelhead99x/rind/pull/22))
+- [#700](https://github.com/moq-dev/rind/pull/700) (P-521 verify, fork [steelhead99x/rind#43](https://github.com/steelhead99x/rind/pull/43))
+- [#702](https://github.com/moq-dev/rind/pull/702) (Karatsuba, fork [steelhead99x/rind#41](https://github.com/steelhead99x/rind/pull/41))
+- [#705](https://github.com/moq-dev/rind/pull/705) (OPRF, fork [steelhead99x/rind#50](https://github.com/steelhead99x/rind/pull/50))
+
+A fork draft pull request does not reserve a quest. Re-scan open
+upstream pull requests and `quest/*` branches right before claiming
+and before each push. Once the maintainer claims the quest, hold the
+fork pull request with a comment.
+
 1. Never add or invent a quest file. A follow-up a quest file mentions is
    left for the maintainer through `/quest-plan` (rind `CONTRIBUTING.md`,
    "Follow-ups") and raised as a question in the PR.
