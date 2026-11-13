@@ -500,3 +500,17 @@ commit is the claim, and whose agent is in error, as a resume item: reply
 to that agent, or launch a new one on the same branch. Upstream
 moq-dev/rind's `AGENTS.md`, `CONTRIBUTING.md`, `REVIEW.md`, and quest
 files still override this skill.
+
+15. GitHub redirects [moq-dev/rind](https://github.com/moq-dev/rind) to
+    [kixel-ai/rind](https://github.com/kixel-ai/rind). The API
+    repository is `kixel-ai/rind`. Checked 2026-11-13:
+    `gh repo view moq-dev/rind --json nameWithOwner` returns
+    `kixel-ai/rind`, and `GET /repos/moq-dev/rind` answers 200 with
+    `full_name` `kixel-ai/rind`. `gh pr list --repo moq-dev/rind`
+    follows that redirect today and lists `kixel-ai/rind` pull
+    requests. Resolve the owner from that response before the next
+    API call. Do not keep `moq-dev` as the path in a client that does
+    not follow the redirect: a saved `moq-dev/rind` base is the wrong
+    repository once the client stops rewriting it. Web links written
+    as `https://github.com/moq-dev/rind/...` still redirect, which is
+    why the older examples in this skill keep them.
