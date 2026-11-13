@@ -1,0 +1,11 @@
+[package]
+name = "render-side"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+license = "Apache-2.0 OR ISC OR MIT-0"
+publish = false
+description = "Write a side BENCHMARKS.md for hosts outside admin/bench-report's HOSTS."
+
+[dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }

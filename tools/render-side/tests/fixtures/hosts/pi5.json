@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "host": "pi5",
+  "results": [],
+  "started": "2026-11-12T10:00:00-08:00",
+  "commit": "abcdef1234567890abcdef1234567890abcdef12",
+  "os": "Debian GNU/Linux 12 (bookworm) aarch64",
+  "cpu": {"model": "Cortex-A76", "arch": "aarch64"},
+  "toolchain": {"rustc": "rustc 1.98.1 (48a229cea 2026-09-01)"}
+}

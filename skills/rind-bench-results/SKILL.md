@@ -19,16 +19,20 @@ nightly results. Replace that section, the generated-by comment, and the
 sentence that every host used the pinned toolchain and ran only when idle,
 unless that sentence is true of every host in the sheet.
 
-[render-side.py](render-side.py) does that and writes only under `--out`.
-`--out` inside the rind checkout is an error. A JSON whose `status` is not
-`ok` is an error. Host order on the command line is the sheet's order. A
-note is one paragraph, `--note <host> <file>` or `<stem>.note` beside the
-JSON. The script rejects a heading. It exits if `report()` no longer has
-the comment, the toolchain sentence, or the `## CPU tiers` and
-`## Verified code` headings.
+`cargo run -p render-side --locked --` does that and writes only under
+`--out`. The tool lives in `tools/render-side/` and replaces
+`render-side.py`. `--out` inside the rind checkout is an error. A JSON
+whose `status` is not `ok` is an error. Host order on the command line is
+the sheet's order. A note is one paragraph, `--note <host> <file>` or
+`<stem>.note` beside the JSON. The tool rejects a heading. It exits if
+`report()` no longer has the comment, the toolchain sentence, or the
+`## CPU tiers` and `## Verified code` headings. It still calls `report()`,
+`load_verified()`, `gaps_of()`, `label()`, and `COLUMNS` from the rind
+checkout's `admin/bench-report` via `python3`; that file is outside this
+repository.
 
 ```shell
-python3 render-side.py \
+cargo run -p render-side --locked -- \
   --rind /path/to/rind \
   --out /path/to/results/render \
   --note <host> /path/to/<host>.note \
@@ -77,7 +81,7 @@ cargo run -p stage-repo --locked -- --out /path/to/results-repo \
   --render /path/to/render --log <published>=/path/to/run.log
 ```
 
-A JSON with `status` other than `ok` can sit beside the sheet. `render-side.py`
+A JSON with `status` other than `ok` can sit beside the sheet. `render-side`
 accepts only `status` `ok`. After a clean `admin/build-cost`, merge that
 stdout into `build_cost` as
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md) describes, then render
@@ -86,5 +90,5 @@ again.
 `cargo run -p page-data --locked -- summary.json` prints a compact page
 from a summary object with `order`, `columns`, and per-host `rows`,
 `cpu`, `os`, `rustc`, `commit`, `started`, `load`, `lead`, `timed`, and
-`build_cost`. `render-side.py` does not write that object. The tool
+`build_cost`. `render-side` does not write that object. The tool
 lives in `tools/page-data/` and replaces `page-data.py`.
