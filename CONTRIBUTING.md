@@ -91,7 +91,11 @@ sections and a checklist.
 - Never rebase or force-push a pushed branch; merge `main` in instead.
 - Resolve every review conversation before merging.
 - Fix merge conflicts and failing checks; `Check`, `MSRV`, and `PR format`
-  are required.
+  are required. Merges are squash only. If the account that opened the
+  pull request cannot squash-merge (a 403 on push or merge), use the
+  fork owner's `gh` instead. Hosted cloud-agent authors are corrected
+  at squash-merge, as [rind-git](skills/rind-git/SKILL.md#squash-merge)
+  describes.
 
 ## CI
 
