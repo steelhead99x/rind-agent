@@ -34,9 +34,9 @@ download() {
 
 readback() {
   if [ -n "${PROBE:-}" ]; then
-    probe-rs read --probe "$PROBE" --chip "$CHIP" -o "$1" -f binary b32 "$BASE" "$LENGTH"
+    probe-rs read --probe "$PROBE" --chip "$CHIP" -o "$1" -f binary b32 "$BASE" "$((LENGTH / 4))"
   else
-    probe-rs read --chip "$CHIP" -o "$1" -f binary b32 "$BASE" "$LENGTH"
+    probe-rs read --chip "$CHIP" -o "$1" -f binary b32 "$BASE" "$((LENGTH / 4))"
   fi
 }
 
