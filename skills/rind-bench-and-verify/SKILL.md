@@ -23,11 +23,12 @@ is not that set.
 
 ```shell
 cargo bench -p rind-bench -- <filter>   # one local harness, criterion's own timing
-admin/bench-report run --host NAME --commit REV --jobs N --target-dir DIR --out FILE
-                                        # the report's operations, filter, and timing
-admin/bench-report summary DIR          # rind versus the fastest other library; HOSTS only
-admin/bench-report collect              # the six hosts in HOSTS, over ssh
-admin/bench-report render --from DIR    # rewrite this checkout's BENCHMARKS.md and SVGs
+admin/bench-report run [--host NAME] --commit REV --jobs N --target-dir DIR --out FILE
+                                        # this machine; NAME defaults to a CPU slug
+admin/bench-report summary DIR          # every <host>.json in DIR
+admin/bench-report collect [--host NAME]...
+                                        # only machines in COLLECT_HOSTS, over ssh
+admin/bench-report render --from DIR    # every measured host JSON in DIR
 ```
 
 `cargo bench` with no package and no filter builds every harness under
@@ -40,24 +41,44 @@ for, such as `mldsa44`, `mldsa87`, `sha1`, `md5`, `pbkdf2`, and
 `rsa_gen`, still run under a bare `cargo bench`. Use `run` for the
 report's set.
 
-`collect` is the maintainer path. `HOSTS` is fixed: `nixos`, `desktop`,
-`nixos2`, `kixtop`, `ovh-iad`, `ovh-sea`. Any other `--host` fails with
-`unknown host`. For each name it archives the commit with `git archive`.
-When that name is the first label of this machine's hostname, the archive
-is unpacked locally; otherwise it is copied over ssh. On the host it runs
+`run` measures the machine it is on. Anyone can run it. Omit `--host`
+and the recorded name is a filesystem-safe slug of the CPU model:
+`Intel(R) Core(TM) Ultra 9 275HX` becomes `intel-core-ultra-9-275hx`,
+`AMD Ryzen 9 7950X 16-Core Processor` becomes `amd-ryzen-9-7950x`, and
+`Apple M3 Max` becomes `apple-m3-max`. `--host` sets another name of
+letters, digits, `.`, `_`, and `-`, at most 81 characters, starting
+with a letter or digit. Nightly tier names and `tiers` are reserved.
+The JSON records the raw CPU string, `cpu.slug`, the logical core
+count, and `physical_cpus` when the OS reports it. `host` is the slug
+unless `--host` set another name. Write the file as `<host>.json`.
+This naming is `admin/bench-report` at `1fca3086`
+(steelhead99x/rind #83). On a checkout older than that commit, `run`
+still requires `--host`. rind-results `cargo xtask bench` passes that
+flag, set to the CPU slug when `--board` is omitted.
+
+`collect` is the maintainer path. It reaches only the machines named in
+`COLLECT_HOSTS`, over ssh, in that list's order. `--host` on `collect`
+must be one of those names. Any other name fails with
+`unknown collect host` and points at `admin/bench-report run`. For each
+name it archives the commit with `git archive`. When that name is the
+first label of this machine's hostname, the archive is unpacked
+locally; otherwise it is copied over ssh. On the host it runs
 `nix shell` of the quest revision pinned in `flake.lock`, then `quest gate`,
 then `nix develop --command python3 admin/bench-report run`. That host
 needs Nix with flakes, and network so Nix can fetch the pinned quest and
-the dev shell's inputs. `summary` considers only those six names.
+the dev shell's inputs.
 
-`render` writes this checkout's `BENCHMARKS.md` and `benchmarks/*.svg`, and
-it deletes a generated SVG the new report does not contain. `--from DIR`
-imports only `<host>.json` files named in `HOSTS`. Any other file is
-ignored. It then exits if a gap over 10% (`SLOWER` is 1.1) has no decision
-in `benchmarks/gaps.toml`, or a decision's `on` is not a `HOSTS` name or a
-nightly tier. Leave a host outside that list out of `render`.
+`summary` prints every `<host>.json` in the directory. `tiers.json` is
+the nightly CPU tiers, not a host. Machines in `COLLECT_HOSTS` stay in
+that list's order. Every other host follows by file name. `render`
+writes this checkout's `BENCHMARKS.md` and `benchmarks/*.svg`, and it
+deletes a generated SVG the new report does not contain. `--from DIR`
+imports every measured host JSON (`status` `ok`). It then exits if a
+gap over 10% (`SLOWER` is 1.1) has no decision in `benchmarks/gaps.toml`.
+A decision's `on` may name any host that has a result, or any nightly
+tier. A name with no result fails.
 
-Measuring any other machine for a published set is
+Measuring a machine for a published set is
 [rind-bench-measure](../rind-bench-measure/SKILL.md). Host notes are in
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md). The JSON layout is
 [rind-bench-schema](../rind-bench-schema/SKILL.md) and

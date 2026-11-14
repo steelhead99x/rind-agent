@@ -24,6 +24,15 @@ holds `host`, `commit`, `started`, `finished`, `cpu`, `os`, `status`,
 `commit` is the upstream SHA from rind-bench-pin, even when the binary
 was built from a fork.
 
+`host` is the published id. For a machine measured with current
+rind-results `cargo xtask bench`, that id is a slug of the CPU model
+unless `--board` set another filesystem-safe name. At steelhead99x/rind
+`1fca3086`, `cpu` also holds `slug` and, when the OS reports it,
+`physical_cpus`. A file written by the comparable-set pin's script can
+omit `slug`. Its `cpu` still has `model`, `arch`, and `logical_cpus`.
+The published `intel-core-ultra-9-275hx` JSON is that shape: `host` is
+the slug, and `cpu.slug` is absent.
+
 Optional keys, omitted when they do not apply:
 
 - `upstream_commit`, the same full upstream SHA as `commit`, present
@@ -72,7 +81,11 @@ results/<host>/<upstream-sha>/raw/
 results/<host>/<upstream-sha>/RESULTS.md
 ```
 
-`<host>` is the published id, the same string as JSON `host`.
+`<host>` is the published id, the same string as JSON `host`. For a
+machine it is a slug of the CPU model unless `--board` set another
+filesystem-safe id: lowercase letters, digits, `.`, `_`, and `-`, at
+most 81 characters, starting with a letter or digit. One published set
+is `results/intel-core-ultra-9-275hx/<upstream-sha>/`.
 `<upstream-sha>` is the full 40-character upstream SHA. An A/B or a
 diagnostic set uses `results/<host>/<upstream-sha>-<label>/`. `<label>`
 is lowercase kebab-case (`icache32`, `poly1305-32`). The comparable set
