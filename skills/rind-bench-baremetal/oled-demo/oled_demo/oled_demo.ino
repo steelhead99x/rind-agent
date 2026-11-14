@@ -1,7 +1,8 @@
 /* EFR32MG24 OLED demo: cycles the moq.dev mark, the rind wordmark, and one
  * benchmark screen on an SSD1306 (128x64, I2C 0x3C, I2C1, PC4 SDA, PC5 SCL).
  * Wire.begin() uses the core's default I2C pins; pass pins if they differ.
- * Frames come from tools/gen_frames.py (frames.h, not committed).
+ * Frames come from `cargo xtask gen-frames` in rind-results (frames.h, not
+ * committed).
  * Serial at 115200 prints the probe result and each frame change. */
 #include <Arduino.h>
 #include <Wire.h>
