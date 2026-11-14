@@ -218,3 +218,14 @@ them.
 
 Then verify the resulting `main` commit's author, committer, and that it
 has exactly one `Co-Authored-By:` trailer.
+
+If the host's squash-merge cannot record the required author identity
+(for example it refuses the bare noreply address), follow
+[Monitor CI and land fork pull requests](../fork-to-upstream/SKILL.md#monitor-ci-and-land-fork-pull-requests):
+build the squash locally with the exact identity, or fast-forward
+`main` to a single-commit pull request, then close the pull request
+with a note linking the commit.
+
+Watch the account's CI queue when a run sits queued far longer than
+usual, as that section describes. Cancel only superseded queued runs,
+and only with the user's approval.
