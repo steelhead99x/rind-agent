@@ -41,6 +41,16 @@ as the comparable-set pin. `0b1f1469` is the previous set and stays
 history. The rind-results commands they name were checked against
 [`d4a1d803`](https://github.com/steelhead99x/rind-results/commit/d4a1d803519e8c393f908d9342c8961cf0f8c4d6)
 on `main`, which has `cargo xtask bench` and the host runners.
+Host ids in `cargo xtask bench` were checked against
+[`2a9ce803`](https://github.com/steelhead99x/rind-results/commit/2a9ce80395eb82d4376f33dce4bef0f5c1bf7445)
+(rind-results #29). Any filesystem-safe host id is a host. Omit
+`--board` and the id is a slug of the CPU, for example
+`intel-core-ultra-9-275hx`. That commit publishes
+`results/intel-core-ultra-9-275hx/`.
+`admin/bench-report` host naming was checked against
+[`1fca3086`](https://github.com/steelhead99x/rind/commit/1fca30862a360426dce986f7d25f2bc807effc12)
+(steelhead99x/rind #83). `run`, `summary`, `render`, and `gaps.toml`
+accept any host. `COLLECT_HOSTS` is only the list `collect` reaches.
 `admin/bench-report` at
 the pin still sets `--warm-up-time 1` and `--measurement-time 3`, and
 its `OPERATIONS` list has 68 entries. The `public_slice` guidance and
@@ -58,10 +68,10 @@ checked against that same pin.
 | [`rind-crypto-review`](skills/rind-crypto-review/SKILL.md) | Reviewing a diff: correctness, hostile input, constant time, wiping, API shape. |
 | [`rind-bench-and-verify`](skills/rind-bench-and-verify/SKILL.md) | Benchmarks, cross-architecture tests, constant-time tooling, proofs. |
 | [`rind-bench-pin`](skills/rind-bench-pin/SKILL.md) | Choosing the upstream commit a published set measures, and recording fork patches. |
-| [`rind-bench-measure`](skills/rind-bench-measure/SKILL.md) | Running that set with rind-results `cargo xtask bench`, including a board you were allowed to flash. |
+| [`rind-bench-measure`](skills/rind-bench-measure/SKILL.md) | Running that set on any machine with rind-results `cargo xtask bench`, including a board you were allowed to flash. |
 | [`rind-bench-schema`](skills/rind-bench-schema/SKILL.md) | Schema 1 plus the optional fields, and `results/<host>/<upstream-sha>/`. |
 | [`rind-bench-publish`](skills/rind-bench-publish/SKILL.md) | `cargo xtask verify --dir` before publishing, and fork-only benchmark pull requests. |
-| [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Host notes outside `admin/bench-report`'s six. Published sets use `rind-bench-measure`. |
+| [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Host notes for any machine. The id is a CPU slug. `collect` alone uses `COLLECT_HOSTS`. |
 | [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | Where a published JSON tree goes, and which older trees stay as history. |
 | [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks. Flashing waits for an explicit yes. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |

@@ -13,8 +13,11 @@ the JSON keys are
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md).
 
 `admin/bench-report render` rewrites the rind checkout's `BENCHMARKS.md`
-and `benchmarks/*.svg`, and it only accepts the six `HOSTS` names. Why
-that refuses a new host is in
+and `benchmarks/*.svg`. `render --from` imports every measured
+`<host>.json`. `tiers.json` is the nightly tiers, not a host. A gap's
+`on` may name any host with a result, or any nightly tier. `collect`
+is the command that uses `COLLECT_HOSTS`. Why `run` and `render` accept
+any host is in
 [rind-bench-and-verify](../rind-bench-and-verify/SKILL.md). A published
 set does not call `render`. rind-results `cargo xtask report --dir`
 writes `RESULTS.md` into the output directory and leaves the rind
@@ -24,6 +27,10 @@ checkout's `BENCHMARKS.md` alone.
 cargo xtask report --dir results/<host>/<upstream-sha>
 cargo xtask verify --dir results/<host>/<upstream-sha>
 ```
+
+`<host>` is the CPU slug, or another filesystem-safe id. One published
+tree is
+`results/intel-core-ultra-9-275hx/d6ca9a756d3d1e71489e61e44c04f33c3c893589/`.
 
 Commit that directory to
 [rind-results](https://github.com/steelhead99x/rind-results), not to
@@ -55,8 +62,8 @@ comparable set for that host, add a pointer in the old notes naming
 the new path. Do not rewrite the old numbers in place.
 
 `render()` in `admin/bench-report` returns Markdown and SVGs and does
-not write them. A historical side sheet pointed `HOSTS`, `REPORT`, and
-`REPORT_DIR` at the side hosts and a directory outside the rind
+not write them. A historical side sheet selected its own hosts and
+pointed `REPORT` and `REPORT_DIR` at a directory outside the rind
 checkout, with `tiers=None` and `gaps=None`. `load_verified()` still
 reads the checkout's `benchmarks/verified.toml`. With `tiers=None` the
 CPU-tier section would say there are no nightly results, so that sheet

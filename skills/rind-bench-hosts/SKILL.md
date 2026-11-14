@@ -1,9 +1,9 @@
 ---
 name: rind-bench-hosts
-description: Use when measuring rind on a host outside admin/bench-report's six, after rind-bench-measure, including a shared machine, a Mac, or an Android phone.
+description: Use when measuring rind on any machine, after rind-bench-measure, including a CPU-slug host id, a shared machine, a Mac, or an Android phone.
 ---
 
-# Measuring rind on your own hosts
+# Measuring rind on a machine
 
 A published set follows
 [rind-bench-pin](../rind-bench-pin/SKILL.md),
@@ -14,8 +14,17 @@ rind-results `cargo xtask bench`. The notes below are what
 `admin/bench-report run` does when that command calls it, and what the
 host note should add.
 
-`collect` accepts only the six names in `HOSTS`. Upstream's sheet for
-those six is
+`run` measures the machine it is on. Anyone can run it. Omit `--host`
+and the recorded name is a slug of the CPU model, such as
+`intel-core-ultra-9-275hx`. `--host` may set another filesystem-safe
+name. `summary`, `render`, and `benchmarks/gaps.toml` accept every
+host that has a `<host>.json` result.
+
+`collect` reaches only the machines in `COLLECT_HOSTS`. A name that is
+not on that list fails with `unknown collect host`. Measure a machine
+with `run`, or with rind-results `cargo xtask bench`.
+
+The report inside a rind checkout is
 [rind-bench-and-verify](../rind-bench-and-verify/SKILL.md). A side tree
 does not rewrite rind's `BENCHMARKS.md`. Where that JSON goes is
 [rind-bench-results](../rind-bench-results/SKILL.md).
@@ -33,13 +42,19 @@ invocation is:
 
 ```shell
 nix develop --command python3 admin/bench-report run \
-  --host <name> --commit <full-sha> --jobs <n> \
-  --target-dir <work>/target --out <work>/<name>.json
+  --commit <full-sha> --jobs <n> \
+  --target-dir <work>/target --out <work>/<host>.json
 ```
 
-`<name>` is recorded. It is not looked up in `HOSTS`. The report uses 3
-jobs on its shared 15 GB host and 4 to 16 on the others. Cap jobs to what
-this machine can compile without swapping.
+`<host>` is a slug of the CPU model unless `--host <host>` sets another
+filesystem-safe name. The name is recorded. On `admin/bench-report` at
+`1fca3086`, `--host` is optional. A checkout older than that commit
+still requires it. rind-results `cargo xtask bench` passes the flag.
+`summary` and `render --from` read the file because it is named
+`<host>.json`.
+`COLLECT_HOSTS` stores a `jobs` cap for each machine it reaches. On a
+machine measured with `run`, cap `--jobs` to what it can compile
+without swapping.
 
 `run` builds `rind-bench` with `--features __bench_openssl` and times
 `OPERATIONS` from the measured commit with `CRITERION_ARGS`. The count
@@ -116,8 +131,8 @@ exceeds `0.25 * cpus()`. On Linux the sample is the next 5 seconds of
 `len(os.sched_getaffinity(0))`. On macOS `busy_cpus()` is the 1-minute
 load average, so N in the message is that average, and a run started
 immediately can fail on an idle Mac. `run` stores a non-zero exit as
-`build_cost.status` `failed` and keeps the speed numbers. The published
-`nixos` row is this failure. Its stored reason still says
+`build_cost.status` `failed` and keeps the speed numbers. One published
+host row is this failure. Its stored reason still says
 `load average ...`. The script at the cited commit prints
 `N of M CPUs busy`.
 
@@ -198,7 +213,7 @@ sentinels. One historical capture linked vendored static OpenSSL.
 
 `load.noisy` is set when other CPUs during the run, after subtracting the
 benchmark process, exceed `busy_limit()`. `summary` prints `(noisy)`.
-`measured()` adds `, noisy`. The published `nixos` row is that mark.
+`measured()` adds `, noisy`. One published host row carries that mark.
 
 Say in the host note when the machine was shared, including when `noisy`
 is false and the pre-check counts were high. A small gap on a noisy host
@@ -209,14 +224,14 @@ is not a finding. The nightly `bench` workflow is the clean comparison.
 `rind_rows()` in `rind-bench/benches/criterion/mod.rs` adds `rind-dit-held`
 only for Apple `aarch64` with DIT detected, holding `rind::cpu::Dit::hold()`
 across the timed loop. `VARIANTS` keeps that column out of the
-fastest-library and gap calculations. The published `kixtop` note
-attributes short-input gaps to per-call DIT. Read the DIT-held column
-before calling a short-input gap a regression.
+fastest-library and gap calculations. On Apple silicon, short-input
+gaps can come from per-call DIT. Read the DIT-held column before
+calling a short-input gap a regression.
 
 ## ML-DSA
 
 Published `BENCHMARKS.md` marks ML-DSA-65 keygen, sign, and verify not
-timed on every `HOSTS` entry. `OPERATIONS` includes those three, and `run`
+timed on every host. `OPERATIONS` includes those three, and `run`
 times them. `mldsa44` and `mldsa87` are outside `OPERATIONS`. Compare the
 three rows with another run that timed them.
 

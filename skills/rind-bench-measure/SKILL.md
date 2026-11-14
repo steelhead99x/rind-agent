@@ -1,6 +1,6 @@
 ---
 name: rind-bench-measure
-description: Use when running a published rind benchmark set on a host, an Android device, or a board.
+description: Use when running a published rind benchmark set on any machine, an Android device, or a board.
 ---
 
 # Running a published set
@@ -20,6 +20,7 @@ not a command (disk, OpenSSL headers, DIT, ML-DSA) stay in
 ## The comparable set
 
 ```shell
+cargo xtask bench --rind /path/to/rind --commit <pin> --runs 3
 cargo xtask bench --board <id> --rind /path/to/rind --commit <pin> --runs 3
 cargo xtask report --dir <dir>
 cargo xtask verify --dir <dir>
@@ -27,14 +28,27 @@ cargo xtask verify --dir <dir>
 
 `<pin>` is the full upstream SHA from rind-bench-pin. `--commit`
 defaults to that pin and stays the upstream SHA when `--rind` is a
-fork of it. `--runs` defaults to 3. `<dir>` defaults to
+fork of it. `--runs` defaults to 3. Omit `--board` and `<id>` is a
+slug of this machine's CPU, for example `intel-core-ultra-9-275hx`
+from `Intel(R) Core(TM) Ultra 9 275HX`. `<dir>` defaults to
 `results/<id>/<pin>/`. Add `--label <label>` for an A/B or a
 diagnostic (`results/<id>/<pin>-<label>/`).
 
-`<id>` is one of `xeon-vm`, `m1pro`, `pi5`, `msi-001`,
-`jetson-orin-nano`, `pixel9pro`, `esp32s3`, `nrf52840`, `efr32mg24`,
-`rp2040`. There is no Pi 3 id. `pi-run` measures `pi5` only. Do not
-point a Pi 3 at it.
+Anyone can measure the machine they have. `<id>` is any
+filesystem-safe host name: lowercase letters, digits, `.`, `_`, and
+`-`, at most 81 characters, starting with a letter or digit. Upper
+case is refused. `pixel9pro` is Android. `esp32s3`, `nrf52840`,
+`efr32mg24`, and `rp2040` are bare metal. Passing one of those names
+selects that runner. Older ids such as `pi5` and `jetson-orin-nano`
+remain valid host ids. There is no Pi 3 id. `pi-run` measures `pi5`
+only. Do not point a Pi 3 at it.
+
+`cargo xtask bench` measures this machine. It calls
+`admin/bench-report run` with `--host` set to `<id>`. It does not call
+`collect`. `collect` reaches only `COLLECT_HOSTS`, as
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md) describes. This host
+gate was checked against rind-results `2a9ce803` (#29) and
+`admin/bench-report` at `1fca3086` (steelhead99x/rind #83).
 
 `git status --porcelain` on the rind checkout is empty before this
 runs. `bench` refuses a dirty tree and refuses the previous pin's
@@ -57,7 +71,9 @@ and skips build-cost.
 
 ## Jetson Orin Nano
 
-Comparable set:
+Omit `--board` and the id is the CPU slug, under the ordinary host
+rules. The id `jetson-orin-nano` keeps its own defaults. Comparable set
+for that id:
 
 ```shell
 cargo xtask bench --board jetson-orin-nano --rind /path/to/rind --commit <pin> --runs 3 --strict
@@ -68,25 +84,29 @@ collectors. `orin-runs` is three runs of `admin/bench-report` and
 always accepts the local toolchain, records a busy host, and skips
 build-cost. A tree from `orin-runs` is not the comparable set.
 
-## Mac, the M1 Pro
+## Mac
 
 `mac-run` defaults `--commit` to the pin. It accepts the host rustc
 and records a busy host, and it stops when free space is under 5 GiB.
-The comparable set is `bench --board m1pro` with neither
-`--accept-toolchain` nor `--record-busy`.
+The comparable set is `cargo xtask bench` with neither
+`--accept-toolchain` nor `--record-busy`. Omit `--board` and the id is
+the CPU slug (`Apple M3 Max` becomes `apple-m3-max`). `m1pro` remains
+a filesystem-safe id for a tree already published under that name.
 
 ## Pi 5
 
 `pi-run` defaults `--commit` to the pin and records host id `pi5`.
 When pkg-config cannot see OpenSSL it unpacks `libssl-dev` into the
 work directory and does not install it. It accepts the host rustc and
-records a busy host. The comparable set is `bench --board pi5` without
-those flags. A Pi 3 has no runner here.
+records a busy host. The comparable set is `cargo xtask bench` without
+those flags. Omit `--board` to use the CPU slug. `pi5` remains a valid
+id for a tree that already uses it. A Pi 3 has no runner here.
 
-## MSI
+## A desktop or laptop
 
-`bench --board msi-001`. There is no separate MSI command. The older
-`results/msi-001/` tree with no upstream SHA in the path is history.
+`cargo xtask bench` with `--board` omitted publishes the CPU slug.
+An older id such as `msi-001` is history: `results/msi-001/` with no
+upstream SHA in the path stays where it was published.
 
 ## Pixel 9 Pro
 

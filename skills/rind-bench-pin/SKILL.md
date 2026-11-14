@@ -20,6 +20,10 @@ SHA. It is never a fork SHA.
 set. Directories named with that SHA stay as history. Do not overwrite
 them, delete them, or mix their numbers into `d6ca9a75` tables.
 
+Any machine can measure this commit. Publish it under a CPU slug.
+Who `collect` can reach is `COLLECT_HOSTS`, and that list is separate
+from this pin.
+
 How to run that commit is
 [rind-bench-measure](../rind-bench-measure/SKILL.md). The JSON shape
 and directory are

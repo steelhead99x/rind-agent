@@ -20,10 +20,12 @@ directory:
 cargo xtask verify --dir <out>
 ```
 
-`<out>` is any directory. The command must succeed on a tree that is
-not already under `results/`. A non-zero exit, or help text with no
-`--dir`, means the set is not published. Do not commit it while verify
-is red.
+`<out>` is any directory. The host id in that path is the CPU slug,
+or another filesystem-safe id from `--board`. Verify accepts that id
+whether or not `collect` can reach it. The command must succeed on a
+tree that is not already under `results/`. A non-zero exit, or help
+text with no `--dir`, means the set is not published. Do not commit it
+while verify is red.
 
 `cargo verify` with no `--dir` only checks boards already stored in
 that repository (`esp32s3`, `nrf52840`, `msi-001`, and a host that
@@ -53,11 +55,14 @@ artifact the results tree already tracks. Do not put a token in a
 remote URL.
 
 Search the tree you are about to commit for a home-directory path, a
-`~/` path, a private IPv4 address, a token, a MAC address (six hex
+`~/` path, a private IPv4 address, a token, a username, a hostname,
+a MAC address (six hex
 bytes separated by `:` or `-`), and a `by-id` serial
 (`/dev/serial/by-id/` or a `usb-` product string with a serial or MAC
 suffix). Keep a stable board label, and replace the serial or MAC
-suffix with `<usb-serial>` before commit. Rustc backtraces and cargo
+suffix with `<usb-serial>` before commit. Prefer a CPU slug for the
+host id. Another filesystem-safe id is allowed when it does not name a
+person or a machine's hostname. Rustc backtraces and cargo
 compile lines are not board identifiers.
 
 `NOTES.md` names the upstream SHA, the fork SHA and patch hashes when
