@@ -75,26 +75,31 @@ one.
 
 ## Remotes and identity
 
-Resolve remotes at run time, not from a remembered owner or path:
+Resolve remotes at run time, not from a remembered owner or path.
+`origin` is the user's fork. The upstream remote is usually `up`
+(sometimes `upstream`). List names with `git -C <repo> remote`.
+When a remote URL needs checking, strip userinfo before it is shown:
 
 ```shell
-git -C <repo> remote -v
-git -C <repo> remote get-url origin
+git -C <repo> remote get-url origin | sed -E 's#://[^@]*@#://#'
 ```
 
-`origin` is the user's fork. The upstream remote is usually `up`
-(sometimes `upstream`). Read owner and repo names from those URLs.
+Use that same command for each remote name. Read owner and repo names
+from the stripped URL only. If that line still contains userinfo, do
+not repeat it; stop and ask the user. Otherwise run
+`gh auth setup-git` first so pushes still authenticate, then set a
+clean `https://host/owner/repo.git` form with
+`git -C <repo> remote set-url <name> <url>` using only that stripped
+URL, and confirm with `git -C <repo> ls-remote`.
 
-Strip tokens out of remote URLs. After taking the URL from
-`git -C <repo> remote get-url`, set a clean `https://host/owner/repo.git`
-form with `git -C <repo> remote set-url <name> <url>`. Run
-`gh auth setup-git` first so pushes still authenticate, then confirm
-with `git -C <repo> ls-remote`.
-
-Scan configs, logs, shell history, `.env` files, and uncommitted files
-for tokens and keys, and redact them. Report committed secrets only;
-never rewrite pushed history to hide them. Tell the user to revoke any
-token that was exposed.
+Scan only the repo tree and git objects for tokens and keys, for
+example with `git -C <repo> grep -l` on a token or key pattern, or
+`gitleaks --redact` on the repo. Report only the path and the type of
+secret, never the value.
+Never open shell history, `.env`, home-directory configs, or
+credential files. Report committed secrets only; never rewrite pushed
+history to hide them. Tell the user to revoke any token that was
+exposed.
 
 Derive the publishing identity from the logged-in GitHub CLI account:
 
@@ -356,9 +361,11 @@ Delete a local branch only after
 `git -C <repo> branch -r --contains <tip>` shows the tip is on a
 remote. Never delete a remote branch.
 
-Scan logs and build caches for tokens before deleting them. After
-that scan, build caches in superseded worktrees may be deleted.
-Then run `git -C <repo> gc --prune=now`.
+Before deleting build caches in superseded worktrees, scan those logs
+and caches with the repo-tree secret scan in
+[Remotes and identity](#remotes-and-identity). Report only the path
+and the type of secret, never the value. Then run
+`git -C <repo> gc --prune=now`.
 
 ## Publishing skill updates
 

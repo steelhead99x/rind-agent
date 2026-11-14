@@ -53,9 +53,12 @@ artifact the results tree already tracks. Do not put a token in a
 remote URL.
 
 Search the tree you are about to commit for a home-directory path, a
-`~/` path, a private IPv4 address, and a token. A `by-id` path built
-from the firmware's own USB product string is a firmware identifier.
-Rustc backtraces and cargo compile lines are not.
+`~/` path, a private IPv4 address, a token, a MAC address (six hex
+bytes separated by `:` or `-`), and a `by-id` serial
+(`/dev/serial/by-id/` or a `usb-` product string with a serial or MAC
+suffix). Keep a stable board label, and replace the serial or MAC
+suffix with `<usb-serial>` before commit. Rustc backtraces and cargo
+compile lines are not board identifiers.
 
 `NOTES.md` names the upstream SHA, the fork SHA and patch hashes when
 there is a fork, the hardware SHA, the host or board, the clock, and

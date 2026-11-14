@@ -195,8 +195,12 @@ Carrying commits out of a closed pull request is in
 
 ## Squash-merge
 
+Only the fork owner merges, and only a pull request on the fork. An
+agent runs this command only after the user names that pull request
+in chat. Nothing is ever merged into upstream.
+
 ```shell
-gh pr merge --squash --author-email <github-noreply> \
+gh pr merge <N> --squash --author-email <github-noreply> \
   --subject '<title> (#N)' \
   --body 'Co-Authored-By: Cursor Agent <cursoragent@cursor.com>'
 ```
