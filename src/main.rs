@@ -1,8 +1,9 @@
 //! The repository's checker. `cargo run` checks the tree; `cargo run -- pr`
 //! checks a pull request's title and body, read from `PR_TITLE` and
-//! `PR_BODY`, and skips the body when `PR_AUTHOR` is Dependabot. Either
-//! exits non-zero on any error.
+//! `PR_BODY`, and skips the body when `PR_AUTHOR` is Dependabot.
+//! `cargo xtask ci` runs the local gate. Each exits non-zero on any error.
 
+mod ci;
 mod pins;
 mod pr;
 mod privacy;
@@ -13,13 +14,14 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-const USAGE: &str = "usage: check [pr]";
+const USAGE: &str = "usage: check [ci|pr]";
 
 fn main() -> ExitCode {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let args: Vec<String> = env::args().skip(1).collect();
     let errors = match args.as_slice() {
         [] => check_tree(&root),
+        [cmd] if cmd == "ci" => return ci::run(&root),
         [cmd] if cmd == "pr" => check_pr(),
         _ => {
             eprintln!("{USAGE}");
@@ -37,7 +39,7 @@ fn main() -> ExitCode {
     }
 }
 
-fn check_tree(root: &Path) -> Vec<String> {
+pub(crate) fn check_tree(root: &Path) -> Vec<String> {
     let mut errors = Vec::new();
     skills::check(root, &mut errors);
     skills::check_links(root, &mut errors);

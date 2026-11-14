@@ -34,19 +34,23 @@ first so the scope is agreed before the work.
 
 ## Local gate
 
-Run the same checks CI runs before every push:
+Run this before every push. It is the source of truth for the checks, and
+the `Check` workflow runs the same command:
 
 ```shell
-cargo fmt --all --check
-cargo clippy --all-targets --locked -- --deny warnings
-cargo test --locked
-cargo run --locked --quiet    # skills, links, privacy, action pins
+cargo xtask ci
 ```
 
-`cargo run -- pr` checks a PR's title and body from the `PR_TITLE` and
-`PR_BODY` environment variables, as the `PR format` job does. The checker
-must build with the `rust-version` in `Cargo.toml` (the `MSRV` job) and has
-no dependencies; adding one needs a reason in the PR.
+That runs, in order: `cargo fmt --all --check`, `cargo clippy --all-targets
+--locked -- --deny warnings`, `cargo test --locked`, an MSRV `cargo check
+--all-targets --locked` at the `rust-version` in `Cargo.toml` when `rustup`
+can install that toolchain, and the checker (skills, links, privacy, and
+action pins).
+
+The checker has no dependencies; adding one needs a reason in the PR.
+`cargo run -- pr` still checks a title and body from the `PR_TITLE` and
+`PR_BODY` environment variables, and skips the body when `PR_AUTHOR` is
+Dependabot. Pullfrog reviews those rules on the pull request.
 
 ## Commits
 
@@ -80,7 +84,7 @@ Every change lands through a pull request; nobody pushes to `main`. Keep
 each PR to one change: one skill rule, one checker feature, one CI change.
 
 The body is short and structured, not narrated, with these sections, which
-the `PR format` job requires (write "None." where one doesn't apply):
+Pullfrog checks (write "None." where one doesn't apply):
 
 - **Problem**: what is wrong or missing, and why this PR is needed.
 - **Approach**: how the PR solves it.
@@ -100,15 +104,24 @@ sections and a checklist.
 - Before pushing to a pull request another agent or person may also be
   working on, claim it as
   [rind-git](skills/rind-git/SKILL.md#claim-before-you-write) describes.
-- Resolve every review conversation before merging.
-- Fix merge conflicts and failing checks; `Check`, `MSRV`, and `PR format`
-  are required. Merges are squash only. If the account that opened the
+- Resolve every Pullfrog review conversation before merging.
+- Fix merge conflicts and a failing `Check` job. That job runs
+  `cargo xtask ci` and is the Actions backstop; Pullfrog reviews the
+  pull request. Merges are squash only. If the account that opened the
   pull request cannot squash-merge (a 403 on push or merge), use the
   fork owner's `gh` instead. Hosted cloud-agent authors are corrected
   at squash-merge, as [rind-git](skills/rind-git/SKILL.md#squash-merge)
   describes.
 
-## CI
+## CI and review
+
+Pullfrog reviews pull requests. The agent reads
+[`AGENTS.md`](AGENTS.md), which points here. Those instructions override
+Pullfrog's built-in review checklist only when they are also the Review
+PRs custom instructions (`prompts.review`). GitHub Actions is a thin
+backstop: `Check` runs `cargo xtask ci` on push and on a pull request,
+and does not split that gate into more jobs. `pullfrog.yml` only starts
+the Pullfrog action.
 
 Workflows pin every third-party action to a full commit SHA with its
 version in a trailing comment, and the checker fails on one that isn't.
