@@ -1,8 +1,8 @@
 <!--
 Title: `type(scope): subject`, at most 72 characters, no trailing period.
 It becomes the squash commit's subject. See CONTRIBUTING.md.
-Write "None." in a section that doesn't apply. Pullfrog checks every
-section, as CONTRIBUTING.md describes.
+Write "None." in a section that doesn't apply. GPT review or PrairieDog
+checks every section, as CONTRIBUTING.md describes.
 -->
 
 ## Problem

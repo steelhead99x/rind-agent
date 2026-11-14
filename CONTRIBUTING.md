@@ -50,7 +50,8 @@ action pins).
 The checker has no dependencies; adding one needs a reason in the PR.
 `cargo run -- pr` still checks a title and body from the `PR_TITLE` and
 `PR_BODY` environment variables, and skips the body when `PR_AUTHOR` is
-Dependabot. Pullfrog reviews those rules on the pull request.
+Dependabot. GPT review or PrairieDog reviews those rules on the pull
+request.
 
 ## Commits
 
@@ -84,7 +85,7 @@ Every change lands through a pull request; nobody pushes to `main`. Keep
 each PR to one change: one skill rule, one checker feature, one CI change.
 
 The body is short and structured, not narrated, with these sections, which
-Pullfrog checks (write "None." where one doesn't apply):
+GPT review or PrairieDog checks (write "None." where one doesn't apply):
 
 - **Problem**: what is wrong or missing, and why this PR is needed.
 - **Approach**: how the PR solves it.
@@ -104,30 +105,21 @@ sections and a checklist.
 - Before pushing to a pull request another agent or person may also be
   working on, claim it as
   [rind-git](skills/rind-git/SKILL.md#claim-before-you-write) describes.
-- Resolve every Pullfrog review conversation before merging.
+- Resolve every GPT review or PrairieDog conversation before merging.
 - Fix merge conflicts and a failing `Check` job. That job runs
-  `cargo xtask ci` and is the Actions backstop; Pullfrog reviews the
-  pull request. Merges are squash only. If the account that opened the
-  pull request cannot squash-merge (a 403 on push or merge), use the
-  fork owner's `gh` instead. Hosted cloud-agent authors are corrected
-  at squash-merge, as [rind-git](skills/rind-git/SKILL.md#squash-merge)
-  describes.
+  `cargo xtask ci` and is the Actions backstop; GPT review or PrairieDog
+  reviews the pull request. Merges are squash only. If the account that
+  opened the pull request cannot squash-merge (a 403 on push or merge),
+  use the fork owner's `gh` instead. Hosted cloud-agent authors are
+  corrected at squash-merge, as
+  [rind-git](skills/rind-git/SKILL.md#squash-merge) describes.
 
 ## CI and review
 
-Pullfrog reviews pull requests on Codex. The primary credential is a
-ChatGPT Codex subscription, linked with
-`npx pullfrog auth codex --repo steelhead99x/rind-agent` and kept in
-Pullfrog's encrypted store.
-[`.github/workflows/pullfrog.yml`](.github/workflows/pullfrog.yml) maps
-`OPENAI_API_KEY` from a repository Actions secret only as a fallback.
-This repository does not create that secret, and the workflow does not
-pin a model. The agent reads [`AGENTS.md`](AGENTS.md), which points
-here. Those instructions override Pullfrog's built-in review
-checklist only when they are also the Review PRs custom instructions
-(`prompts.review`). GitHub Actions is a thin backstop: `Check` runs
-`cargo xtask ci` on push and on a pull request, and does not split that
-gate into more jobs. `pullfrog.yml` only starts the Pullfrog action.
+GPT review or PrairieDog reviews pull requests. The review instructions
+are in [`AGENTS.md`](AGENTS.md), which points here. GitHub Actions is a
+thin backstop: `Check` runs `cargo xtask ci` on push and on a pull
+request, and does not split that gate into more jobs.
 
 Workflows pin every third-party action to a full commit SHA with its
 version in a trailing comment, and the checker fails on one that isn't.

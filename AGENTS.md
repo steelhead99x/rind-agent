@@ -7,7 +7,7 @@ file and `CONTRIBUTING.md` disagree, `CONTRIBUTING.md` wins.
 Before pushing, run `cargo xtask ci`. That command is the gate: format,
 clippy with warnings denied, tests, an MSRV build at the `rust-version`
 in `Cargo.toml`, and the checker. GitHub Actions runs the same command
-as a thin backstop. Pullfrog reviews the pull request.
+as a thin backstop. GPT review or PrairieDog reviews the pull request.
 
 ## Reviews
 
@@ -59,6 +59,6 @@ secrets.
 ### `.github/`
 
 `Check` runs `cargo xtask ci` and nothing else. Flag a workflow that
-re-implements that gate, skips it, or leaks a secret. `pullfrog.yml`
-only starts Pullfrog. Third-party actions stay pinned to a full commit
-SHA with a trailing version comment.
+re-implements that gate, skips it, or leaks a secret. Third-party
+actions stay pinned to a full commit SHA with a trailing version
+comment.

@@ -87,8 +87,9 @@ agents that read that directory. The names don't collide with rind's own
 Changes land through pull requests only, one change per PR, with a
 conventional-commit title and every rule traced to rind. `cargo xtask ci`
 is the local gate (format, clippy, tests, an MSRV build, and the checker).
-Pullfrog reviews the pull request. GitHub Actions runs the same command
-as a thin backstop. The full process is in [`CONTRIBUTING.md`](CONTRIBUTING.md),
+GPT review or PrairieDog reviews the pull request. GitHub Actions runs
+the same command as a thin backstop. The full process is in
+[`CONTRIBUTING.md`](CONTRIBUTING.md),
 and security reports go through [`SECURITY.md`](SECURITY.md).
 
 ## License
