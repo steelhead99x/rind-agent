@@ -334,6 +334,38 @@ If a pull request is replaced, repoint that check at the new one. If
 anything fails or falls short, report it and leave the pull request
 as a draft.
 
+## Monitor CI and land fork pull requests
+
+Watch the CI queue as part of the scheduled check. When a pull
+request's run sits queued far longer than the repo's usual run time,
+check the account's queued and running counts across all its repos
+(`gh run list --status queued`). Free runners are shared per account,
+so other writers' forks can starve the queue.
+
+With the user's approval, cancel only superseded queued runs: a
+queued (not in-progress) run whose commit is no longer the head of
+its pull request or branch, or a queued duplicate of a newer run for
+the same workflow and commit. Never cancel in-progress runs or the
+only run for a current head.
+
+Land approved fork pull requests from a scheduled check, about every
+half hour and offset from the others, instead of waiting in-session.
+It goes in dependency order and lands at most a couple per run. For
+each pull request it merges the default branch into a stale head
+(exact identity, fast-forward push), waits for green CI on that head,
+posts a claim, lands the change, and posts a Done comment. It stays
+silent while CI is only queued, and that check is removed once the
+list is done.
+
+If the host's squash-merge cannot record the required author identity
+(for example it refuses the bare noreply address), fast-forward the
+default branch to a single-commit pull request, or build the squash
+locally with the exact identity. Verify its tree equals the pull
+request head merged with the default branch and that it has exactly
+one co-author trailer, then push it to the default branch as a
+normal fast-forward and close the pull request with a note linking
+the commit.
+
 ## Local cleanup
 
 Do this while waiting on reviews or other-OS gates, and only in the
