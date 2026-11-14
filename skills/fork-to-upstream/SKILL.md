@@ -39,6 +39,15 @@ one.
   take the fix. If another writer has made a commit or a reply on
   the pull request in the last half hour, wait until that work is
   quiet or they hand off before you push.
+- Claim before you write. Before pushing to any fork pull request or
+  fork branch, follow
+  [Claim before you write](../rind-git/SKILL.md#claim-before-you-write):
+  post a short claim comment on that pull request, wait out anyone
+  else's unexpired claim, and post a done comment with the new head
+  when you finish.
+- Never push to a branch that backs a pull request a maintainer has
+  taken over, even under the user's own account, unless the user asks
+  for that exact change. See [Maintainer takeover](#maintainer-takeover).
 - Never print tokens or credentialed remote URLs. Refer to remotes by
   name only.
 - Follow [rind-git](../rind-git/SKILL.md) for history that is already
@@ -54,7 +63,8 @@ one.
 - Don't open, close, comment on, or mark ready any pull request,
   upstream or on the fork, until the user has approved the list of
   changes and the text of any comment. After that, do only what they
-  approved.
+  approved. Approval to work on a fork pull request covers its claim
+  and done comments.
 - A known correctness or security bug in a change must be fixed in the
   pull request before it is marked ready. Don't defer that kind of fix
   to a follow-up. Refactors and extra tests may go in a follow-up after
@@ -65,26 +75,31 @@ one.
 
 ## Remotes and identity
 
-Resolve remotes at run time, not from a remembered owner or path:
+Resolve remotes at run time, not from a remembered owner or path.
+`origin` is the user's fork. The upstream remote is usually `up`
+(sometimes `upstream`). List names with `git -C <repo> remote`.
+When a remote URL needs checking, strip userinfo before it is shown:
 
 ```shell
-git -C <repo> remote -v
-git -C <repo> remote get-url origin
+git -C <repo> remote get-url origin | sed -E 's#://[^@]*@#://#'
 ```
 
-`origin` is the user's fork. The upstream remote is usually `up`
-(sometimes `upstream`). Read owner and repo names from those URLs.
+Use that same command for each remote name. Read owner and repo names
+from the stripped URL only. If that line still contains userinfo, do
+not repeat it; stop and ask the user. Otherwise run
+`gh auth setup-git` first so pushes still authenticate, then set a
+clean `https://host/owner/repo.git` form with
+`git -C <repo> remote set-url <name> <url>` using only that stripped
+URL, and confirm with `git -C <repo> ls-remote`.
 
-Strip tokens out of remote URLs. After taking the URL from
-`git -C <repo> remote get-url`, set a clean `https://host/owner/repo.git`
-form with `git -C <repo> remote set-url <name> <url>`. Run
-`gh auth setup-git` first so pushes still authenticate, then confirm
-with `git -C <repo> ls-remote`.
-
-Scan configs, logs, shell history, `.env` files, and uncommitted files
-for tokens and keys, and redact them. Report committed secrets only;
-never rewrite pushed history to hide them. Tell the user to revoke any
-token that was exposed.
+Scan only the repo tree and git objects for tokens and keys, for
+example with `git -C <repo> grep -l` on a token or key pattern, or
+`gitleaks --redact` on the repo. Report only the path and the type of
+secret, never the value.
+Never open shell history, `.env`, home-directory configs, or
+credential files. Report committed secrets only; never rewrite pushed
+history to hide them. Tell the user to revoke any token that was
+exposed.
 
 Derive the publishing identity from the logged-in GitHub CLI account:
 
@@ -187,18 +202,36 @@ correctness or security bug, don't amend or force-push the reviewed
 branch. Rebuild the change as one commit on a fresh branch from
 current upstream `main`, include the fix and a regression test, and
 name the new branch by incrementing any `-rN` suffix to `-rN+1`. Push
-it normally, open a new draft that replaces the old pull request, and
-close the old upstream pull request and its fork review pull request
-with a one-line pointer to the new one. Re-run every gate, including
+it normally, open a replacement fork review pull request, and close
+the old fork review pull request with a one-line pointer to the new
+one. Open the replacement upstream pull request only when it is done,
+as [Keep upstream clean](#keep-upstream-clean-open-only-when-done)
+describes, then close the old upstream pull request with a one-line
+pointer. Re-run every gate, including
 other-OS gates, on the new head, and hand the new SHA to whoever runs
 those gates. Repoint any watch routine at the new pull request.
 
-## Open upstream as drafts
+## Keep upstream clean: open only when done
 
-Open each as a draft pull request against upstream `main` with a clean
-title and body: no identifying info, no out-of-date claims, and a link
-to the pull request it supersedes. Close the superseded upstream pull
-request with a one-line pointer.
+Finish everything on the fork first. Open the upstream pull request
+only once the fork review of the exact commit going up has passed with
+nothing open, every local and other-OS gate passes on that commit, fork
+CI is green, and it merges cleanly with current upstream `main`. Don't
+open upstream drafts early to get CI running or to signal work in
+progress; the maintainers should only see finished work.
+
+When it is done, open it against upstream `main` with a clean title and
+body: no identifying info, no out-of-date claims, the recorded review,
+the gate results for that SHA, and a link to the pull request it
+supersedes. Opening as a draft and marking it ready as soon as upstream
+CI goes green is fine. Close the superseded upstream pull request, and
+its fork review pull request, with a one-line pointer.
+
+If an upstream pull request is already open but the change isn't done
+(new findings, a rebuild, gates pending), the user may prefer to close
+it until it is finished. A closed pull request can be reopened later
+from the same branch as long as that branch was never force-updated, so
+close it with a short neutral note rather than replacing it.
 
 ## Maintainer takeover
 
@@ -207,6 +240,13 @@ the description, pushes commits, or takes it out of draft), do not
 close or replace that pull request and do not overwrite their branch.
 Leave any local rebuild unused. Don't comment unless the user
 approves the text.
+
+Don't push to that pull request's branch, even under the user's own
+account, unless the user asks for that exact change. Claim comments
+don't go on upstream or maintainer-owned pull requests. If unrelated
+commits land on the branch, revert them with new commits (never a
+force-push), leave one short neutral note, and tell every agent that
+works on the repo to stop pushing to it.
 
 A watch routine should notify the user when a maintainer comments,
 reviews, or pushes, and must not mark the pull request ready while a
@@ -237,8 +277,10 @@ the newest review, and does it cover the current head? Skip pull
 requests another writer owns, ones that already have a fix in
 progress, and ones a maintainer has taken over.
 
-Correctness issues, medium-or-higher findings, and small clear lows
-get fixed in new commits, each on a fresh worktree. Fetch right
+Fix every finding yourself (correctness, high, medium, low, and
+nits) rather than only reporting it, and reason through each fix
+carefully. Put the fixes in new commits, each on a fresh worktree, and
+claim the pull request first. Fetch right
 before the commit and again before the push, run the full local
 gates, and push a fast-forward only. Do not force-push. With the
 user's approval of the text, post one short reply on the fork pull
@@ -255,13 +297,20 @@ maintainer's request, go to the user with a recommendation, not into
 a commit. A no-op commit already in reviewed history stays; note that
 it drops out when the work is squashed for upstream.
 
+When the newest review covers an older head, re-check each finding
+against the current head and fix the ones that still apply. Also fix
+failures that other-OS gate results report in pull request comments.
+
 When a fix lands on a fork pull request that backs an upstream pull
 request, the upstream head branch needs the same change, and other-OS
 gates must run again on the new head.
 
 ## Mark ready
 
-Mark a pull request ready only when all of these hold: no known
+Because upstream pull requests open only when the work is done
+([Keep upstream clean](#keep-upstream-clean-open-only-when-done)),
+this is normally a quick check right after opening. Mark a pull
+request ready only when all of these hold: no known
 unfixed correctness or security bug remains, upstream CI is green
 (fork pull requests usually sit at `action_required` until a
 maintainer approves the runs), every local gate and any other-OS
@@ -312,9 +361,11 @@ Delete a local branch only after
 `git -C <repo> branch -r --contains <tip>` shows the tip is on a
 remote. Never delete a remote branch.
 
-Scan logs and build caches for tokens before deleting them. After
-that scan, build caches in superseded worktrees may be deleted.
-Then run `git -C <repo> gc --prune=now`.
+Before deleting build caches in superseded worktrees, scan those logs
+and caches with the repo-tree secret scan in
+[Remotes and identity](#remotes-and-identity). Report only the path
+and the type of secret, never the value. Then run
+`git -C <repo> gc --prune=now`.
 
 ## Publishing skill updates
 

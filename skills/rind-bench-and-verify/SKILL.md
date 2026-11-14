@@ -142,8 +142,12 @@ hold a larger one. The 32-bit runner above is qemu-arm user mode inside
 a fresh pid namespace. The aarch64 runner is `qemu-aarch64`.
 
 `qemu-user` provides `qemu-arm` and `qemu-aarch64`. When `apt-get`
-cannot install it, download the `.deb` files with `curl` and extract
-each with `dpkg -x` into one prefix. Put that prefix's `usr/bin` on
+cannot install it, download its `.deb` files from the Ubuntu archive
+suite `resolute` (26.04) and require `sha256sum -c` against that
+suite's published `SHA256SUMS` or the hashes in its `Packages` file.
+If the suite, those hashes, or the check is missing, stop and ask the
+user. Do not pipe the download to a shell. Extract each checked
+`.deb` with `dpkg -x` into one prefix. Put that prefix's `usr/bin` on
 `PATH` and its libraries on `LD_LIBRARY_PATH`.
 
 Check out the vector submodules first. Then run the job's test step:

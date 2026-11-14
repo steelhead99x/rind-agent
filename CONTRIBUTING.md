@@ -97,6 +97,9 @@ sections and a checklist.
 - Open a draft while working; mark it ready when the gate passes.
 - When pushing more commits, update the title and body if the change moved.
 - Never rebase or force-push a pushed branch; merge `main` in instead.
+- Before pushing to a pull request another agent or person may also be
+  working on, claim it as
+  [rind-git](skills/rind-git/SKILL.md#claim-before-you-write) describes.
 - Resolve every review conversation before merging.
 - Fix merge conflicts and failing checks; `Check`, `MSRV`, and `PR format`
   are required. Merges are squash only. If the account that opened the

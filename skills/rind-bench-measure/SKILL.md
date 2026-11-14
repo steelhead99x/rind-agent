@@ -104,10 +104,10 @@ cargo xtask bench --board pixel9pro --rind /path/to/rind --commit <pin> --captur
 ```
 
 `bench` refuses `pixel9pro` when `--capture` is missing. The capture
-holds `getprop.txt`, `stat-before`, `stat-after`, `criterion/`, and
-the battery dumps from
-[rind-bench-hosts](../rind-bench-hosts/SKILL.md). Parsing matches
-`admin/bench-report run`.
+holds `getprop.txt` (only the properties
+[rind-bench-hosts](../rind-bench-hosts/SKILL.md) records, never a full
+`getprop` dump), `stat-before`, `stat-after`, `criterion/`, and the
+battery dumps from that skill. Parsing matches `admin/bench-report run`.
 
 ## ESP32-S3 and nRF52840
 

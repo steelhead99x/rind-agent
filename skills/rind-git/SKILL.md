@@ -97,6 +97,24 @@ Before every push, check that the pull request is still open: a push after
 merge recreates the deleted branch. Run `just ci` before every push, as
 `rind-contribute` says.
 
+## Claim before you write
+
+Before pushing to any fork pull request or fork branch, post a short
+claim comment on that pull request, for example
+`In progress: <what> (claim expires in 60 min)`. When you finish, post
+`Done: <what>. New head: <sha>`, or `Released` if you stop without
+finishing. Before claiming, read the pull request's recent comments:
+if another writer has an unexpired claim, don't push. Wait, or comment
+and hand off. A claim past its expiry with no follow-up may be taken
+over with a note saying so. Claim comments go on fork pull requests
+only, never on upstream or maintainer-owned pull requests.
+
+Never push to a branch that backs a pull request a maintainer has
+taken over, even under the fork owner's account, unless the owner asks
+for that exact change. If unrelated commits land there, revert them
+with new commits (never a force-push), leave one short neutral note,
+and tell every agent that works on the repo to stop pushing to it.
+
 ## Upstream-bound branches
 
 An upstream-bound branch is one squashed commit on a fresh branch from
@@ -177,8 +195,12 @@ Carrying commits out of a closed pull request is in
 
 ## Squash-merge
 
+Only the fork owner merges, and only a pull request on the fork. An
+agent runs this command only after the user names that pull request
+in chat. Nothing is ever merged into upstream.
+
 ```shell
-gh pr merge --squash --author-email <github-noreply> \
+gh pr merge <N> --squash --author-email <github-noreply> \
   --subject '<title> (#N)' \
   --body 'Co-Authored-By: Cursor Agent <cursoragent@cursor.com>'
 ```
