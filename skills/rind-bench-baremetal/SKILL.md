@@ -90,10 +90,13 @@ its own.
 
 ## What compiles
 
-[build-matrix.sh](build-matrix.sh) release-builds each `crates/tv-*`
-member and retries with `getrandom_backend="custom"` when getrandom
-refuses the target. Copy it into a workspace of one `#![no_std]` rlib per
-library. The 2026-11-12 compile-only results are in
+`cargo xtask build-matrix [TARGET] [CRATE]...` in a
+[rind-results](https://github.com/steelhead99x/rind-results) checkout
+release-builds each `crates/tv-*` member of `baremetal/rp2040/builds`
+(or the workspace given with `--dir`) and retries with
+`getrandom_backend="custom"` when getrandom refuses the target. It is
+all Rust and replaces the old `build-matrix.sh`. The 2026-11-12
+compile-only results are in
 [COMPETITOR-BUILDS.md](COMPETITOR-BUILDS.md). Upstream rind, with no
 patches, fails on every target there. RustCrypto and dalek crates pass.
 ring fails in its ARM x25519 assembly, or for lack of a C compiler.
