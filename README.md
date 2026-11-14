@@ -62,6 +62,7 @@ checked against that same pin.
 | [`rind-bench-schema`](skills/rind-bench-schema/SKILL.md) | Schema 1 plus the optional fields, and `results/<host>/<upstream-sha>/`. |
 | [`rind-bench-publish`](skills/rind-bench-publish/SKILL.md) | `cargo xtask verify --dir` before publishing, and fork-only benchmark pull requests. |
 | [`rind-bench-hosts`](skills/rind-bench-hosts/SKILL.md) | Host notes outside `admin/bench-report`'s six. Published sets use `rind-bench-measure`. |
+| [`rind-bench-shared-hardware`](skills/rind-bench-shared-hardware/SKILL.md) | More than one agent building or benchmarking on the same machine or board: lanes, the bench lock, honest rounds, claims. |
 | [`rind-bench-results`](skills/rind-bench-results/SKILL.md) | Where a published JSON tree goes, and which older trees stay as history. |
 | [`rind-bench-baremetal`](skills/rind-bench-baremetal/SKILL.md) | Backup and compile checks. Flashing waits for an explicit yes. |
 | [`rind-quest-run`](skills/rind-quest-run/SKILL.md) | Working rind's `quest/` backlog with `quest skill spawn` or `quest skill run`. |
