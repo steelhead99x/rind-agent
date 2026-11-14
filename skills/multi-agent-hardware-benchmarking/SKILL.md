@@ -1,9 +1,6 @@
 ---
 name: multi-agent-hardware-benchmarking
-description: >-
-  Use when several agents benchmark and optimize code on the same shared
-  physical machines (a laptop, a dev board) so their timed runs don't corrupt
-  each other.
+description: Use when several agents benchmark and optimize code on the same shared physical machines (a laptop, a dev board) so their timed runs don't corrupt each other.
 ---
 
 # Multi-agent benchmarking on shared hardware
