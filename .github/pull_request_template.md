@@ -1,8 +1,8 @@
 <!--
 Title: `type(scope): subject`, at most 72 characters, no trailing period.
 It becomes the squash commit's subject. See CONTRIBUTING.md.
-Write "None." in a section that doesn't apply; the PR format check
-requires every section.
+Write "None." in a section that doesn't apply. GPT review or PrairieDog
+checks every section, as CONTRIBUTING.md describes.
 -->
 
 ## Problem
@@ -19,7 +19,7 @@ requires every section.
 
 ## Testing
 
-<!-- The local gate's result, and the rind file, commit, or PR behind each changed rule. -->
+<!-- The result of `cargo xtask ci`, and the rind file, commit, or PR behind each changed rule. -->
 
 ## Alternatives
 
@@ -32,6 +32,6 @@ requires every section.
 ## Checklist
 
 - [ ] One change; the title is a conventional commit.
-- [ ] `cargo fmt --all --check`, `cargo clippy --all-targets --locked -- --deny warnings`, `cargo test --locked`, and `cargo run --locked --quiet` pass.
+- [ ] `cargo xtask ci` passes.
 - [ ] Every changed rule traces to rind at the commit the README cites, or the README's commit is updated.
 - [ ] No personal or environment details: names, handles, paths, host names, IDs, tokens.

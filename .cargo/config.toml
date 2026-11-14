@@ -1,0 +1,5 @@
+# `cargo xtask ci` is the local gate. Building it into `target/xtask`
+# keeps that cargo lock off `target/`, which the command's own cargo
+# processes use.
+[alias]
+xtask = "run --locked --quiet --target-dir target/xtask --"
