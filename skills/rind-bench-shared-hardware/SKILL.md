@@ -9,8 +9,10 @@ rind's own report refuses a busy host: `admin/bench-report` measures how
 many CPUs other work keeps busy before the build, before the run, and
 during it, and records the host as busy or noisy above `busy_limit()`.
 [rind-bench-hosts](../rind-bench-hosts/SKILL.md) allows one speed run per
-machine and makes other heavy builds wait. When several agents share a
-machine or a board, these rules keep their runs from breaking that.
+machine and makes other heavy builds wait. How to run a timed set is
+[rind-bench-measure](../rind-bench-measure/SKILL.md). Publishing it is
+[rind-bench-publish](../rind-bench-publish/SKILL.md). When several agents
+share a machine or a board, these rules keep their runs from breaking that.
 
 ## Lanes
 
@@ -44,16 +46,17 @@ machine or a board, these rules keep their runs from breaking that.
 - Record the load average, the temperature, the clock, and any throttle
   state before and after each round. A clock cap or thermal throttling
   changes absolute times; name the clock in the published set.
-- Label a round hit by background work, a reboot, or a power loss
-  INVALID, keep it out of every median, rerun it in full, and say so in
-  the set's notes.
+- Label a round hit by background work (an indexer or endpoint
+  security), a reboot, or a power loss INVALID, keep it out of every
+  median, rerun it in full, and say so in the set's notes.
 - Before timing a source change, check with a disassembler that the
-  machine code actually changed.
+  machine code actually changed. When the timing comes from a cycle
+  model, use the model of the real core.
 
 ## Interruptions
 
-- Each agent keeps a progress file and updates it after every step. Read
-  it first when resumed.
+- Each agent keeps `STATUS.md` in its lane checkout and updates it after
+  every step. Read it first when resumed.
 - Start long runs detached on the machine (`nohup setsid ...`) so they
   survive a dropped connection, and write their logs there.
 
@@ -67,5 +70,9 @@ machine or a board, these rules keep their runs from breaking that.
   agent; route other lanes' changes through it.
 - Fetch right before each push, and push fast-forward only.
 - Commit identity and trailers follow [rind-git](../rind-git/SKILL.md).
+  Before committing, run `git var GIT_AUTHOR_IDENT` in that checkout: a
+  repo-local `user.name` or `user.email` overrides the global one.
   Keep local paths, host names, addresses, and device IDs out
   of committed files, results included.
+- Push the feature branch. Opening its pull request, and a comment on a
+  public thread, waits until the owner asks.
