@@ -115,13 +115,19 @@ sections and a checklist.
 
 ## CI and review
 
-Pullfrog reviews pull requests. The agent reads
-[`AGENTS.md`](AGENTS.md), which points here. Those instructions override
-Pullfrog's built-in review checklist only when they are also the Review
-PRs custom instructions (`prompts.review`). GitHub Actions is a thin
-backstop: `Check` runs `cargo xtask ci` on push and on a pull request,
-and does not split that gate into more jobs. `pullfrog.yml` only starts
-the Pullfrog action.
+Pullfrog reviews pull requests on Codex. The primary credential is a
+ChatGPT Codex subscription, linked with
+`npx pullfrog auth codex --repo steelhead99x/rind-agent` and kept in
+Pullfrog's encrypted store.
+[`.github/workflows/pullfrog.yml`](.github/workflows/pullfrog.yml) maps
+`OPENAI_API_KEY` from a repository Actions secret only as a fallback.
+This repository does not create that secret, and the workflow does not
+pin a model. The agent reads [`AGENTS.md`](AGENTS.md), which points
+here. Those instructions override Pullfrog's built-in review
+checklist only when they are also the Review PRs custom instructions
+(`prompts.review`). GitHub Actions is a thin backstop: `Check` runs
+`cargo xtask ci` on push and on a pull request, and does not split that
+gate into more jobs. `pullfrog.yml` only starts the Pullfrog action.
 
 Workflows pin every third-party action to a full commit SHA with its
 version in a trailing comment, and the checker fails on one that isn't.
