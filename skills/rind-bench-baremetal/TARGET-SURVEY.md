@@ -42,7 +42,7 @@ These five cover both CAS cases on both ISAs, and every hardware-multiply case e
 
 **Constant-time caveats for PLATFORMS.md:**
 
-- Cortex-M0/M0+/M23: `muls` is fixed-time in both implementation options. 32×32→64 products go through compiler-builtins' `__aeabi_lmul`, branch-free as of rustc 1.99.1. `admin/ct-vartime` should scan for it, because a C library linked against libgcc gets a branching routine of the same name.
+- Cortex-M0/M0+/M23: `muls` is fixed-time in both implementation options. 32×32→64 products go through compiler-builtins' `__aeabi_lmul`, branch-free as of rustc 1.99.1. `admin/ct-vartime` should scan for it, because a C library linked against libgcc gets a branching routine of the same name. In rustc 1.98.1 RP2040 bench images the same helper was measured at 74 bytes, 37 Thumb instructions, and 6 `muls`: a general 64×64→64 (low half) routine, not a 32×32 specialization.
 - Cortex-M3: `umull`/`umlal` finish early on small operands (documented), and on zero and power-of-two operands (measured). The portable backend's 32-bit limb arithmetic is therefore not constant time there. This is the same class as the Cortex-A53 entry.
 - Cortex-M33: `umull` timing is undocumented by Arm. The TRM lists early termination for the divider only. Treat it as unverified until a cycle counter on the chip measures it.
 - riscv32 without M: software multiply loops exit early, so not constant time.

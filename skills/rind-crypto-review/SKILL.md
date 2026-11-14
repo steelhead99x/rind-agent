@@ -200,6 +200,11 @@ explained in the PR.
       the portable backend, and a short aarch64 set. It does not run on
       armv7, and it denies CPU features it cannot decode. Those paths stay
       with ctgrind, `admin/ct-sde`, or `admin/ct-qemu`, as `TESTING.md` says.
+- [ ] On ARMv6-M, a carry or mask compare must not compile to `cmp`/`blo`
+      (or another secret-dependent branch). Check the thumbv6m disassembly
+      and an instruction-trace comparison, not only ctgrind. The steps are
+      in [rind-armv6m-constant-time](../rind-armv6m-constant-time/SKILL.md).
+      A widening-mul patch is not complete without branch-free carries.
 
 ## Platform rules
 
